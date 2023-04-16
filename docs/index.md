@@ -9,7 +9,7 @@ hero:
   actions:
     - theme: brand
       text: go start
-      link: /vue-ref-active
+      link: /vue-source/vue-ref-active
 
 features:
   - title: Feature A

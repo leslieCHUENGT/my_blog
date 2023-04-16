@@ -277,5 +277,106 @@ var binaryTreePaths = function(root) {
    return res;
 };
 ```
+## 左叶子之和
+
+```javascript
+var sumOfLeftLeaves = function(root) {
+    // 采用后序遍历，需要通过递归函数的返回值来累加左叶子数值和
+    // 后序遍历的同时会经过每一个节点，然后判断是否存在左叶子
+    // 进行累加即可
+    // 1. 确定递归函数参数和返回值：累加需要和为返回值
+    const nodesSum = function(node) {
+        // 2. 确定终止条件，最后的节点为空，则返回数值0
+        if(node === null) {
+            return 0;
+        }
+        // 求得左右子树左叶子的和
+        let leftValue = nodesSum(node.left);
+        let rightValue = nodesSum(node.right);
+        // 3. 单层递归逻辑
+        // 求得当前的子树是否有左叶子
+        let midValue = 0;
+        if(node.left && node.left.left === null && node.left.right === null) {
+            midValue = node.left.val;
+        }
+        // 把每个子树和当前子树的左叶子累加
+        let sum = midValue + leftValue + rightValue;
+        return sum;
+    }
+    return nodesSum(root);
+};
+
+```
+## 找树左下角的值
+
+**递归**
+```js
+// 二叉树的题目，都是去利用遍历顺序去加入一下技巧去处理的
+// 需要找到树左下角的值：在树的最后一行找到最左边的值。
+// 可以发现找到最后一行，不需要要求遍历顺序，需要去处理去标记
+// 哪一行是最后一行，于是乎，参数需要多一个
+// 来比较什么时候是最后一层
+var findBottomLeftValue = function(root) {
+    //首先考虑递归遍历 前序遍历 找到最大深度的叶子节点即可
+    let maxPath = 0, resNode = null;
+    // 1. 确定递归函数的函数参数
+    const dfsTree = function(node, curPath) {
+        // 2. 确定递归函数终止条件
+        if(!node)return;
+        // 并且左子树优先递归，在同一层上只会统计一次resNode的值
+        if(node.left === null && node.right === null) {
+            // 
+            if(curPath > maxPath) {
+            maxPath = curPath;
+            resNode = node.val;
+            }
+            return;
+        }
+        // 左节点优先递归，在同一高度下，只记录一次value。
+        dfsTree(node.left, curPath+1);
+        dfsTree(node.right, curPath+1);
+    }
+    // 高度默认为1
+    dfsTree(root,1);
+    return resNode;
+};
+```
+**层序遍历**
+
+```javascript
+var findBottomLeftValue = function(root) {
+    //考虑层序遍历 记录最后一行的第一个节点
+    let queue = [];
+    if(root === null) { 
+        return null;
+    }
+    queue.push(root);
+    let resNode;
+    while(queue.length) {
+        let length = queue.length;
+        for(let i = 0; i < length; i++) {
+            let node = queue.shift();
+            if(i === 0) {
+                resNode = node.val;
+            }
+            node.left && queue.push(node.left);
+            node.right && queue.push(node.right);
+        }
+    }
+    return resNode;
+};
+```
+
+
+
+
+
+
+
+
+
+
+
+
 
 
