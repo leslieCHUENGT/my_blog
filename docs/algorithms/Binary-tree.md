@@ -367,10 +367,134 @@ var findBottomLeftValue = function(root) {
 };
 ```
 
+## 路径总和
 
+```js
+// 本题求是否满足条件，则返回值是boolean
+// 需要判断targetSum,则需要它作为参数。
+// 无关遍历顺序，找叶子节点即可。
+// 终止条件： 
+// 判断返回值
+// 都不满足需要返回false
+var hasPathSum = function(root, targetSum) {
+    
+  // 递归法
+  const traversal = (node, cnt) => {
+    // 遇到叶子节点，并且计数为0
+    if (cnt === 0 && !node.left && !node.right) return true;
+    // 遇到叶子节点而没有找到合适的边(计数不为0)，直接返回
+    if (!node.left && !node.right) return false;
 
+    //  左（空节点不遍历）.遇到叶子节点返回true，则直接返回true
+    if (node.left && traversal(node.left, cnt - node.left.val)) return true;
+    //  右（空节点不遍历）
+    if (node.right && traversal(node.right, cnt - node.right.val)) return true;
+    return false;
+  };
+  if (!root) return false;
+  return traversal(root, targetsum - root.val);
 
+  // 精简代码:
+  // if (!root) return false;
+  // if (!root.left && !root.right && targetsum === root.val) return true;
+  // return haspathsum(root.left, targetsum - root.val) || haspathsum(root.right, targetsum - root.val);
 
+};
+```
+
+## 路径总和II
+
+```js
+var pathSum = function(root, sum) {
+    let arr = [];
+    let path = [];
+    dfs(root,  path, arr, sum);
+    return arr;
+};
+// 要求所有路径问题，需要思考到path数组的回溯过程，递归有回溯过程
+// 数组需要我们手动pop
+// 无返回值，有余值作为参数
+function dfs(root, path, arr, sum) {
+    // 终止条件
+    if(!root) return;
+    // 非空节点一律push
+    path.push(root.val);
+    // 符合条件则push
+    if(root.val == sum && root.left == null && root.right == null) {
+        arr.push([...path]);
+    }
+    // 
+    dfs(root.left, path, arr, sum - root.val);
+    dfs(root.right, path, arr, sum - root.val);
+    // 后序的pop
+    path.pop();
+}
+
+```
+
+## 从中序与后序遍历序列构造二叉树
+
+```js
+// indexof 获取下标 slice()裁剪 : 0,n裁剪0到n，参数如果为n,那么裁剪n以前的。
+// 确定参数和返回值
+// 构造二叉树，返回值是新的节点
+const buildTree = (inorder, postorder) => {
+  // 终止条件
+  if (!inorder.length) return null;
+
+  const rootValue = postorder.pop();
+  const rootIndex = inorder.indexOf(rootValue);
+  const root = new TreeNode(rootValue);
+
+  root.right = buildTree(inorder.slice(rootIndex + 1), postorder.slice(rootIndex)); // 创建右节点
+  root.left = buildTree(inorder.slice(0, rootIndex), postorder.slice(0, rootIndex)); // 创建左节点
+
+  return root;
+};
+```
+## 从前序与中序遍历序列构造二叉树
+```js
+var buildTree = function(preorder, inorder) {
+  if (!preorder.length) return null;
+  const rootVal = preorder.shift(); // 从前序遍历的数组中获取中间节点的值， 即数组第一个值
+  const index = inorder.indexOf(rootVal); // 获取中间节点在中序遍历中的下标
+  const root = new TreeNode(rootVal); // 创建中间节点
+  root.left = buildTree(preorder.slice(0, index), inorder.slice(0, index)); // 创建左节点
+  root.right = buildTree(preorder.slice(index), inorder.slice(index + 1)); // 创建右节点
+  return root;
+};
+```
+
+**前序和后序不能唯一确定一棵二叉树！，因为没有中序遍历无法确定左右部分，也就是无法分割。**
+## 最大二叉树
+
+```js
+// 解题步骤与前中、中后构造二叉树的解法如法炮制
+// 找到最大值与其索引
+// 切割、递归即可
+function constructMaximumBinaryTree(nums) {
+  if (nums.length === 0) {
+    return null;
+  }
+  // 找到最大值及其索引
+  let maxVal = nums[0];
+  let maxIndex = 0;
+  for (let i = 1; i < nums.length; i++) {
+    if (nums[i] > maxVal) {
+      maxVal = nums[i];
+      maxIndex = i;
+    }
+  }
+  // 创建根节点
+  const root = new TreeNode(maxVal);
+  // 构建左子树
+  root.left = constructMaximumBinaryTree(nums.slice(0, maxIndex));
+  // 构建右子树
+  root.right = constructMaximumBinaryTree(nums.slice(maxIndex + 1));
+  return root;
+}
+
+```
 
 
 
