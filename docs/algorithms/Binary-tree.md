@@ -1,4 +1,3 @@
-# 二叉树的遍历顺序
 
 ## 迭代法
 
@@ -45,11 +44,12 @@ var preorderTraversal = function(root) {
 ### 中
 
 ```js
+// 左左左
 var inorderTraversal = function(root, res = []) {
     // 中序遍历不同于上面的，需要先最左边的子树的节点再进行遍历
     const stack = [];// 定义空栈
     let cur = root;
-    while(stack.length || cur){
+    while(stack.length || cur){ // 栈会空，但是可以通过cur还可以指向来判断是否停止循环
         if(cur){
             stack.push(cur);
             cur = cur.left;
@@ -62,6 +62,23 @@ var inorderTraversal = function(root, res = []) {
     return res;
 }
 ```
+```js
+var inorderTraversal = function(root) {
+    const res = [];
+    const stk = [];
+    while (root || stk.length) {
+        while (root) {
+            stk.push(root);
+            root = root.left;
+        }
+        root = stk.pop();
+        res.push(root.val);
+        root = root.right;
+    }
+    return res;
+};
+```
+
 ### 后
 
 ```js
@@ -495,12 +512,355 @@ function constructMaximumBinaryTree(nums) {
 }
 
 ```
+## 合并二叉树
 
+```js
+// 自身解答存在的问题
+// 1.最后返回的是根节点，所以要在遍历后返回节点
+// 2.
+var mergeTrees = function(root1, root2) {
+        // 确定终止条件 
+        // 如果root1为null，返回root2
+        // 如果root2为null，返回root1
+        // 都不符合则返回和
+        if (!root1)
+            return root2
+        if (!root2)
+            return root1;
+        // 进行和操作
+        root1.val += root2.val;
+        // 构造新的子树
+        root1.left = preOrder(root1.left, root2.left);
+        root1.right = preOrder(root1.right, root2.right);
+};
+```
 
+```js
+var mergeTrees = function(root1, root2) {
+    // 确定终止条件 
+    if (!root1)
+        return root2
+    if (!root2)
+        return root1;
+    // 进行和操作
+    root1.val += root2.val;
+    // 构造新的子树
+    root1.left = mergeTrees(root1.left, root2.left);
+    root1.right = mergeTrees(root1.right, root2.right);
+    // 返回新的root节点
+    return root1;
+};
+```
+##  二叉搜索树中的搜索
 
+```javascript
+// 二叉树中的搜索，返回值要求是返回符合条件的节点
+// 因为是搜索二叉树，是有序的，左小右大
+// 所以if语句判断，进入分支，一旦找到了就不会进入其他分支
+var searchBST = function (root, val) {
+    // 逻辑判断放最前面好，不用担心root后序为null的情况，导致报错
+    if (!root || root.val === val) {
+        return root;//此处返回了root，后续的左右递归后可以不考虑再返回root
+    }
+    if (root.val > val)// 实际上进入该分支完成了两件事，查找，返回，此处的返回相当于后序遍历返回节点
+        return searchBST(root.left, val);
+    if (root.val < val)
+        return searchBST(root.right, val);
+};
+```
 
+## 验证搜索二叉树
 
+```js
+// 验证搜索二叉树确定参数与返回值
+// 参数：root，上下限，返回值：boolean类型
+// 遇到叶子节点，返回true即可
+// 遇到不在区间的返回false
+// 进行递归，左子树递归存在的是上限，右子树存在的是下限
+var isValidBST = function(root) {
+    const helper = (root, lower, upper) => {
+    // root为null，则到了叶子节点，返回true
+    if (root === null) {
+        return true;
+    }
+    // root.val不在给定的区间里，则返回false
+    if (root.val <= lower || root.val >= upper) {
+        return false;
+    }
+    // 左右子树只要一个不满足条件，就返回false
+    return helper(root.left, lower, root.val) && helper(root.right, root.val, upper);
+    }
+    return helper(root, -Infinity, Infinity);
+};
+```
+## 二叉搜索树的最小绝对差
 
+```js
+// 由题意可知，只要根据前后指针来判断差值的大小即可
+// 确定参数和返回值：只需要定义一个res来存储最大值即可，不需要返回值
+// 中序遍历下，是一个有序数组。
+var getMinimumDifference = function(root) {
+    let res = Infinity;
+    let preNode = null;// 前指针的初始值设置为null
+    const inorder = (node)=>{
+        //终止条件
+        if(!node)return;
+        inorder(node.left);
+        // 确保第一次进入该分支时，不会报错
+        if(preNode){
+            res = Math.min(res,node.val - preNode.val)
+        }
+        preNode = node;
+        inorder(node.right)
+    }
+    inorder(root);
+    return res;
+};
+```
 
+## 二叉搜索树中的众数
 
+```js
+var findMode = function(root) {
+    let base = -Infinity, count = 0, maxCount = 0;
+    let answer = [];
+    // 主要是学会判断众数的逻辑判断
+    // 变量定义和参数：参数是传进来的节点的val值，进入分支
+    // base 设置为前一个的val值，所有第一个分支直接判断等于与否即可
+    // 否则就count为1，base设置为x的值
+    // 判断count与maxCount的大小即可
+    const update = (x) => {
+        if (x === base) {
+            ++count;
+        } else {
+            count = 1;
+            base = x;
+        }
+        if (count === maxCount) {
+            answer.push(base);
+        }
+        if (count > maxCount) {
+            maxCount = count;
+            answer = [base];
+        }
+    }
+
+    const dfs = (o) => {
+        if (!o) {
+            return;
+        }
+        dfs(o.left);
+        update(o.val);
+        dfs(o.right);
+    }
+
+    dfs(root);
+    return answer;
+};
+```
+
+## 二叉搜索树的最近公共祖先
+
+```js
+//找到最近的公共祖先，换而言之就是找到第一个root满足在pq区间之间即可
+
+var lowestCommonAncestor = function(root, p, q) {
+    // 使用递归的方法
+    // 1. 使用给定的递归函数lowestCommonAncestor
+    // 2. 确定递归终止条件
+    // 二叉搜索树的中序遍历是有序的，但是此题并没有考虑使用，直接判断给定的区间来寻找
+    // 终止条件：遇到null则return
+    if(root === null) {
+        return
+    }
+    // 当 root.val 不在p，q区间里就需要去查找
+    // 有两种情况，都大或者都小
+    // 大的时候找小的left 小的时候找大的在right
+    if(root.val > p.val && root.val > q.val) {
+        // 向左子树查询
+         return lowestCommonAncestor(root.left,p,q);
+    }
+    if(root.val < p.val && root.val < q.val) {
+        // 向右子树查询
+        return lowestCommonAncestor(root.right,p,q);
+    }
+    // 当找到时直接返回root，其他逻辑处理是，没有返回root
+    return root;
+};
+```
+
+##
+
+```js
+// 插入操作，实际上只要找到符合条件可以插入的位置就可以
+// 如何寻找呢？由题意可知道，我们只要在该二叉搜索树中不断缩小区间
+// 直到return root为null
+// 那么可以在该节点创建新的node节点
+// 确定参数和返回值：返回值是返回新的节点
+var insertIntoBST = function(root, val) {
+      const setInOrder = (root, val) => {
+        // 缩小区间找到空节点
+        // 返回插入的新的root
+        if (root === null) {
+            let node = new TreeNode(val);
+            return node;
+        }
+        // 缩小区间，因为返回值是root，则调用递归，重新指向新的节点即root的左右重新指向
+        if (root.val > val)
+            root.left = setInOrder(root.left, val);
+        else if (root.val < val)
+            root.right = setInOrder(root.right, val);
+        // 相当于后序遍历的返回根节点
+        return root;
+    }
+    return setInOrder(root, val);
+};
+```
+
+## 删除二叉搜索树中的节点
+
+### 方法一——情况四直接手动操作
+
+```js
+// 删除二叉搜索树的一个节点，有以下几种情况：1.找不到2.是叶子节点3.左孩子在右孩子不在4.左孩子不在右孩子在5.左右孩子都不在
+// 参数与返回值：返回值，新的节点
+var deleteNode = function(root, key) {
+    // 找不到，遇到空节点，返回null节点。
+    if (root === null) return null;
+    // 找到了
+    if (root.val === key) {
+        // 叶子节点
+        if (root.left === null && root.right === null) return null;
+        // 左为空
+        if (root.left === null) return root.right;
+        // 右为空
+        if (root.right === null) return root.left;
+        // 左右都有
+        let curNode = root.right;
+        while (curNode.left !== null) {
+            curNode = curNode.left;
+        }
+        curNode.left = root.left;
+        return root.right;
+    }
+    // 不断缩小区间找到对应的节点值
+    if (root.val > key) root.left = deleteNode(root.left, key);
+    if (root.val < key) root.right = deleteNode(root.right, key);
+    // 最后递归返回根节点
+    return root;
+};
+```
+
+### 方法二——递归处理情况四
+
+```javascript
+var deleteNode = function(root, key) {
+    if (!root) return null;
+    if (key > root.val) {
+        root.right = deleteNode(root.right, key);
+        return root;
+    } else if (key < root.val) {
+        root.left = deleteNode(root.left, key);
+        return root;
+    } else {
+        // 场景1: 该节点是叶节点
+        if (!root.left && !root.right) {
+            return null
+        }
+        // 场景2: 有一个孩子节点不存在
+        if (root.left && !root.right) {
+            return root.left;
+        } else if (root.right && !root.left) {
+            return root.right;
+        }
+        // 场景3: 左右节点都存在
+        const rightNode = root.right;
+        // 获取最小值节点
+        const minNode = getMinNode(rightNode);
+        // 将待删除节点的值替换为最小值节点值
+        root.val = minNode.val;
+        // 删除最小值节点
+        root.right = deleteNode(root.right, minNode.val);
+        return root;
+    }
+};
+function getMinNode(root) {
+    while (root.left) {
+        root = root.left;
+    }
+    return root;
+}
+```
+## 修建二叉树
+
+```javascript
+// 思考：root.val不在区间里，那么放弃左子树或者右子树
+// 然后再返回裁剪的右子树或者左子树
+var trimBST = function(root, low, high) {
+    if (!root) {
+        return null;
+    }
+    if (root.val < low) {
+        // 左子树都不符合，返回裁剪的右子树
+        return trimBST(root.right, low, high);
+    } else if (root.val > high) {
+        // 右子树都不符合，返回裁剪的左子树
+        return trimBST(root.left, low, high);
+    } 
+    // 重新指向返回裁剪后的子树
+    root.left = trimBST(root.left, low, high);
+    root.right = trimBST(root.right, low, high);
+    // 递归返回根节点
+    return root;
+};
+```
+
+## 将有序数组转换为二叉搜索树
+
+**Math.floor**保证是向下保留为整数
+```js
+// 有序数组转换为搜索二叉树，则中间节点就是根节点
+// 所以参数：arr，左边界，右边界；返回值就是新的节点
+// 本质就是寻找分割点，分割点作为当前节点，然后递归左区间和右区间。
+var sortedArrayToBST = function (nums) {
+    // 确定参数和返回值
+    // 参数：传进来的数组，左右边界
+    const buildTree = (Arr, left, right) => {
+        // 终止条件
+        // 当左边界大于右边界的时候，返回null即可
+        if (left > right)
+            return null;
+        // 计算切割点mid的位置大小
+        let mid = Math.floor(left + (right - left) / 2);
+        // 建立新的节点
+        let root = new TreeNode(Arr[mid]);
+        // 遍历左右区间
+        root.left = buildTree(Arr, left, mid - 1);
+        root.right = buildTree(Arr, mid + 1, right);
+        // 返回root节点
+        return root;
+    }
+    return buildTree(nums, 0, nums.length - 1);
+};
+```
+
+## 把二叉搜索树转换为累加树
+```js
+// 从树中可以看出累加的顺序是右中左，所以我们需要反中序遍历这个二叉树，然后顺序累加就可以了。
+var convertBST = function(root) {
+    // 设置pre的初始值
+    let pre = 0;
+    const ReverseInOrder = (cur) => {
+        // 终止条件
+        if(!cur) return;
+        // 右中左
+        ReverseInOrder(cur.right);
+        cur.val += pre;
+        pre = cur.val;
+        ReverseInOrder(cur.left);
+    }
+    ReverseInOrder(root);
+    return root;
+};
+```
 
