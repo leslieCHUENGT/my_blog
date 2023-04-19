@@ -72,7 +72,7 @@ ChildrenFlags.MULTIPLE_VNODES =
 
 ```
 
-## h函数的min版本
+## h函数
 
 ### 确定h函数的参数和返回值
 

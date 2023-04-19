@@ -23,7 +23,8 @@ export default defineConfig({
       {
         text: '数据结构与算法',
         items: [
-          { text: '二叉树', link: '/algorithms/Binary-tree' }
+          { text: '二叉树', link: '/algorithms/Binary-tree' },
+          { text: '回溯算法', link: '/algorithms/Backtracking' }
         ]
       }
     ],

@@ -67,10 +67,12 @@ var inorderTraversal = function(root) {
     const res = [];
     const stk = [];
     while (root || stk.length) {
+        // 把一边上的所有的左孩子都入栈
         while (root) {
             stk.push(root);
             root = root.left;
         }
+        // 中序遍历，左中右
         root = stk.pop();
         res.push(root.val);
         root = root.right;
@@ -82,6 +84,8 @@ var inorderTraversal = function(root) {
 ### 后
 
 ```js
+// 后序遍历的迭代法，基本与前序遍历的一样
+// 左右孩子入栈的顺序不同，最后记得翻转
 var postorderTraversal = function(root, res = []) {
     if (!root) return res;
     const stack = [root];
@@ -99,12 +103,15 @@ var postorderTraversal = function(root, res = []) {
 
 ```javascript
 var levelOrder = function(root) {
-    //二叉树的层序遍历
+    //二叉树的层序遍历，用队列来完成的，循环条件是队列的长度即可，空则跳出。
+    //层序遍历，则需要每一层的节点，则需要添加for循环来存放节点，每一次存放节点的同时
+    //需要把左右孩子也入列，res存储结果即可
     let res = [], queue = [];
-    queue.push(root);
+
     if(root === null) {
         return res;
     }
+    queue.push(root);
     // 因为结果要求[[],[]],所以在while循环中，嵌套for循环，方便把每一层都存放在数组里面，
     //此时每遍历一个节点就可以把他的左右孩子放入队列中，方便后续的遍历
     while(queue.length ) {
@@ -237,6 +244,7 @@ var countNodes = function(root) {
         //单层
         let leftNum = getNodeSum(node.left);
         let rightNum = getNodeSum(node.right);
+        // 后序遍历，直接向上累加了
         return 1+leftNum+rightNum;
     };
     return getNodeSum(root);
