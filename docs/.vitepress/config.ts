@@ -24,7 +24,9 @@ export default defineConfig({
         text: '数据结构与算法',
         items: [
           { text: '二叉树', link: '/algorithms/Binary-tree' },
-          { text: '回溯算法', link: '/algorithms/Backtracking' }
+          { text: '回溯算法', link: '/algorithms/Backtracking' },
+          { text: '贪心算法', link: '/algorithms/Greedy' },
+          { text: '动态规划',link: '/algorithms/Dynamic-programming'}
         ]
       }
     ],
