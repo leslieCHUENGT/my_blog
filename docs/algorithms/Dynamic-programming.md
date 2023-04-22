@@ -165,7 +165,7 @@ function testWeightBagProblem(wight, value, size) {
     const dp = Array(size + 1).fill(0);
     for(let i = 0;i < len;i++){// 01背包问题，先遍历物品。
         for(let j = size;j >= wight[i];j--){
-            // 倒叙遍历，不会影响前一次物品遍历的基本数据，
+            // 倒叙遍历，不会影响前一次物品遍历的基本数据
             // for循环的条件就是背包的剩余容量要大于本次物品的重量
             dp[j] = Math.max(dp[j],value[i] + dp[j - wight[i]]);
         }
@@ -177,8 +177,158 @@ function testWeightBagProblem(wight, value, size) {
 # 分割等和子集
 
 ```js
+// 为什么是01背包问题？给定数组从中拿出元素，容量确定，是否可以装。
+// 本质是什么呢？就是当前的物品是否装，会直接影响下一次的装与不装或者说装不装的下
+
+var canPartition = function(nums) {
+    const sum = nums.reduce((p,v)=>p+v);// 求和
+    const len = nums.length;
+    if(sum & 1)return false;// sum & 1 尾运算来判断是否是奇数
+    // 确定背包容量：sum+1 -> 012345
+    const dp = Array(sum/2 + 1).fill(0);
+    for(let i = 0;i < len;i++){
+        for(let j = sum/2;j >= nums[i];j--){
+            dp[j] = Math.max(dp[j],dp[j - nums[i]] + nums[i])
+            if(dp[j] === sum)return true;
+        }
+    }
+    return false;
+};
+```
+
+# 最后一块石头的重量
+
+```js
+var lastStoneWeightII = function (stones) {
+    const sum = stones.reduce((p,v)=>p+v);
+    const dpLen = Math.floor(sum/2);//js默认会处理成小数，需要用.floor来处理
+    const dp = Array(1+dpLen).fill(0);
+
+    for(let i =0;i < stones.length;i++){
+        for(let j = dpLen;j >= stones[i];j--){
+            dp[j] = Math.max(dp[j],dp[j - stones[i]] + stones[i])
+        }
+    }
+    return sum - dp[dpLen] * 2;
+};
+```
+# 目标和
+
+```javascript
+// 确定dp数组的含义：有dp[i]种方法使得目标和成立
+// 递推公式：涉及方法的递推直接累加就完事dp[j] += dp[j - nums[i]]
+// 初始化:dp[0] = 1,否则后序遍历dp数组的所有元素都是0
+// 遍历顺序：经典01背包找最多方法的问题，先遍历物品，0 -> nums.length,再遍历背包 size -> j-nums[i] => 0
+const findTargetSumWays = (nums, target) => {
+    const sum = nums.reduce((p,v)=>p+v);
+    // 判断基本条件
+    if(Math.abs(target) > sum)return 0;
+    if((target + sum) % 2)return 0;
+    const halfSum = (target + sum) / 2;
+
+    let dp = Array(halfSum + 1).fill(0);
+    dp[0] = 1;
+
+    for(let i = 0;i < nums.length;i++){
+        for(let j = halfSum;j >= nums[i];j--){
+            dp[j] += dp[j - nums[i]];
+        }
+    }
+    return dp[halfSum];
+};
+```
+
+# 一和零(最长子集问题)
+
+
+```js
+// 实质就是01背包装的最大个数（价值）问题
+const findMaxForm = (strs, m, n) => {
+    const dp = Array.from(Array(m+1), () => Array(n+1).fill(0));
+    let numOfZeros, numOfOnes;
+    // 物品
+    for(let str of strs) {
+        numOfZeros = 0;
+        numOfOnes = 0;    
+        for(let c of str) {
+            if (c === '0') {
+                numOfZeros++;
+            } else {
+                numOfOnes++;
+            }
+        }   
+            // 背包
+            for(let i = m; i >= numOfZeros; i--) {
+                for(let j = n; j >= numOfOnes; j--) {
+                    dp[i][j] = Math.max(dp[i][j], dp[i - numOfZeros][j - numOfOnes] + 1);
+                }
+            }
+    }
+    return dp[m][n];
+};
+```
+
+# 完全背包
+
+```js
+// 先遍历物品，再遍历背包容量
+function test_completePack1() {
+    let weight = [1, 3, 5]
+    let value = [15, 20, 30]
+    let bagWeight = 4 
+    let dp = new Array(bagWeight + 1).fill(0)
+
+    for(let i = 0; i <= weight.length; i++) {
+        for(let j = weight[i]; j <= bagWeight; j++) {
+            dp[j] = Math.max(dp[j], dp[j - weight[i]] + value[i])
+        }
+    }
+
+    console.log(dp)
+}
+
+// 先遍历背包容量，再遍历物品
+function test_completePack2() {
+    let weight = [1, 3, 5]
+    let value = [15, 20, 30]
+    let bagWeight = 4 
+    let dp = new Array(bagWeight + 1).fill(0)
+
+    for(let j = 0; j <= bagWeight; j++) {
+        for(let i = 0; i < weight.length; i++) {
+            if (j >= weight[i]) {
+                dp[j] = Math.max(dp[j], dp[j - weight[i]] + value[i])
+            }
+        }
+    }
+
+    console.log(2, dp);
+}
+```
+
+
+# 零钱兑换
+
+```javascript
+const change = (amount, coins) => {
+    let dp = Array(amount + 1).fill(0);
+    dp[0] = 1;
+    for(let i =0; i < coins.length; i++) {
+        for(let j = coins[i]; j <= amount; j++) {
+            dp[j] += dp[j - coins[i]];
+        }
+    }
+    return dp[amount];
+}
 
 ```
+
+
+
+
+
+
+
 
 
 
