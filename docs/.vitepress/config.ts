@@ -17,7 +17,8 @@ export default defineConfig({
         items: [
           { text: 'vue响应式原型', link: '/vue-source/vue-ref-active' },
           { text: 'h函数', link: '/vue-source/h' },
-          { text: 'render', link: '/vue-source/render'}
+          { text: 'render', link: '/vue-source/render' },
+          { text: 'react的Diff算法',link: '/vue-source/react-diff' }
         ]
       },
       {
@@ -27,6 +28,12 @@ export default defineConfig({
           { text: '回溯算法', link: '/algorithms/Backtracking' },
           { text: '贪心算法', link: '/algorithms/Greedy' },
           { text: '动态规划',link: '/algorithms/Dynamic-programming'}
+        ]
+      },
+      {
+        text: 'js',
+        items: [
+          { text: 'promiseA+规范', link: '/js/promiseA+' }
         ]
       }
     ],

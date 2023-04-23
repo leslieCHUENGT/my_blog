@@ -81,87 +81,6 @@ function mountText(vnode, container) {
 }
 ```
 
-# mountFragment
-
-```js
-function mountFragment(vnode, container, isSVG) {
-  const { children, childFlags } = vnode
-  switch (childFlags) {
-    case ChildrenFlags.SINGLE_VNODE:
-      mount(children, container, isSVG)
-      // 单个子节点，就指向该节点
-      vnode.el = children.el
-      break
-    case ChildrenFlags.NO_CHILDREN:
-      const placeholder = createTextVNode('')
-      mountText(placeholder, container)
-      // 没有子节点指向占位的空文本节点
-      vnode.el = placeholder.el
-      break
-    default:
-      for (let i = 0; i < children.length; i++) {
-        mount(children[i], container, isSVG)
-      }
-      // 多个子节点，指向第一个子节点
-      vnode.el = children[0].el
-  }
-}
-```
-# mountPortal
-
-```javascript
-function mountPortal(vnode, container) {
-  const { tag, children, childFlags } = vnode
-  const target = typeof tag === 'string' ? document.querySelector(tag) : tag
-  if (childFlags & ChildrenFlags.SINGLE_VNODE) {
-    mount(children, target)
-  } else if (childFlags & ChildrenFlags.MULTIPLE_VNODES) {
-    for (let i = 0; i < children.length; i++) {
-      mount(children[i], target)
-    }
-  }
-
-  // 占位的空文本节点
-  const placeholder = createTextVNode('')
-  // 将该节点挂载到 container 中
-  mountText(placeholder, container, null)
-  // el 属性引用该节点
-  vnode.el = placeholder.el
-}
-```
-
-# Component
-
-```javascript
-function mountComponent(vnode, container, isSVG) {
-  if (vnode.flags & VNodeFlags.COMPONENT_STATEFUL) {
-    mountStatefulComponent(vnode, container, isSVG)
-  } else {
-    mountFunctionalComponent(vnode, container, isSVG)
-  }
-}
-
-function mountStatefulComponent(vnode, container, isSVG) {
-  // 创建组件实例
-  const instance = new vnode.tag()
-  // 渲染VNode
-  instance.$vnode = instance.render()
-  // 挂载
-  mount(instance.$vnode, container, isSVG)
-  // el 属性值 和 组件实例的 $el 属性都引用组件的根DOM元素
-  instance.$el = vnode.el = instance.$vnode.el
-}
-
-function mountFunctionalComponent(vnode, container, isSVG) {
-  // 获取 VNode
-  const $vnode = vnode.tag()
-  // 挂载
-  mount($vnode, container, isSVG)
-  // el 元素引用该组件的根元素
-  vnode.el = $vnode.el
-}
-
-```
 
 # patchData
 
@@ -206,5 +125,10 @@ export function patchData(el, key, prevValue, nextValue) {
 }
 
 ```
+
+
+
+
+
 
 
