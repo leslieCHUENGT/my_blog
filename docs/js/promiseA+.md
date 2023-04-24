@@ -484,19 +484,19 @@ function resolvePromise(promise2, x, resolve, reject){
   }
 }
 //resolve方法
-Promise.resolve = function(val){
+myPromise.resolve = function(val){
   return new Promise((resolve,reject)=>{
     resolve(val)
   });
 }
 //reject方法
-Promise.reject = function(val){
+myPromise.reject = function(val){
   return new Promise((resolve,reject)=>{
     reject(val)
   });
 }
 //race方法 
-Promise.race = function(promises){
+myPromise.race = function(promises){
   return new Promise((resolve,reject)=>{
     for(let i=0;i<promises.length;i++){
       promises[i].then(resolve,reject)
@@ -504,30 +504,338 @@ Promise.race = function(promises){
   })
 }
 //all方法(获取所有的promise，都执行then，把结果放到数组，一起返回)
-Promise.all = function(promises){
-  let arr = [];
-  let i = 0;
-  function processData(index,data){
-    arr[index] = data;
-    i++;
-    if(i == promises.length){
-      resolve(arr);
-    };
-  };
-  return new Promise((resolve,reject)=>{
-    for(let i=0;i<promises.length;i++){
-      promises[i].then(data=>{
-        processData(i,data);
-      },reject);
-    };
+Promise.all = (promises) => {
+    // 检查是否是可迭代类型
+    // Symbol.iterator 为每一个对象定义了默认的迭代器。该迭代器可以被 for...of 循环使用。
+    if (! typeof promises[Symbol.iterator] === 'function') {
+        return Promise.reject();
+    }
+    let doneCount = 0;// 执行成功计数器
+    let results = [];// 执行结果数组
+    return new Promise((resolve, reject) => {
+         // Object.entries将promises转换为[ ['0', 'a'], ['1', 'b'], ['2', 'c'] ]这种键值对数组，便于获取索引
+        for (const [index, item] of Object.entries(promises)) {
+            // 保证数组内接收的元素都是promise实例对象
+            Promise.resolve(item).then((res) => {
+                results[index] = res;
+                doneCount++;
+                if (doneCount === promises.length) return resolve(results);
+            }).catch(err => {
+                reject(err);
+            })
+        }
+    })
+}
+``` 
+- Promise.all() 方法`接收一个 promise 的 iterable 类型`（注：Array，Map，Set 都属于 ES6 的 iterable 类型）的输入，并且`只返回一个Promise实例`，那个输入的所有 promise 的 resolve 回调的结果是一个数组。这个Promise的 resolve 回调执行是在所有输入的 promise 的 resolve 回调都结束，或者输入的 iterable 里没有 promise 了的时候。它的 reject 回调执行时，只要任何一个输入的 promise 的 reject 回调执行或者输入不合法的 promise 就会立即抛出错误，并且 reject 的是第一个抛出的错误信息。
+- for of 比forEach靠谱
+
+**`event loop`它的执行顺序：**
+
+-   一开始整个脚本作为一个宏任务执行
+-   执行过程中同步代码直接执行，宏任务进入宏任务队列，微任务进入微任务队列
+-   当前宏任务执行完出队，检查微任务列表，有则依次执行，直到全部执行完
+-   执行浏览器UI线程的渲染工作
+-   检查是否有`Web Worker`任务，有则执行
+-   执行完本轮的宏任务，回到2，依此循环，直到宏任务和微任务队列都为空
+
+**微任务包括：** `MutationObserver`、`Promise.then()或catch()`、`Promise为基础开发的其它技术，比如fetch API`、`V8`的垃圾回收过程、`Node独有的process.nextTick`。
+
+**宏任务包括**：`script` 、`setTimeout`、`setInterval` 、`setImmediate` 、`I/O` 、`UI rendering`。
+
+**注意**⚠️：在所有任务开始的时候，由于宏任务中包括了`script`，所以浏览器会先执行一个宏任务，在这个过程中你看到的延迟任务(例如`setTimeout`)将被放到下一轮宏任务中来执行。
+
+  
+## 使用Promise实现每隔1秒输出1,2,3
+
+```js
+// 实现思路：关键是理清reduce的用法以及Promise链式调用的原理
+// reduce的第二参数是默认值，会先执行，需要设置为Promise()才会执行.then方法
+// 方便后续的.then链式调用
+// 在reduce第一个参数里直接return的是Promise实例，直接.then
+// .then的参数是一个函数，里面return一个new Promise里面完成延迟打印和resolve()
+const oneToThree = () =>{
+  const arr = [1,2,3];
+  arr.reduce((prev,next) => {
+    return prev.then(() => {
+      return new Promise((resolve) => {
+        setTimeout(() => {
+          console.log(next);
+          resolve();
+        },1000)
+      })
+    })
+  },Promise.resolve())
+}
+```
+##  使用Promise实现红绿灯交替重复亮
+
+```js
+
+function red() {
+  console.log("red");
+}
+function green() {
+  console.log("green");
+}
+function yellow() {
+  console.log("yellow");
+}
+
+const light = (timer,cb) => {
+  return new Promise(resolve => {
+    setTimeout(() => {
+      cb();
+      resolve();
+    },timer)
+  })
+}
+// 实现思路：先封装一个通用的函数light，它的返回值是一个Promise对象，需要再.then()方法里面调用
+// 只有返回值是Promise才可以进行.then方法的链式调用
+// 
+const step = () => {
+  Promise.resolve().then(() => {
+    return light(3000,red);
+  }).then(() => {
+    return light(2000,green);
+  }).then(() => {
+    return light(1000, yellow)
+  })
+}
+
+step();
+```
+
+```js
+async function lightStep() {
+    await light(red, 3000);
+    await light(yellow, 2000);
+    await light(green, 1000);
+    await lightStep();
+}
+```
+## 封装一个异步加载图片的方法
+
+```js
+
+function loadImage(url){
+  return new Promise((resolve,reject) => {
+    const img = new Image();
+    img.onload = () => {
+      console.log('图片加载完成')
+      resolve(img);
+    }
+    img.onerror = () => {
+      reject(new Error('ERROR!'))
+    }
+    img.src = url;
+  })
+}
+```
+## 限制异步操作的并发个数并尽可能快的完成全部
+
+[面试 JS 篇 - Promise 相关面试题 - 掘金 (juejin.cn)](https://juejin.cn/post/7217637205589721148)
+
+## Promise 的含义
+- Promise 是`异步编程`的一种解决方案，比传统的解决方案——回调函数和事件——更合理和更强大。
+- 从语法上说，Promise 是一个对象，从它可以`获取异步操作的结果`。Promise 提供统一的 API，`各种异步操作`都可以用`同样的方法进行处理`。
+- 特点
+  - 对象的状态不受外界影响。
+    - `只有异步操作的结果，可以决定当前是哪一种状态，任何其他操作都无法改变这个状态。`
+  - 一旦状态改变，就不会再变，任何时候都可以得到这个结果。
+  - 此外，Promise对象提供统一的接口，使得控制异步操作更加容易。
+- 缺点
+  - 无法取消`Promise`，一旦新建它就会立即执行，无法中途取消
+  - `如果不设置回调函数`，Promise内部抛出的`错误`，`不会反应到外部`。
+  - 当处于`pending状态`时，无法得知目前`进展到哪一个阶段`
+
+## Promise.prototype.catch()
+- Promise.prototype.catch()方法是`.then(null, rejection)`或.then(undefined, rejection)的`别名`，`用于指定发生错误时的回调函数`。
+
+```javascript
+// bad
+promise
+  .then(function(data) {
+    // success
+  }, function(err) {
+    // error
+  });
+
+// good
+promise
+  .then(function(data) { //cb
+    // success
+  })
+  .catch(function(err) {
+    // error
+  });
+```
+- Promise `内部的错误`不会影响到 Promise 外部的代码，通俗的说法就是“Promise `会吃掉错误`”。
+- Promise 对象的错误具有“冒泡”性质，会一直向后传递，直到被捕获为止。也就是说，`错误总是会被下一个catch语句捕获`。
+- 上面代码中，`第二个catch()方法用来捕获前一个catch()方法抛出的错误`。这句话可以反应.catch方法的实质就是.then(null,rejection)，两个promise链式调用，需要两个catch来把错误冒泡传递
+
+## Promise.prototype.finally() 
+- 不管`promise`最后的状态，在执行完`then或catch`指定的回调函数以后，都会执行`finally`方法指定的回调函数。
+- finally本质上是`then`方法的特例。
+  - 如果不使用finally方法，同样的语句需要为成功和失败两种情况各写一次。有了finally方法，则只需要写一次。
+
+## Promise.try() 
+- 不知道或者不想区分，函数f是`同步函数还是异步操作`，但是想用 Promise 来处理它。
+```js
+const f = () => console.log('now');
+(
+  () => new Promise(
+    resolve => resolve(f())
+  )
+)();
+console.log('next');
+// now
+// next
+```
+- 上面代码也是使用立即执行的匿名函数，执行new Promise()。这种情况下，同步函数也是同步执行的。
+
+- 鉴于这是一个很常见的需求，所以现在有一个提案，提供Promise.try方法替代上面的写法。
+```js
+const f = () => console.log('now');
+Promise.try(f);
+console.log('next');
+// now
+// next
+```
+```
+try {
+  database.users.get({id: userId})
+  .then(...)
+  .catch(...)
+} catch (e) {
+  // ...
+}
+```
+
+上面这样的写法就很笨拙了，这时就可以统一用`promise.catch()`捕获所有同步和异步的错误。
+
+```
+Promise.try(() => database.users.get({id: userId}))
+  .then(...)
+  .catch(...)
+```
+
+事实上，`Promise.try`就是模拟`try`代码块，就像`promise.catch`模拟的是`catch`代码块。
+
+## promise设置超时请求
+```javascript
+// 实现的原理就是通过promise.race来完成的
+// 定义一个函数来返回一个Promise.race的结果，因此参数设置为两个
+// 一个就是promise函数（任务），另一个也是promise实例对象，用来比较的。
+// 执行该函数，然后.then方法打印以及.catch来处理错误
+function promiseTimeout(promise,delay){
+  let timeout = new Promise((resolve,reject) => {
+    setTimeout(() => {
+      reject('超时啦')；
+    },delay);
+  })
+  return Promise.race([promise,timeout]);
+}
+function foo(){
+  return Promise((resolve,reject) => {
+    setTimeout(() =>{
+      reslove('request sucess!')
+    },3000)
+  })
+}
+promiseTimeout(foo(),2000)
+  .then((data)=>{
+    console.log(data)
+  }).catch((err)=>{
+    console.error(err)
+  })
+```
+## 利用promise将十张图片上传到后端，要求同时最多上传三张，当有一张上传完成后，若有未上传的，则递交进来，直到上传完成
+
+```js
+function uploadImageToServer(image) {
+  // replace with your actual upload function
+  // 这里应该是实际的上传函数，需要根据具体情况进行替换
+  return Promise.resolve();
+}
+
+function uploadImages(images){
+  const MAX_CONCURRENT_UPLOADS = 3;// 最大并发上传数
+  let currentIndex = 0; // 当前上传的图片索引
+  
+  function uploadNext(){
+    if (currentIndex >= images.length) {// 如果所有图片都已经上传成功，则返回
+      return Promise.resolve();
+    }
+
+    const currentBatch = images.slice(currentIndex, currentIndex + MAX_CONCURRENT_UPLOADS);
+    currentIndex += MAX_CONCURRENT_UPLOADS;// 更新当前上传的图片索引
+    
+    const uoloadPromises = currentBatch.map(image => {
+      return uploadImageToServer(image);// 将当前批次的图片上传到服务器
+    })
+    // 当前批次的所有图片上传完成后，递归调用自身以上传下一个批次的图片
+    return Promise.all(uploadPromises).then(uploadNext);
+  }
+  return uploadNext();
+}
+
+const images = [];
+uploadImages(images)
+.then(() => {
+  console.log('All images uploaded successfully!');
+}).catch((err) => { 
+  reject(err);
+})
+```
+## 以下是ES5实现Promise.all
+
+```javascript
+function promiseAll(promises) {
+  return new Promise(function(resolve, reject) {
+    if (typeof promises[Symbol.iterator] !== 'function') {
+      return reject(new TypeError("arguments must be iterable"));
+    }
+    var resolvedCount = 0;
+    var promiseNum = promises.length;
+    var resolvedValues = new Array(promiseNum);
+    for (var i = 0; i < promiseNum; i++) {
+      (function(i) {
+        Promise.resolve(promises[i]).then(function(value) {
+          resolvedCount++;
+          resolvedValues[i] = value;
+          if (resolvedCount == promiseNum) {
+            return resolve(resolvedValues);
+          }
+        }, function(reason) {
+          return reject(reason);
+        });
+      })(i);
+    }
   });
 }
-```  
+```
+## ES6的语法糖async/await实现promise.all
 
+```javascript
+const promiseAll = async (iterable) => {
+  if (typeof iterable[Symbol.iterator] !== 'function') {
+    throw new TypeError("arguments must be iterable");
+  }
+  const resolvedValues = [];
+  for await (const promise of iterable) {
+    resolvedValues.push(await Promise.resolve(promise));
+  }
+  return resolvedValues;
+}
+```
 
-
-
-
-
+## 常见面试题
+- promise原理
+- promise作用
+- 利用promise将十张图片上传到后端，要求同时最多上传三张，当有一张上传完成后，若有未上传的，则递交进来，直到上传完成
+- 回调地狱
+  - **回调函数的层层嵌套**，就叫做回调地狱。回调地狱会造成代码可**复用性不强**，**可阅读性差**，**可维护性(迭代性差)**，**扩展性**差等等问题
+- promise设置超时请求
 
 

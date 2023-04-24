@@ -166,3 +166,5 @@ myPromise.all = function (promises) {
   });
 };
 
+// 手写promise.all方法
+
