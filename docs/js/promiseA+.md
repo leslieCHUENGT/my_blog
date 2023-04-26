@@ -817,6 +817,10 @@ function promiseAll(promises) {
 ```
 ## ES6的语法糖async/await实现promise.all
 
+在这段代码中，for循环使用`await`关键字是因为它遍历了一个异步迭代器。异步迭代器是一种特殊类型的迭代器，它返回一个Promise对象，该对象在迭代下一个值时解析。
+对于异步迭代器，`for await...of`语法用于遍历异步序列（即由两个或多个异步操作组成的序列）。每次遍历都会暂停执行，直到当前Promise被解析并返回结果。这样可以确保在继续处理下一个迭代之前，先等待上一个迭代完成。
+在这段代码中，通过使用`await`关键字来等待每个Promise对象被解决，然后将解决的值添加到`resolvedValues`数组中，最后返回该数组。
+
 ```javascript
 const promiseAll = async (iterable) => {
   if (typeof iterable[Symbol.iterator] !== 'function') {
@@ -827,6 +831,32 @@ const promiseAll = async (iterable) => {
     resolvedValues.push(await Promise.resolve(promise));
   }
   return resolvedValues;
+}
+```
+
+```javascript
+//all方法(获取所有的promise，都执行then，把结果放到数组，一起返回)
+Promise.all = (promises) => {
+    // 检查是否是可迭代类型
+    // Symbol.iterator 为每一个对象定义了默认的迭代器。该迭代器可以被 for...of 循环使用。
+    if (! typeof promises[Symbol.iterator] === 'function') {
+        return Promise.reject();
+    }
+    let doneCount = 0;// 执行成功计数器
+    let results = [];// 执行结果数组
+    return new Promise((resolve, reject) => {
+         // Object.entries将promises转换为[ ['0', 'a'], ['1', 'b'], ['2', 'c'] ]这种键值对数组，便于获取索引
+        for (const [index, item] of Object.entries(promises)) {
+            // 保证数组内接收的元素都是promise实例对象
+            Promise.resolve(item).then((res) => {
+                results[index] = res;
+                doneCount++;
+                if (doneCount === promises.length) return resolve(results);
+            }).catch(err => {
+                reject(err);
+            })
+        }
+    })
 }
 ```
 

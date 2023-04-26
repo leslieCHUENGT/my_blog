@@ -121,14 +121,6 @@ https://developer.mozilla.org/zh-CN/docs/Glossary/Scope
 - ES6 规定，Promise对象是一个构造函数，用来生成Promise实例。
 - 把一个**函数当作参数传递**，传递的是函数的定义**并不会立即执行**，而是在将来**特定的时机再去调用**，这个函数就叫做回调函数。在定时器setTimeout以及Ajax的请求时都会用到回调函数。
 
-
-
-
-
-
-
-
-
 # Set Map symbol
 ![](../ES6_ryf/assets/img/4.png)
 ![Symbol](../ES6_ryf/assets/img/4.png)
@@ -150,8 +142,36 @@ https://developer.mozilla.org/zh-CN/docs/Glossary/Scope
 每次单个宏任务执行完毕后，检查微任务(microTask)队列是否为空，如果不为空的话，会按照先入先出的规则全部执行完微任务(microTask)后，设置微任务(microTask)队列为null，然后再执行宏任务，如此循环
 
 
+# Generator
+- Generator 函数是 ES6 提供的一种异步编程解决方案，语法行为与传统函数完全不同。
+- 首先可以把它理解成，`Generator 函数是一个状态机，封装了多个内部状态`。
+- 执行 Generator 函数会`返回一个遍历器对象`，也就是说，Generator 函数除了状态机，`还是一个遍历器对象生成函数`。返回的遍历器对象，可以`依次遍历 Generator 函数内部的每一个状态`。
+- 形式上，Generator 函数是一个普通函数，但是有两个特征。一是，function关键字与函数名之间有一个星号；二是，函数体内部使用yield表达式，定义不同的内部状态（yield在英语里的意思就是“产出”）。
 
+## 应用场景
+### 异步操作的同步化表达
 
+```js
+function * loadUI(){
+  showLoadingScreen();
+  yield loadUIData();
+  hideLoadingScreen();
+}
+//第一次调用loadUI函数时，该函数不会执行，仅返回一个遍历器。
+const loader = loadUI();
+
+// 加载UI
+loader.next();
+// 卸载UI
+loader.next();
+
+```
+
+### 控制流管理
+
+### 部署 Iterator 接口
+
+### 作为数据结构 
 
 
 
