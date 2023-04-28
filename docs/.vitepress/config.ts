@@ -33,9 +33,11 @@ export default defineConfig({
       {
         text: 'js',
         items: [
-          { text: 'promiseA+规范', link: '/js/promiseA+' }
+          { text: 'promiseA+规范', link: '/js/promiseA+' },
+          { text: '经典的js手写题',link: '/interview/hand_js' }
         ]
-      }
+      },
+    
     ],
 
     socialLinks: [

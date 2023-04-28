@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Progress Singleton Demo</title>
+  <style>
+    .progress {
+      width: 200px;
+      height: 10px;
+      background-color: #eee;
+      border-radius: 5px;
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      display: none;
+    }
+    .bar {
+      width: 0;
+      height: 100%;
+      background-color: #007bff;
+      border-radius: 5px;
+      transition: width 1s ease-in-out;
+    }
+  </style>
+</head>
+<body>
+  <button id="btn-load">Load Data</button>
+
+  <script>
+    // 定义 Progress 单例对象
+    const Progress = (() => {
+      let instance;
+
+      const createInstance = () => {
+        const progress = document.createElement('div');
+        progress.className = 'progress';
+        const bar = document.createElement('div');
+        bar.className = 'bar';
+        progress.appendChild(bar);
+        document.body.appendChild(progress);
+        return progress;
+      };
+
+      return {
+        // 获取 Progress 实例
+        getInstance() {
+          if (!instance) {
+            instance = createInstance();
+          }
+          return instance;
+        },
+
+        // 显示进度条
+        show() {
+          const progress = this.getInstance();
+          progress.style.display = 'block';
+        },
+
+        // 隐藏进度条
+        hide() {
+          const progress = this.getInstance();
+          progress.style.display = 'none';
+        },
+
+        // 更新进度条
+        update(percent) {
+          const progress = this.getInstance();
+          const bar = progress.querySelector('.bar');
+          bar.style.width = `${percent}%`;
+        },
+      };
+    })();
+
+    // 加载数据并显示进度条
+    document.getElementById('btn-load').addEventListener('click', () => {
+      Progress.show(); // 显示进度条
+
+      const xhr = new XMLHttpRequest();
+      xhr.open('GET', 'https://jsonplaceholder.typicode.com/todos/1', true);
+      xhr.onreadystatechange = () => {
+        if (xhr.readyState === 4 && xhr.status === 200) {
+          Progress.update(100); // 更新进度条
+          setTimeout(() => {
+            Progress.hide(); // 隐藏进度条
+          }, 500);
+        }
+      };
+      xhr.onprogress = (e) => {
+        const percent = Math.round((e.loaded / e.total) * 100);
+        Progress.update(percent); // 更新进度条
+      };
+      xhr.send(null);
+    });
+  </script>
+</body>
+</html>
