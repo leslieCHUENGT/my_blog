@@ -81,6 +81,135 @@ vw ，就是`根据窗口的宽度`，`分成100等份`，`100vw就表示满宽`
 **rem**：相对单位，可理解为`root em`, 相对根节点`html`的字体大小来计算
 **vh、vw**：主要用于页面视口大小布局，在页面布局上更加方便简单
 
+# 1px问题
+
+# css中，有哪些方式可以隐藏页面元素？区别?
+通过`css`实现隐藏元素方法有如下：
+
+- `display:none`
+- `visibility:hidden`
+- `opacity:0`
+- `设置height、width模型属性为0`
+- `position:absolute`
+- `clip-path`
+
+## display:none
+- 将元素设置为display:none后，元素在页面上将`彻底消失`
+- 元素本身占有的空间就会被其他元素占有，也就是说它会`导致浏览器的重排和重绘`
+- 消失后，自身绑定的事件不会触发，也不会有过渡效果
+
+特点：`元素不可见，不占据空间，无法响应点击事件、导致浏览器的重排和重绘`
+
+## visibility:hidden
+- `特点：元素不可见，占据页面空间，无法响应点击事件、不会触发重排，但是会触发重绘`
+
+## opacity:0
+`opacity`属性表示元素的透明度，将元素的透明度设置为0后，在我们用户眼中，元素也是隐藏的
+
+`不会引发重排，一般情况下也会引发重绘`
+
+> 如果利用` animation 动画，对 opacity 做变化`（animation会默认触发GPU加速），`则只会触发 GPU 层面的 composite，不会触发重绘`
+
+```js
+.transparent {
+    opacity:0;
+}
+```
+- 由于其仍然是存在于页面上的，所以他自身的的事件仍然是可以触发的，但被他遮挡的元素是不能触发其事件的
+- 需要注意的是：其子元素不能设置opacity来达到显示的效果
+
+- `特点：改变元素透明度，元素不可见，占据页面空间，可以响应点击事件、不会引发重排，一般情况下也会引发重绘`
+
+## 设置height、width属性为0
+- `特点：元素不可见，不占据页面空间，无法响应点击事件、导致浏览器的重排和重绘`
+
+## position:absolute
+
+将元素移出可视区域
+```js
+.hide {
+   position: absolute;
+   top: -9999px;
+   left: -9999px;
+}
+```
+
+特点：`元素不可见，不影响页面布局`
+
+## clip-path
+
+```js
+.hide {
+  clip-path: polygon(0px 0px,0px 0px,0px 0px,0px 0px);
+}
+```
+
+特点：`元素不可见，占据页面空间，无法响应点击事件`
+
+### 小结
+
+最常用的还是`display:none`和`visibility:hidden`，其他的方式只能认为是奇招，它们的真正用途并不是用于隐藏元素，所以并不推荐使用它们
+
+## 区别
+
+关于`display: none`、`visibility: hidden`、`opacity: 0`的区别，如下表所示：
+
+|             | display: none | visibility: hidden | opacity: 0 |
+| ----------- | ------------- | ------------------ | ---------- |
+| 页面中         | 不存在           | 存在                 | 存在         |
+| 重排          | 会             | 不会                 | 不会         |
+| 重绘          | 会             | 会                  | 不一定        |
+| 自身绑定事件      | 不触发           | 不触发                | 可触发        |
+| transition  | 不支持           | 支持                 | 支持         |
+| 子元素可复原      | 不能            | 能                  | 不能         |
+| 被遮挡的元素可触发事件 | 能             | 能                  | 不能
+
+
+# BFC
+
+# 元素水平垂直居中的方法有哪些？如果元素不定宽高呢？
+
+1.  使用 Flexbox 布局：将父元素设置为 display: flex; 并使用 justify-content 和 align-items 属性来分别使子元素水平和垂直居中。
+2.  使用绝对定位和 transform 属性：将父元素设置为相对定位，子元素设置为绝对定位，并将 top、bottom、left 和 right 属性设为 0，然后使用 transform 属性来使子元素水平和垂直居中。
+3.  使用绝对定位和 margin 属性：将父元素设置为相对定位，子元素设置为绝对定位，并将 top、bottom、left 和 right 属性设为 0，然后使用 margin 属性来自动计算居中位置。
+4.  使用表格布局：将父元素设置为 display: table;，并将子元素设置为 display: table-cell;，然后使用 vertical-align 和 text-align 属性来使子元素水平和垂直居中。
+5.  使用 CSS Grid 布局：将父元素设置为 display: grid; 并使用 justify-items 和 align-items 属性来分别使子元素水平和垂直居中。
+6.  使用 JavaScript：通过计算父元素和子元素的宽度和高度以及位置，动态地设置子元素的居中位置。
+
+6.  使用 JavaScript：
+
+```js
+HTML:
+<div id="parent">
+  <div id="child">居中内容</div>
+</div>
+
+CSS:
+#parent {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+#child {
+  position: absolute;
+  width: 200px;
+  height: 100px;
+}
+
+JavaScript:
+const parent = document.getElementById('parent');
+const child = document.getElementById('child');
+
+const parentWidth = parent.offsetWidth;
+const parentHeight = parent.offsetHeight;
+const childWidth = child.offsetWidth;
+const childHeight = child.offsetHeight;
+
+child.style.left = `${(parentWidth - childWidth) / 2}px`;
+child.style.top = `${(parentHeight - childHeight) / 2}px`;
+```
+
 
 
 
