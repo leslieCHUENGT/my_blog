@@ -403,107 +403,33 @@ subject.notifyObservers('Hello World!');
 
 # 单例模式
 - 单例模式是一种设计模式，用于确保一个类只有一个实例，并提供全局访问该实例的方法。这个模式常常被用来管理系统中`某个独特的资源`，例如数据库连接、日志记录器等。
-- `单例模式的进度条效果`
+- 现在很多第三方库都是单例模式，多次引用只会使用同一个对象，如`jquery`、`lodash`、`moment`
 ```js
-<!DOCTYPE html>
-<html>
-<head>
-  <meta charset="UTF-8">
-  <title>Progress Singleton Demo</title>
-  <style>
-    .progress {
-      width: 200px;
-      height: 10px;
-      background-color: #eee;
-      border-radius: 5px;
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      display: none;
+// 定义一个类
+function Singleton(name) {
+    this.name = name;
+    this.instance = null;
+}
+// 原型扩展类的一个方法getName()
+Singleton.prototype.getName = function() {
+    console.log(this.name)
+};
+// 获取类的实例
+Singleton.getInstance = function(name) {
+    if(!this.instance) {
+        this.instance = new Singleton(name);
     }
-    .bar {
-      width: 0;
-      height: 100%;
-      background-color: #007bff;
-      border-radius: 5px;
-      transition: width 1s ease-in-out;
-    }
-  </style>
-</head>
-<body>
-  <button id="btn-load">Load Data</button>
+    return this.instance
+};
 
-  <script>
-    // 定义 Progress 单例对象
-    const Progress = (() => {
-      let instance;
-
-      const createInstance = () => {
-        const progress = document.createElement('div');
-        progress.className = 'progress';
-        const bar = document.createElement('div');
-        bar.className = 'bar';
-        progress.appendChild(bar);
-        document.body.appendChild(progress);
-        return progress;
-      };
-
-      return {
-        // 获取 Progress 实例
-        getInstance() {
-          if (!instance) {
-            instance = createInstance();
-          }
-          return instance;
-        },
-
-        // 显示进度条
-        show() {
-          const progress = this.getInstance();
-          progress.style.display = 'block';
-        },
-
-        // 隐藏进度条
-        hide() {
-          const progress = this.getInstance();
-          progress.style.display = 'none';
-        },
-
-        // 更新进度条
-        update(percent) {
-          const progress = this.getInstance();
-          const bar = progress.querySelector('.bar');
-          bar.style.width = `${percent}%`;
-        },
-      };
-    })();
-
-    // 加载数据并显示进度条
-    document.getElementById('btn-load').addEventListener('click', () => {
-      Progress.show(); // 显示进度条
-
-      const xhr = new XMLHttpRequest();
-      xhr.open('GET', 'https://jsonplaceholder.typicode.com/todos/1', true);
-      xhr.onreadystatechange = () => {
-        if (xhr.readyState === 4 && xhr.status === 200) {
-          Progress.update(100); // 更新进度条
-          setTimeout(() => {
-            Progress.hide(); // 隐藏进度条
-          }, 500);
-        }
-      };
-      xhr.onprogress = (e) => {
-        const percent = Math.round((e.loaded / e.total) * 100);
-        Progress.update(percent); // 更新进度条
-      };
-      xhr.send(null);
-    });
-  </script>
-</body>
-</html>
-
+// 获取对象1
+const a = Singleton.getInstance('a');
+// 获取对象2
+const b = Singleton.getInstance('b');
+// 进行比较
+console.log(a === b);
 ```
+
 # 快速排序
 
 ## 简单版本
@@ -616,8 +542,41 @@ function clone(target, map = new WeakMap()) {
 }
 ```
 
+# 单例模式
+一个经典的单例模式的例子是应用程序中的日志记录器。在一个应用程序中，通常会有多个模块或组件需要记录日志，如果每个模块都自己创建一个日志记录器实例，不仅会浪费系统资源，而且还会导致日志信息的管理和维护变得困难。
 
+因此，可以使用单例模式来创建一个全局唯一的日志记录器实例，并提供一个全局访问点来获取该实例。这样，所有的模块都可以共享这个唯一的日志记录器实例，从而实现更加高效和统一的日志记录。
 
+下面是一个简单的日志记录器示例代码：
+
+```javascript
+class Logger {
+  constructor() {
+    this.logs = [];
+  }
+
+  log(message) {
+    const timestamp = new Date().toISOString();
+    this.logs.push({ message, timestamp });
+    console.log(`${timestamp} - ${message}`);
+  }
+
+  static getInstance() {
+    if (!Logger.instance) {
+      Logger.instance = new Logger();
+    }
+    return Logger.instance;
+  }
+}
+
+// 在其他模块中使用Logger
+const logger = Logger.getInstance();
+logger.log('Hello World!');
+```
+
+在上面的代码中，我们定义了一个`Logger`类，它有一个`logs`属性用于记录日志信息，以及一个`log()`方法用于向控制台输出日志信息。同时，我们也定义了一个静态的`getInstance()`方法，该方法负责创建Logger的唯一实例，并提供一个全局访问点`Logger.getInstance()`来获取该实例。
+
+在其他模块中，我们可以通过调用`Logger.getInstance()`方法来获取Logger的唯一实例，并使用其`log()`方法来记录日志信息。由于Logger实例是全局唯一的，因此所有的模块都可以共享这个唯一的实例，从而实现更加高效和统一的日志记录。
 
 
 
