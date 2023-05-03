@@ -1,8 +1,8 @@
-## axios 源码分析
+# axios 源码分析
 
-### 1、源码目录结构
+## 1、源码目录结构
 
-```
+```js
 ├── /dist/ 			# 项目输出目录
 ├── /lib/ 			# 项目源码目录
 │ ├── /adapters/ 		# 定义请求的适配器 xhr、http
@@ -21,7 +21,6 @@
 ├── package.json 		# 项目信息
 ├── index.d.ts 			# 配置 TypeScript 的声明文件
 └── index.js 			# 入口文件
-复制代码
 ```
 
 以上结构整理均来自尚硅谷相关课程
@@ -36,11 +35,11 @@
 
 ![](https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/3b8b3d8823864b70878e1e89f76078c8~tplv-k3u1fbpfcp-zoom-1.image)
 
-### 2、axios 创建实例过程
+## 2、axios 创建实例过程
 
 相关的源代码如下：
 
-```
+```js
 // \node_modules\axios\lib\axios.js
 
 ......
@@ -69,21 +68,20 @@ function createInstance(defaultConfig) {
 // 下面的defaults就是上方顶部通过require('./defaults') 引入的默认配置，
 // 就是此前我们提到的，可以通过 axios.defaults.xxx 的方式设置的默认配置
 var axios = createInstance(defaults);
-复制代码
 ```
 
 可以看到 `axios` 实例对象由 `\node_modules\axios\lib\axios.js` 中的 `createInstance()` 函数创建。
 
 其中传入的 `defaults` 参数就是代码上方通过 `require('./defaults')` 引入的默认配置，也就是此前我们提到的，可以通过 `axios.defaults.xxx` 的方式设置的那个默认配置。
 
-#### 2.1、context 变量（Axios实例对象）
+## 2.1、context 变量（Axios实例对象）
 
 在 `createInstance()` 函数内部返回 `axios` 实例对象之前，还通过调用 `\node_modules\axios\lib\core\Axios.js` 中的 `Axios(){...}` 构造函数创建了一个 `context` 变量。仔细观察下方的 `Axios` 构造函数文件，可以发现：
 
 -   `context` 变量身上有 `defaults` 和 `interceptors` 这两个属性。
 -   而且通过 `utils.forEach()` 函数，`context` 变量身上被绑定了各种发送请求的方法（get、post、put等），而且*这些方法内部其实都是调用了 `Axios.prototype.request` 这个方法来实现发送请求的功能的*。所以理解好这个 `request` 函数是比较关键的。
 
-```
+```js
 // \node_modules\axios\lib\core\Axios.js
 
 // Axios 构造函数文件
@@ -122,18 +120,18 @@ Axios.prototype.request = function request(config) {
 utils.forEach(['delete', 'get', 'head', 'options'], function (method) {...}
 // 发送请求时携带数据的方法
 utils.forEach(['post', 'put', 'patch'], function (method) {...}
-复制代码
+ 
 ```
 
-#### 2.2、instance 变量（我们所使用的 axios 实例对象）
+## 2.2、instance 变量（我们所使用的 axios 实例对象）
 
-##### 2.2.1、创建 instance 变量，并将它赋值为一个函数
+### 2.2.1、创建 instance 变量，并将它赋值为一个函数
 
-```
+```js
 // 将 request 方法的 this 指向 context 并返回新函数，此时，instance 可以用作函数使用, 
 // 且其与 Axios.prototype.request 功能一致，且返回的是一个 promise 对象
 var instance = bind(Axios.prototype.request, context);
-复制代码
+ 
 ```
 
 `context` 变量被创建出来后，而且通过 `bind()` 方法将 `Axios.prototype.request` 方法的 `this` 指向 `context` 并返回新函数，同时还创建了一个新的变量 `instance` 来接收这个返回的函数。此时，`instance` 可以用作函数使用, 且其与 `Axios.prototype.request` 功能一致，且返回的是一个Promise类型的对象（*这也是为什么我们可以通过`axios({...}).then()` 的方式发送请求，并可以像处理Promise对象一样对请求的响应结果做处理*）
@@ -142,14 +140,14 @@ var instance = bind(Axios.prototype.request, context);
 >
 > 详情可参阅相关MDN文档：[Function.prototype.bind() - JavaScript | MDN](https://link.juejin.cn?target=https%3A%2F%2Fdeveloper.mozilla.org%2Fzh-CN%2Fdocs%2FWeb%2FJavaScript%2FReference%2FGlobal_Objects%2FFunction%2Fbind "https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Function/bind")
 
-##### 2.2.2、往 instance 变量上添加各种 Axios.prototype 和 context 身上的方法
+### 2.2.2、往 instance 变量上添加各种 Axios.prototype 和 context 身上的方法
 
-```
+```js
 // 将 Axios.prototype 和实例对象 context 的方法都添加到 instance 函数身上
 // 也就是说，我们此后可以通过 instance.get instance.post ... 的方式发送请求
 utils.extend(instance, Axios.prototype, context);
 utils.extend(instance, context);
-复制代码
+ 
 ```
 
 随后，我们又通过 `utils.extend()` 方法往 `instance` 变量上添加各种 `Axios.prototype` 和 `context` 身上的属性（`defaults`、`interceptors`）和方法（`get`、`post`、`put`等）（*这也是为什么我们可以通过`axios.xxx({...}).then()` 的方式发送请求，并可以像处理Promise对象一样对请求的响应结果做处理*）。
@@ -162,43 +160,43 @@ utils.extend(instance, context);
 
 ![image.png](https://p9-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/9174b84037ae4932a2205bd13fd09bb0~tplv-k3u1fbpfcp-watermark.image?)
 
-#### 2.3、axios.create() 工厂函数
+## 2.3、axios.create() 工厂函数
 
 在我们通过 `createInstance()` 函数返回了一个 `axios` 实例对象之后，源码中还往这个实例对象身上添加了一个函数：`create()`。这是一个工厂函数，用来创建一个新的 `axios` 实例对象。
 
-```
+```js
 // 工厂函数  用来返回创建实例对象的函数
 axios.create = function create(instanceConfig) {
   return createInstance(mergeConfig(axios.defaults, instanceConfig));
 };
-复制代码
+ 
 ```
 
 其内部也是调用了 `createInstance()` 函数。它支持我们传入一个配置对象，源码中先是通过 `mergeConfig()` 函数合并了默认配置 `defaults` 和我们传入的实例对象的自定义配置 `instanceConfig`，然后再将合并后的配置作为 `createInstance()` 函数的参数，最后返回一个新的 `axios` 实例对象。
 
-#### 2.4、区分上面提到的几个变量
+## 2.4、区分上面提到的几个变量
 
 > 以下关系总结主体来自尚硅谷相关课程的课件，我只做了一些格式调整和部分补充。
 
-##### 2.4.1、axios 和 Axios 的关系
+### 2.4.1、axios 和 Axios 的关系
 
 其实就是区别 `axios` 和上文提到的 `context` 。
 
 1.  从语法上来说: `axios` 不是 `Axios` 的实例（上文提到的 `context` 才是）
 1.  从功能上来说: `axios` 是 `Axios` 的实例（主要是上方提到的 `bind()` 和 `extend()` 函数的功劳） 3. `axios` 是 `Axios.prototype.request` 函数 `bind()` 返回的函数 2. `axios` 作为对象，有 `Axios` 原型对象上的所有方法，有 `Axios` 对象上所有属性
 
-##### 2.4.2、instance 与 axios 的区别
+### 2.4.2、instance 与 axios 的区别
 
 1.  相同: (1) 都是一个能发任意请求的函数: `request(config)` (2) 都有发特定请求的各种方法: `get()/post()/put()/delete()` (3) 都有默认配置和拦截器的属性: `defaults/interceptors`
 1.  不同: (1) 默认配置很可能不一样 (2) `instance` 没有 `axios` 后面添加的一些方法: `create()/CancelToken()/all()`
 
 我觉得可以这样认为：`axios` 可以看做是 `instance` 的超集。主要是因为 `axios` 被创建出来之后，源码中还在其身上添加了诸如 `create()`、`all()` 、`CancelToken()`、`spread()`这些方法和 `Axios` 属性。
 
-### 3、axios 发送请求过程
+## 3、axios 发送请求过程
 
 其实这块就是*重点关注 `\node_modules\axios\lib\core\Axios.js` 文件中的 `Axios.prototype.request` 这个函数*，因为其他所有发送请求的方法（比如 `get()/post()/put()/delete()` 等）都是在内部调用了这个方法来完成发送请求的功能。
 
-```
+```js
 // \node_modules\axios\lib\core\Axios.js
 
 // 这个函数是用于发送请求的中间函数，真正发送AJAX请求的操作是被封装在
@@ -244,22 +242,22 @@ Axios.prototype.request = function request(config) {
   // 最后返回一个Promise类型的对象
   return promise;
 };
-复制代码
+ 
 ```
 
-#### 3.1、dispatchRequest 函数
+## 3.1、dispatchRequest 函数
 
 注意到上方代码中的 `chain` 数组变量中有一个 `dispatchRequest` 数组元素：
 
-```
+```js
 // 创建拦截器中间件，第一个元素是一个函数，用来发送请求；第二个为 undefined（用来补位）
 var chain = [dispatchRequest, undefined];
-复制代码
+ 
 ```
 
 这*是 `Axios.prototype.request` 函数中关键点之一*。因为 `dispatchRequest` 这个数组元素是用于发送请求的，它的类型为函数。而它是来自 `\node_modules\axios\lib\core\dispatchRequest.js` 中的函数。
 
-```
+```js
 // \node_modules\axios\lib\core\dispatchRequest.js
 
 // 使用配置好的适配器发送一个请求
@@ -301,19 +299,19 @@ module.exports = function dispatchRequest(config) {
     return Promise.reject(reason);
   });
 };
-复制代码
+ 
 ```
 
-#### 3.2、adapter 变量（函数）
+## 3.2、adapter 变量（函数）
 
 而在上面 `dispatchRequest.js` 中的 `dispatchRequest()` 函数中，有一个比较关键的 `adapter` 变量，这个变量是用来获取发送请求的适配器的，*真正发送请求的底层操作都是封装在这里的*。它也是 `config` 配置对象身上的一个配置属性。
 
 同时也要注意， `adapter` 变量是函数类型的，而且其返回值返回值是一个Promise类型的对象。
 
-```
+```js
 // 获取适配器对象 http  xhr
 var adapter = config.adapter || defaults.adapter;
-复制代码
+ 
 ```
 
 > `adapter` 一般有两类：
@@ -322,19 +320,19 @@ var adapter = config.adapter || defaults.adapter;
 >
 > ②发送HTTP请求的 `httpAdapter()`。它在 `\node_modules\axios\lib\adapters\http.js` 文件中。
 
-#### 3.3、发送请求的大致流程
+## 3.3、发送请求的大致流程
 
 发送请求的流程大概就如下图：
 
 ![](https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/6b8f64561a2349478f70f16ef9c02032~tplv-k3u1fbpfcp-zoom-1.image)
 
-### 4、axios 拦截器工作原理
+## 4、axios 拦截器工作原理
 
 其实这块也是重点关注 `\node_modules\axios\lib\core\Axios.js` 文件中的 `Axios.prototype.request` 这个函数，因为由此前【[二-7、axios 拦截器（Interceptors）](#interceptors "#interceptors")（按住`Ctrl`）键单击即可跳转】中所提到的拦截器工作流程可知，*无论是请求拦截器和响应拦截器，都应该在我们发送请求之前就设置好*。
 
 首先回顾我们是如何使用拦截器的：
 
-```
+```js
 // 请求拦截器1
 axios.interceptors.request.use(function (config) {
   return config;
@@ -348,14 +346,14 @@ axios.interceptors.response.use(function (response) {
 }, function (error) {
   return Promise.reject(error);
 });
-复制代码
+ 
 ```
 
-#### 4.1、interceptors.request 和 interceptors.response 两个属性
+## 4.1、interceptors.request 和 interceptors.response 两个属性
 
 前面讨论 `axios` 创建实例的过程时，在 `Axios.js` 这个文件的构造函数 `Axios(){...}` 中，源码往实例对象身上添加了 `interceptors` 这个对象属性。而这个对象属性又有 `request` 和 `response` 这两个属性。
 
-```
+```js
 // \node_modules\axios\lib\core\Axios.js
 ......
 
@@ -368,14 +366,14 @@ function Axios(instanceConfig) {
   };
 }
 ......
-复制代码
+ 
 ```
 
-#### 4.2、InterceptorManager 构造函数
+## 4.2、InterceptorManager 构造函数
 
 而这两个属性都是由 `InterceptorManager()` 构造函数创建出来的实例对象。`use()` 函数则是 `InterceptorManager` 原型对象身上的一个函数属性，所以 `request` 和 `response` 这两个属性才可以调用该函数。
 
-```
+```js
 // \node_modules\axios\lib\core\InterceptorManager.js
 ......
 function InterceptorManager() {
@@ -392,20 +390,20 @@ InterceptorManager.prototype.use = function use(fulfilled, rejected) {
   return this.handlers.length - 1;
 };
 ......
-复制代码
+ 
 ```
 
-#### 4.3、use() 函数
+## 4.3、use() 函数
 
 而 `use()` 函数的作用就是将传入 `use()` 的两个回调函数 `fulfilled` 和 `rejected` 包装在一个对象中（*这个对象就算是一个拦截器*），再保存在 `InterceptorManager` 实例对象（也就是上面提到的 `request` 或 `response` 对象属性）身上的 `handlers` 数组上。
 
 *每调用一次 `use()` 函数都会在相应的 `request` 或 `response` 对象属性身上压入一个包含一对回调函数的对象*。
 
-#### 4.4、在 Axios.prototype.request 函数中遍历实例对象的拦截器并压入 chain
+## 4.4、在 Axios.prototype.request 函数中遍历实例对象的拦截器并压入 chain
 
 我们知道，给某个请求添加拦截器（无论是响应拦截器还是请求拦截器）都是在发送请求之前进行的操作。所以此时就又要回到 `\node_modules\axios\lib\core\Axios.js` 中的 `Axios.prototype.request` 函数。
 
-```
+```js
 // \node_modules\axios\lib\core\Axios.js
 
 // 这个函数是用于发送请求的中间函数，真正发送AJAX请求的操作是被封装在
@@ -445,14 +443,14 @@ Axios.prototype.request = function request(config) {
   return promise;
 };
   
-复制代码
+ 
 ```
 
 可以看到，发送请求时，源码中分别对 `axios` 实例对象中 `interceptors.request` 和 `interceptors.response` 这两个属性中的 `handlers` 数组进行了遍历（利用已经封装好的 `forEach()` 函数）。
 
 并且把 `interceptors.request` 中保存的请求拦截器回调函数*成对*地压入 `chain` 数组的*头部*（通过数组对象的 `unshift()` 方法）；把 `interceptors.response` 中保存的响应拦截器回调函数*成对*地压入 `chain` 数组的*尾部*（通过数组对象的 `push()` 方法）。
 
-#### 4.5、大致流程图&拦截器工作先后顺序
+## 4.5、大致流程图&拦截器工作先后顺序
 
 大概流程如下图所示：
 
@@ -466,7 +464,7 @@ Axios.prototype.request = function request(config) {
 
 观察下面代码的输出结果：
 
-```
+```js
 ......
 // 发送请求的函数
 function dispatchRequest(config){
@@ -528,26 +526,26 @@ axios({
 发送请求
 响应拦截器 成功 1号
 响应拦截器 成功 2号
-复制代码
+ 
 ```
 
-#### 4.6、逐个调用 chain 中的拦截器
+## 4.6、逐个调用 chain 中的拦截器
 
 之后，就是通过一个 `while` 循环，对 `chain` 数组中存储的拦截器逐个调用，*其中涉及到每个拦截器工作后的 promise 对象的状态和结果值的传递*。这个过程有点像是跳板，如下图所示：
 
 ![](https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/fcaa3e5b4f7442b7a63db0b82d8e3c8e~tplv-k3u1fbpfcp-zoom-1.image)
 
-#### 4.7、有关 while 循环中代码的疑惑
+## 4.7、有关 while 循环中代码的疑惑
 
 注意，对于 `Axios.prototype.request` 这个函数中的下面这段代码：
 
-```
+```js
 //如果链条长度不为 0
 while (chain.length) {
   //依次取出 chain 的回调函数, 并执行，注意：shift()函数会改变原数组
   promise = promise.then(chain.shift(), chain.shift());
 }
-复制代码
+ 
 ```
 
 我一开始有个疑问：`then()` 函数中的两个回调函数参数，不应该是只会执行其中一个的吗？如果上面的那个 `promise` 是成功的，那么第二个失败的回调不就不会执行了吗？也就是上面的 `then()` 函数中的第二个 `chain.shift()` 不就不会执行了吗？那这样的话，那个 `chain` 数组中的不就还会残留一个失败的回调吗？
@@ -558,7 +556,7 @@ while (chain.length) {
 
 其实上面的代码可以看做是等价于下面的代码，关键在于一定要注意*shift()函数会改变原数组，且其返回值就是被弹出的那个数组元素*：
 
-```
+```js
 //如果链条长度不为 0
 while (chain.length) {
   // 注意：shift()函数会改变原数组，它弹出的始终是数组中的第一个元素啊
@@ -572,14 +570,14 @@ while (chain.length) {
   //依次取出 chain 的回调函数, 并执行，
   promise = promise.then(onResolved, onRejected);
 }
-复制代码
+ 
 ```
 
-### 5、axios 取消请求过程
+## 5、axios 取消请求过程
 
 首先回顾一下我们使用 `axios` 取消请求的过程：
 
-```
+```js
 // 2.声明全局变量
 let cancel = null;
 // 发送请求
@@ -605,16 +603,16 @@ axios({
 ......
 // 调用 cancelFunc() 函数以取消请求
 cancel();
-复制代码
+ 
 ```
 
 值得我们关注的有我们自定义声明的 `cancel` 这个全局变量还有 `axios` 配置对象中的 `cancelToken` 属性。
 
-#### 5.1、取消 axios 请求的底层代码
+## 5.1、取消 axios 请求的底层代码
 
 首先，我们问自己一个问题：如果要取消一个AJAX请求，我们该怎么做？答案是：调用 `XMLHttpRequest` 对象身上的 `abort()` 方法。而在 `axios` 中，具备这部分功能的代码就被封装在 `\node_modules\axios\lib\adapters\xhr.js` 中的下面这个 `if` 判断中：
 
-```
+```js
 // \node_modules\axios\lib\adapters\xhr.js
 ......
 //如果我们发送请求时传入的配置对象中配置了 cancelToken，则调用 then 方法设置成功的回调
@@ -630,7 +628,7 @@ if (config.cancelToken) {
   });
 }
 ......
-复制代码
+ 
 ```
 
 可以看到，源码是先判断我们有没有在发送请求时传入的配置对象中设置 `cancelToken` 属性。如果没有设置，那就说明我们没有取消请求的需求，那自然也就不需要进入判断。
@@ -641,20 +639,13 @@ if (config.cancelToken) {
 
 *当上述 `cacelToken` 实例对象身上的 `promise` 属性的状态为成功时，就会触发 `abort()` 函数，从而达到取消请求的目的*。
 
-#### 5.2、axios.CancelToken() 构造函数
+## 5.2、axios.CancelToken() 构造函数
 
 经过上面的铺垫，我们就将分析的重点转移到了【*如何让 `cacelToken` 实例对象身上的 `promise` 属性的状态变为成功*】上。
 
 再次回顾我们使用 `axios` 取消请求的过程，可以看到，我们是通过调用全局的 `cancel()` 函数来取消请求的。那么由 `cancel()` 到 `xhr.js` 中的 `abort()` 又经过了什么操作可以使得 `cacelToken` 实例对象身上的 `promise` 属性的状态变为成功的呢？
 
-cancel被调用
-
-......  
-使promise的  
-状态变为成功  
-的某些操作
-
-xhr.js中的abort被调用
+![image.png](https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/23c08e16226846939fe3b68f5d1ad5a0~tplv-k3u1fbpfcp-watermark.image?)
 
 取消 axios 请求的大致抽象流程
 
@@ -666,15 +657,15 @@ xhr.js中的abort被调用
 
 `axios.CancelToken()` 是通过引入 `\node_modules\axios\lib\cancel\CancelToken.js` 中的 `CancelToken(executor) {...}` 函数得到的。
 
-```
+```js
 // \node_modules\axios\lib\axios.js
 ......
 axios.CancelToken = require('./cancel/CancelToken');
 ......
-复制代码
+ 
 ```
 
-```
+```js
 // \node_modules\axios\lib\cancel\CancelToken.js
 ......
 function CancelToken(executor) {
@@ -718,5 +709,5 @@ function CancelToken(executor) {
 ![image.png](https://p6-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/c1afc0fc153e43d2a8e1c57d31596341~tplv-k3u1fbpfcp-watermark.image?)
 
 
-
+## Fetch、Ajax 和 Axios
 
