@@ -1,3 +1,45 @@
+# 记忆函数
+```js
+// 创建一个函数 memoize，接受一个函数作为参数
+function memoize(func) {
+  // 创建一个空对象 cache，用于存储计算结果
+  const cache = {};
+  // 返回一个新的函数，此处使用了 rest parameter 操作符 ...args，
+  // 它可以让我们将传入的参数转换成一个数组
+  return function(...args) {
+    // 使用 JSON.stringify 将参数列表 args 转换成字符串，作为缓存对象 cache 的 key 值
+    const key = JSON.stringify(args);
+    // 如果缓存对象中存在该 key 值，则直接返回缓存值
+    if (cache[key]) {
+      console.log('从缓存中获取结果');
+      return cache[key];
+    } else {
+      // 否则，执行原始函数，将结果存入缓存对象中，并返回结果
+      console.log('进行计算');
+      const result = func.apply(this, args);
+      cache[key] = result;
+      return result;
+    }
+  }
+}
+
+function fib(n) {
+  if (n < 2) return n;
+  return fib(n - 1) + fib(n - 2);
+}
+
+console.time('fib(40)');
+console.log(fib(40));
+console.timeEnd('fib(40)');
+
+const memoizedFib = memoize(fib);// 高阶函数
+
+console.time('memoizedFib(40)');
+console.log(memoizedFib(40));
+console.timeEnd('memoizedFib(40)');
+
+```
+
 # 柯里化
 ## 手写curry函数
 ```javascript
@@ -568,6 +610,8 @@ class Logger {
     return Logger.instance;
   }
 }
+
+
 
 // 在其他模块中使用Logger
 const logger = Logger.getInstance();

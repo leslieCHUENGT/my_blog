@@ -38,7 +38,13 @@ export default defineConfig({
           { text: 'axios源码学习',link:'/js/axios' }
         ]
       },
-    
+      {
+        text: '自己理解的内容',
+        items: [
+          { text: '浏览器', link: '/resloved/http.md' },
+          { text: 'js', link: '/resloved/js.md' }
+        ]
+      }
     ],
 
     socialLinks: [

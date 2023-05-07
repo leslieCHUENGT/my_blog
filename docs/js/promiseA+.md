@@ -549,24 +549,21 @@ Promise.all = (promises) => {
 ## 使用Promise实现每隔1秒输出1,2,3
 
 ```js
-// 实现思路：关键是理清reduce的用法以及Promise链式调用的原理
-// reduce的第二参数是默认值，会先执行，需要设置为Promise()才会执行.then方法
-// 方便后续的.then链式调用
-// 在reduce第一个参数里直接return的是Promise实例，直接.then
-// .then的参数是一个函数，里面return一个new Promise里面完成延迟打印和resolve()
-const oneToThree = () =>{
-  const arr = [1,2,3];
-  arr.reduce((prev,next) => {
-    return prev.then(() => {
-      return new Promise((resolve) => {
-        setTimeout(() => {
-          console.log(next);
-          resolve();
-        },1000)
-      })
-    })
-  },Promise.resolve())
-}
+
+const printNumbers = async () => {
+  const array = [1, 2, 3];
+  for (let i = 0; i < array.length; i++) {
+    await new Promise((resolve) => setTimeout(() => {
+      console.log(array[i]);
+      resolve();
+    }, 1000));
+  }
+};
+
+printNumbers().then(() => {
+  console.log("Done");
+});
+
 ```
 ##  使用Promise实现红绿灯交替重复亮
 
