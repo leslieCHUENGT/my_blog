@@ -650,6 +650,15 @@ function loadImage(url){
 - Promise.prototype.catch()方法是`.then(null, rejection)`或.then(undefined, rejection)的`别名`，`用于指定发生错误时的回调函数`。
 
 ```javascript
+Promise
+    .resolve()
+    .then(function () {
+        throw new Error('外部报错');
+    }, function () {
+        console.log('This in never called');
+    }).catch(err => {
+        console.log('捕捉到错误', err.message);
+    })// 这样才能捕捉到错误
 // bad
 promise
   .then(function(data) {
@@ -675,7 +684,14 @@ promise
 - 不管`promise`最后的状态，在执行完`then或catch`指定的回调函数以后，都会执行`finally`方法指定的回调函数。
 - finally本质上是`then`方法的特例。
   - 如果不使用finally方法，同样的语句需要为成功和失败两种情况各写一次。有了finally方法，则只需要写一次。
-
+- finally 有什么用
+  大型语言 try {} catch() {} finally
+  1. promise 失败后
+  - 应用场景
+    all race any allSettled finally
+    Promise.resolve/reject
+  2. 有些应用不只是耗时
+     i/o 操作要关闭文件句柄...  
 ## Promise.try() 
 - 不知道或者不想区分，函数f是`同步函数还是异步操作`，但是想用 Promise 来处理它。
 ```js
