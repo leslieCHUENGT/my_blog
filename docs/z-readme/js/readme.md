@@ -225,4 +225,50 @@ Display:将像素发送给**GPU，展示在页面上**
 第二种是服务端，而前端方案有一个缺陷，如果换了个浏览器就失去了记忆的效果，所以这里选后者
 
   
+# 变量提升
+![image.png](https://p6-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/2621ba19760e40f0aa57eb70c3a66ff4~tplv-k3u1fbpfcp-watermark.image?)
+
+- js这门语言的执行机制是先编译、再执行
+- 在编译阶段，变量和函数会被存放到变量环境里，变量的默认值是undefined
+- 在代码执行阶段，js引擎会从变量环境里查找变量和函数
+- 如果在编译阶段，存在两个相同的函数，那么最终存放在变量环境中的是最后定义的那个，这是因为后定义的会**覆盖**掉之前定义的。
+
+# 调用栈
+
+![image.png](https://p9-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/5e2ea80d923e430c8cdbd54c5e8ffa5f~tplv-k3u1fbpfcp-watermark.image?)
+- 每调用一个函数，JavaScript 引擎会为其创建执行上下文，并把该执行上下文压入调用栈，
+- 然后 JavaScript 引擎开始执行函数代码。
+- 如果在一个函数 A 中调用了另外一个函数 B，那么 JavaScript 引擎会为 B 函数创建执行上下文，并将 B 函数的执行上下文压入栈顶。
+- 当前函数执行完毕后，JavaScript 引擎会将该函数的执行上下文弹出栈。
+- 当分配的调用栈空间被占满时，会引发“堆栈溢出”问题。
+
+# 块级作用域
+块级作用域就是通过**词法环境的栈结构**来实现的，而变量提升是通过**变量环境**来实现，通过这两者的结合，JavaScript 引擎也就同时支持了**变量提升**和**块级作用域**了。
+
+![image.png](https://p9-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/b00f2cede1364f1789f5f1bf004c3d0a~tplv-k3u1fbpfcp-watermark.image?)
+
+# 作用域链和闭包
+- 变量是通过作用域链来查找
+- 作用域链是由词法作用域决定的
+- 词法作用域由代码中函数声明的位置来决定的，通过它就能够预测代码在执行过程中如何查找标识符。
+
+**闭包的理解**
+关于闭包的概念：
+老师提出的概念：内部函数引用外部函数的变量的集合。
+高级程序设计中的概念：闭包是指有权访问另一个函数作用域中的变量的函数。
+MDN上的概念：闭包是函数和声明该函数的词法环境的组合。
+
+回答到：在js中，根据词法作用域的规则，内部函数总是可以访问其外部函数声明的变量，当通过调用一个外部函数返回一个内部函数后，即使该外部函数已经执行结束了，但是内部函数引用外部函数的变量依然报错在内存中，就把这些变量的集合称为闭包，比如外部函数是foo，那么这些变量的集合就称为foo函数的闭包。
+
+# js中栈内存和堆内存
+![image.png](https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/c90f44c0eff94d14bf716dcde7ec7ff5~tplv-k3u1fbpfcp-watermark.image?)
+
+![image.png](https://p9-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/9e04e95f9a534500b386a8a975d1e5dc~tplv-k3u1fbpfcp-watermark.image?)
+
+
+
+
+
+
+
 
