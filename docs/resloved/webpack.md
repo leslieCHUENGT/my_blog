@@ -38,7 +38,7 @@
    2. cache
 2. 打包速度
    1. 配置optimization.splitChunks选项以进行代码分割。在这个例子中，设置chunks选项为async表示只对异步加载的模块进行代码分割（不对同步加载的模块进行分割），并将所有公共依赖项打包到名为common的chunk中。
-
+    
 
 
 

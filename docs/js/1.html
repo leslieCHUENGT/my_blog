@@ -1,18 +1,41 @@
 <!DOCTYPE html>
 <html>
+
 <head>
-  <meta charset="UTF-8">
-  <title>Progress Singleton Demo</title>
-  <style>
-    .box {
-      width: 200px;
-      height: 100px;
-      padding: 20px;
-      box-sizing: border-box;
-    }
-  </style>
-  <div class="box">
-    盒子模型
-  </div>
+	<style>
+body {
+	margin: 0px;
+}
+
+.bar {
+	background-image: url(images/topbar.png);
+	background-size: 25% 60px;
+	background-repeat: repeat-x;
+}
+
+.shadow {
+	-moz-box-shadow: 2px 2px 5px #333333;
+	-webkit-box-shadow: 2px 2px 5px #333333;
+	box-shadow: 2px 2px 5px #333333;
+}
+
+.menu {
+	margin: 3px 5px 5px 5px;
+}
+	</style>
+</head>
+
+<body>
+	<div class="container clearfix">
+		<div class="box"></div>
+		<!-- <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Fusce euismod tortor vel augue consequat dapibus. Sed imperdiet libero at enim fringilla commodo. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Maecenas ac posuere ligula. Ut pellentesque vehicula sapien vel cursus. Proin eu urna quis elit egestas eleifend.</p> -->
+		<div class="box"></div>
+		<p>Phasellus auctor ante at nulla pharetra mattis. Nullam consectetur turpis sed massa lobortis malesuada. Cras
+			suscipit tortor in erat blandit, eget laoreet arcu semper. Integer commodo ipsum eget massa venenatis, vel
+			rhoncus enim finibus. Etiam quis pulvinar ex. Proin laoreet egestas placerat. Donec nec mi tempor, dignissim
+			nibh a, pretium elit. Nullam a faucibus nibh. Pellentesque vel placerat lectus, vitae bibendum quam.</p>
+		<div class="clearfix"></div>
+	</div>
 </body>
+
 </html>
