@@ -7,7 +7,7 @@
 - 而同源策略有三个相同
 - 协议
 - 主机：域名
-- 端口：80 443https
+- 端口：80 443 https
 
 
 **跨域拦截是浏览器拦截还是服务器拦截**
@@ -145,7 +145,6 @@ https://juejin.cn/post/6844904034181070861#heading-5
 - 存储量：4kb，...
 
 **什么是Token**
-- 现在基本都是JWT规范来生成token，在我项目里就用到了JWT生成token。
 - **`Token`是指身份验证的令牌**，一般指`Access Token`比如当用户登录后，**服务器**会生成一个`token`发送给客服端，它包含一些加密的信息，后续请求中`验证`客服端用户的身份
 - 后续的请求中，客服端会把这个`token`作为**请求头的一部分**
 - `token`完全由应用管理，所以他可以避开同源策略
@@ -156,6 +155,19 @@ https://juejin.cn/post/6844904034181070861#heading-5
 - `Refresh Token`的有效期是比较长的，当`access Token`过期，而它没过期，那么服务器端会返回新的`access Token`和`Refresh Token`
 - 也就不需要重新登录了
 - `Access Token`和`Refresh Token`可能会被存储在**服务器端的数据库中**
+- 现在基本都是JWT规范来生成token，在我项目里就用到了JWT生成token、还有另一个项目里用把一个密匙字符串存放到token里来。
+
+# 讲一讲你项目里是使用JWT生成token和前端校验的过程
+- 前端用户登录经过校验，发送post请求给后端
+- 后端在经过加密中间件、校验中间件后会通过jwt.sign方法来生成token
+- 使用jwt.sign方法时会先剔除password这种敏感的信息，保护用户的隐私安全
+- 此时响应体里就会携带token信息，前端将token信息放入localStorage
+- 当需要校验是否登录时，会发送`Authorization`头部从中获取JWT
+- 通过jwt.verify方法来解密jwt就得到了用户信息
+- 前一个项目里用的就是简单的把一个字符串token放入localStorage里
+- 验证有没有表示登录过
+- 但是如果想持久化token，可以放在数据库里来进行校验和验证
+
 
 **讲一讲session和Token的区别**
 - session是记录服务器端和客服端会话状态的机制，Token是指验证身份的令牌
@@ -187,7 +199,7 @@ https://juejin.cn/post/6844904034181070861#heading-5
 **使用 session 时需要考虑的问题**
 - session存储在服务器，占用服务器资源，又要定期清理过期的session
 - session基于cookie实现，要考虑cookie跨域问题
-- 当然sessionId可以在url参数后面重写url或者在请求头里添加自定义的header，不基于cookie也其实可以实现
+- **当然sessionId可以在url参数后面重写url或者在请求头里添加自定义的header，不基于cookie也其实可以实现**
 
 **使用token时需要考虑的问题**
 - 会用到数据库查询，可能会导致查询时间长。
@@ -206,13 +218,12 @@ https://juejin.cn/post/6844904034181070861#heading-5
 - http不会验证通信方的身份，**没有用户验证**
 - http传输过程中**不会验证报文的完整性**，保证不了**数据一致性**
 
-**什么是HTTPS**
+**什么是HTTPS**  
 - HTTPS 是 HTTP 协议的一种扩展，它本身并不保证传输的证安全性
 - **传输层安全性**`(TLS)`或**安全套接字层**`(SSL)`对通信协议进行加密。也就是 `HTTP` +` SSL(TLS)` = `HTTPS`。
 - `TLS`是`SSL`的更新版本
 - 原理是`HTTP`和`TCP`之间建立了一个**安全层**，安全层的核心就是加解密
 - HTTPS默认使用**服务器**的`443`端口
-
 
 **对称加密和非对称加密**
 - 对称加密：加密和解密时使用的密钥都是同样的密钥，比如位运算。速度快
@@ -252,13 +263,14 @@ https://juejin.cn/post/6844904034181070861#heading-5
 - 插件可以获取进程的资源，浏览器本身有些功能是需要对接到操作系统的，比如文件下载等，利用漏洞来恶意操作
 
 **目前多进程架构**
-- 有五类进程
-- 浏览器主进程：负责界面显示、交互、存储
-- 渲染进程：运行在沙箱模式下，这个模式下的进程不可以对硬盘写入数据，不能在敏感位置读取数据。因为这个进程的核心任务是将HTML、CSS和javascript转化成可以交互的页面，可以存在跨站脚本攻击XSS，它可以禁止进程访问用户的cookie，限制对其他网站的访问，减少了CSFR攻击。
-- GPU进程：为了实现3D CSS和UI界面的绘制
-- 网络进程
-- 插件进程
-
+https://time.geekbang.org/column/article/113513
+- **有五类进程**
+- **浏览器主进程**：负责界面显示、交互、存储
+- **渲染进程**：运行在沙箱模式下，这个模式下的进程不可以对硬盘写入数据，不能在敏感位置读取数据。因为这个进程的核心任务是将HTML、CSS和javascript转化成可以交互的页面，可以存在跨站脚本攻击`XSS`，它可以禁止进程访问用户的cookie，限制对其他网站的访问，减少了`CSFR`攻击。
+- **GPU进程**：为了实现3D CSS和UI界面的绘制
+- **网络进程**
+- **插件进程**
+![](https://static001.geekbang.org/resource/image/a9/76/a9ba86d7b03263fa3997d3733d958176.png?wh=1142*630)
 # TCP/IP 是如何工作的
 **互联网，实际上是一套理念和协议组成的体系架构。都遵守一套协议，那么网络通信将会畅通无阻。**
 - IP(Internet Protocol)网际协议
@@ -277,11 +289,11 @@ https://juejin.cn/post/6844904034181070861#heading-5
 
 ![image.png](https://p6-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/c4b5168e7b674065b03d011ff88080bf~tplv-k3u1fbpfcp-watermark.image?)
 
-- 其中，传输数据阶段。接受端需要对每个数据包进行确认操作。
+- 其中，传输数据阶段。接受端需要对每个数据包进行确认操作
 - 也就是说收了数据包，得回信，不然就算是数据包丢失，就触发了重发机制
 - 小包传过去就可以用头信息的序列号来排序
 
-# HTTP请求流程
+# HTTP请求流程 
 
 ![image.png](https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/a2e2d74b8487433aa2034becafed3882~tplv-k3u1fbpfcp-watermark.image?)
 
@@ -410,8 +422,6 @@ https://juejin.cn/post/6844904034181070861#heading-5
 - 二进制分帧(Frame)每个Frame都是一个二进制数据块，大小可控
 
 
-
-
 # 前端直接实现 url 跳转和重定向状态码 302 的区别
 - 发送请求，获取响应资源，加载页面
 - 返回302，会重定向到新的URL上请求资源
@@ -424,7 +434,7 @@ https://juejin.cn/post/6844903587764502536
 - 请求
 - 响应
 
-
+# 
 
 
 
