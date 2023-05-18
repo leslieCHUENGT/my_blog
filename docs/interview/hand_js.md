@@ -623,7 +623,167 @@ logger.log('Hello World!');
 在其他模块中，我们可以通过调用`Logger.getInstance()`方法来获取Logger的唯一实例，并使用其`log()`方法来记录日志信息。由于Logger实例是全局唯一的，因此所有的模块都可以共享这个唯一的实例，从而实现更加高效和统一的日志记录。
 
 
+# Object.keys
+const keys = Object.keys(obj);// 获取obj的key，生成数组
+
+# 深拷贝的几种方法
+- 考虑数组里的元素都是原始数据类型，那么实际上就可以用api来完成深拷贝
+  - 展开运算符
+  - map
+  - from
+  - filter
+- 利用JSON.parse(JSON.stringify(obj)但是不能处理函数和正则
+- 考虑数组，递归遍历包含深层次的对象
+```javascript
+function clone(target){
+  if (obj === null) return obj; // 如果是null或者undefined我就不进行拷贝操作
+  if (obj instanceof Date) return new Date(obj);
+  if (obj instanceof RegExp) return new RegExp(obj);
+  // 可能是对象或者普通的值  如果是函数的话是不需要深拷贝
+  if (typeof obj !== "object") return obj;
+  if (typeof target === 'object') {
+    let cloneTarget = Array.isArray(target) ? [] : {};
+    for(const key in target){
+      cloneTarget[key] = clone(target[key]);
+    }
+  }
+}
+```
+- 考虑循环引用
+```js
+target.target = target;// 自己添加自己属性，克隆时会爆栈
+```
+- 可以同WeekMap来记录有没有克隆过这个对象
+- WeakMap的话，key和value存在的就是**弱引用关系**，当下一次垃圾回收机制执行时，这块内存就会被释放掉。
+- 还可以通过用while循环来优化遍历花费的时间
+- 深拷贝一个函数可以使用`Function.prototype.toString()`方法将函数转化为字符串，再使用`eval()`或者new Function()构造函数来创建一个新的函数。
 
 
+
+# js判断类型的方法
+```javascript
+function getType(value) {
+  const type = typeof value;
+
+  // 基本数据类型或null
+  if (type !== 'object' || value === null) {
+    return type;
+  }
+  // 获取对象类型
+  const classType = Object.prototype.toString.call(value).slice(8, -1).toLowerCase();
+  // 特殊对象类型
+  if (value instanceof Set) {
+    return 'set';
+  } else if (value instanceof Map) {
+    return 'map';
+  }
+  return classType;
+}
+```
+- typeof来判断是否是对象还是原始数据类型
+- Object.prototype.toString.call().sclice(8,-1).toLowerCase()
+  - 获取调用该方法对象的[[class]]属性
+  - 使用它来获取任何对象的类型信息子类型
+  - 可以识别Date()等
+- 之外，假如我们还要添加新的数据结构判断能力
+- Set、Map是Object的子类，Object.prototype.toString.call()会出来Object
+- 可以用instanceof来在原型上查找
+
+# call、apply、bind
+- B.call (A, args1,args2)
+  - 调用一个对象的一个方法，用另一个对象替换当前对象。
+  - 可以传递多个参数数组
+- B.apply(A, arguments)
+  - 只可以传递一个参数数组
+- bind的返回值是函数，参数和call一样可以传递参数数组
+
+
+# 判断空对象的方法
+- object上没有length属性，length是一个数组或者类数组内置的属性
+- Object.keys()可以获取obj所有的key的值，返回一个数组
+```js
+if(Object.keys(obj).length === 0){
+  // 对象为空
+}
+```
+- 利用for in遍历一下对象，能遍历就能进去
+```js
+let isEmpty = true;
+for(let key in obj){
+  isEmpty = false;
+  break;
+}
+if(isEmpty){
+  // 对象为空
+}
+```
+- JSON.stringify()来把对象转化为字符串，进行判断即可
+```js
+if(JSON.stringify(obj) === '{}'){
+  // 对象为空
+}
+```
+
+# for in、for of的区别
+- for in 遍历的是索引index，for of 遍历的是元素值value
+- for in适合遍历对象，也可以遍历数组，但是遍历数组的时候会遍历原型上自定义的方法和属性，并且有个问题是，这个索引index值是string类型的，不是number，可以用hasOwnProperty方法来判断一下是不是非对象自身的属性或者方法
+代码如下：
+```js
+var arr = [1,2,3]
+Array.prototype.a = 123
+Array.prototype.fn = function name(params) {
+    
+}
+Array.prototype.Fn = () => {}
+for (let index in arr) {
+  let res = arr[index]
+  console.log(res)
+}
+// 1 2 3 123 
+// ƒ name(params) {
+    
+// }
+// () => {}
+
+var obj = {a:1, b:2, c:3}
+    
+for (let key in obj) {
+  console.log(obj[key])
+}
+// 1 2 3
+```
+- for of适合遍历拥有Iterator的集合，因为遍历的是元素值，不会遍历原型上的属性和方法，如果想用for of遍历对象，用Object.keys()方法获取key值数组来遍历
+```js
+var myObject={
+　　a:1,
+　　b:2,
+　　c:3
+}
+for (var key of Object.keys(myObject)) {
+  console.log(key + ": " + myObject[key]);
+}
+//a:1 b:2 c:3
+
+const str = 'string';
+for(let v of str){
+    console.log(v)
+}
+// s t r i n g
+```
+
+# 原生具备 Iterator 接口的数据结构如下
+- Array
+- Map
+- Set
+- String
+- TypedArray
+- 函数的 arguments 对象
+- NodeList 对象
+
+# null和undefined的区别
+- 当定义一个变量的时候，设置为空值就会一般会赋值为null，没有赋值就为undefined
+
+# 
+  
 
 

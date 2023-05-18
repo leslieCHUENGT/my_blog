@@ -18,7 +18,8 @@ export default defineConfig({
           { text: 'vue响应式原型', link: '/vue-source/vue-ref-active' },
           { text: 'h函数', link: '/vue-source/h' },
           { text: 'render', link: '/vue-source/render' },
-          { text: 'react的Diff算法',link: '/vue-source/react-diff' }
+          { text: 'react的Diff算法', link: '/vue-source/react-diff' },
+          { text: 'nextTick源码',link: '/vue-source/nextTick'}
         ]
       },
       {

@@ -2,6 +2,13 @@
 **讲一下跨域是啥**
 - 跨域本质就是**浏览器**基于**同源策略**的一种安全的手段，跨域是对浏览器的限制。同源策略呢，是浏览器核心的安全功能。
 - 同源策略呢，三个相同，协议、主机、端口相同。当有一个不同了，就会产生跨域问题。
+- **跨域实际上是浏览器基于同源策略的突围方式，因为同源策略限制了浏览器，访问不同源的URL就会产生跨域**
+- 而同源策略就是浏览器的安全手段
+- 而同源策略有三个相同
+- 协议
+- 主机：域名
+- 端口：80 443https
+
 
 **跨域拦截是浏览器拦截还是服务器拦截**
 - 基于同源策略，浏览器发现是非同源的资源，浏览器会把响应体丢弃
@@ -25,11 +32,12 @@
   - Access-Control-Allow-Origin `'host'`可以设置白名单
   - Access-Control-Allow-Headers `'Content-Type, Content-Length, Authorization, Accept, X-Requested-With , yourHeaderFeild'`
   - Access-Control-Allow-Methods `'PUT, POST, GET, DELETE, OPTIONS'`
-
+  - **白名单** **请求头** **方法**
 - 还有就是通过proxy来实现跨域
 - 它的本质就是通过绕开浏览器的同源策略限制来实现的
 - 一是可以通过`webpack`的`devServer`来配置`proxy`进行代理
 - 二是通过`nginx`实现代理
+- 三是设置`express`设置代理的中间件
 
 - 还有是一个`html5`原生的`websocket`也可以进行跨域
 - `WebSocket` 是一种在单个`TCP `连接上进行双向通信的协议。与 `HTTP` 不同的是，`WebSocket` 在建立连接后，客户端和服务器之间可以直接发送消息，而不需要像 `HTTP` 一样每次请求都需要建立新的连接。
@@ -40,33 +48,36 @@
 - 浏览器对于` <script>` 标签的请求不受同源策略限制的特性。
 - JSONP只支持`GET`请求，无法支持`POST`等其他类型的请求。
   - jsonp引发的恶意攻击：
-  - XXS与CFRS攻击
+  - XXS与CSRF攻击
   - 数据泄漏
 
 **讲讲跨域中怎么携带cookie**
 - 后端设置响应头`Access-Control-Allow-Credentials`为`true`，表示允许浏览器发送包含身份凭证的请求，比如cookie、授权标头。
 - 在前端发送请求时，需要设置 `withCredentials` 为 `true`，表示可以发送包含身份凭证的请求。
 - 都必须使用`https`协议
+- 由于 Cookie 存储的敏感信息，本应只能在设置了 `Secure` 和 `HttpOnly` 属性、使用 `HTTPS` 协议的情况下才能传输
+- 浏览器默认禁止在非 HTTPS 的环境下跨域携带 Cookie。
+- 失效
+- 
 
 # nginx
 **讲一下nginx的反向代理**
-- 反向代理服务器充当了一个中间人的角色
+- 反向代理服务器充当了一个**中间人**的角色
 - 输入网站访问服务器的时候，会先通过http或者https协议发送到反向代理服务器
 - nginx根据配置呢，把请求转发到后端服务器上面
 - 响应返回给nginx服务器，nginx服务器转发响应给客服端
 
 **负载均衡**
-- 定义了后端服务器集群，其中包含多少台Web服务器
-- 一个挂了就可以转发给另一个
-- 就可以实现负载均衡
+- 定义了**后端服务器集群**
+- 通过**合理地分配负载**，负载均衡可以确保每台服务器都能够得到合理的负载，从而提高系统的稳定性和性能。
 
 # XXS攻击
 **讲一下什么是XXS攻击**
 - 叫**跨站脚本**攻击
 - 分为三种情况
   - **存储型**、**反射型**和**文档型**
-- 存储型比较常见的例子就是评论去输入一段脚本代码，没做转义和过滤等操作，就会存储到数据库里，页面渲染过程中直接执行。
-- 反射型比较常见的就是脚本代码作为网络请求的一部分，经过服务器，反射到html文档里，执行
+- 存储型比较常见的例子就是评论去输入一段脚本代码，没做**转义**和过滤等操作，就会存储到数据库里，页面渲染过程中直接执行。
+- 反射型比较常见的就是脚本代码作为网络请求的一部分，不会存储，但是浏览器会执行这个脚本
 - 文档型是在数据传输过程中劫持数据包，修改里面的html文档
 
 **怎么防范XXS攻击呢？**
@@ -76,39 +87,48 @@
 - 利用`HttpOnly`
   - 很多 XSS 攻击脚本都是用来窃取`Cookie`, 而设置 `Cookie` 的 `HttpOnly` 属性后，`JavaScript` 便无法读取 `Cookie` 的值。这样也能很好的防范 `XSS` 攻击。
 
-# CFRS攻击
+# CSRF攻击
 **讲一下什么是CSRF攻击**
 - `即跨站请求伪造`
 - 比较常见的有黑客诱导用户点击链接，那么就打开了黑客的网站，黑客就**利用用户目前的登录状态**发起跨站请求
 - 然后就可能做下面几件事
-- 1是自动发get请求，这个请求会带上之前你已经登录过的网站的cookie，然后进行操作，获取信息、转账汇款
-- 2是自动发post请求，写了一个自动提交post请求的脚本，恶意操作
+- 1是自动发**get**请求，这个请求会带上之前你已经登录过的网站的cookie，然后进行操作，获取信息、转账汇款
+- 2是自动发**post**请求，写了一个自动提交post请求的脚本，恶意操作
 - 3是诱导点击发送get请求，流程大差不大
-- CSRF攻击并不需要将恶意代码注入用户当前页面的html文档中，而是跳转到新的页面，**利用`服务器的验证漏洞`和`用户之前的登录状态`来`模拟用户进行操作`。**
+- CSRF攻击并不需要将恶意代码注入用户当前页面的html文档中，而是跳转到新的页面，**利用`服务器的验证漏洞`和`用户之前的登录信息比如cookie`来`模拟用户进行操作`。**
 
 **怎么防范CFRS攻击**
 1. 利用`Cookie`的`SameSite`属性
    - strict模式，完全禁止第三方请求携带，完全遵守同源策略
    - lax模式，get提交的时候可以携带
    - none模式，自动携带
-2. 验证来源站点，请求头中的两个字段，Origin(域名)和Referer(URI)，但是可以伪造啊
-3. CSRF Token令牌，在每个表单提交中都包含一个随机生成的令牌
+2. 验证来源站点，**请求头**中的两个字段，Origin(域名)和Referer(URI)，但是可以伪造啊
+3. 验证**CSRF Token令牌**
 
 # Cookie、Session、Token、JWT
+https://juejin.cn/post/6844904034181070861#heading-5
 - Authentication是验证当前用户的身份
 - Authorization用户授予第三方应用访问该用户某些资源的权限
 - Credentials实现认证和授权的前提是需要一种媒介（证书） 来标记访问者的身份
 
 **什么是cookie**
+- cookie会存放用户的**偏好信息、登录凭证**
 - `http`是无状态的协议，对于每次的事务处理是没有记忆能力的，结束会话就不会保存任何会话信息
 每个请求都是独立的，**为了进行会话跟踪**，就需要去维护一个状态
 这个状态可以通过`cookie`或者`session`实现
 - `cookie`存储在客服端上，一般不能超过4kb
 - `cookie`比较重要的属性：
-  - `domain`、`path`(跨域问题)
+  - `domain`、`path`(跨域)
+    - 指定 cookie 所属域名，默认是当前域名
+    - 指定 cookie 在哪个路径（路由）下生效，默认是 '/'。
+      如果设置为 /abc，则只有 /abc 下的路由可以访问到该 cookie，如：/abc/read。
   - `httpOnly`可以禁止`js`获取`cookie`防范`XSS`攻击，但是可以在`application`手动修改获取
   - `maxAge`(设置时间)
   - `secure`当 secure 值为 `true` 时，cookie 在 HTTP 中是无效，在 `HTTPS` 中才有效。
+  - `SameSite`属性
+    - strict模式，完全禁止第三方请求携带，完全遵守同源策略
+    - lax模式，在大多数情况下表现得像Strict，对get、post请求的网站更宽松了
+    - none模式，自动携带
 - 怎么生成的？发来请求，服务器就在响应头设置set-Cookie，指定了什么内容要放到cookie里，再发送就发请求头的cookie
 
 **什么是session**
@@ -118,13 +138,14 @@
 - `session`是基于`cookie`实现的，`session`存储在服务器端，`session ID`会被存储到客服端的`cookie`中
 ![image.png](https://p9-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/f8db049ca37343cda1fd37fde7c47e33~tplv-k3u1fbpfcp-watermark.image?)
 
-**他们两个的区别**
+**cookie和session的区别**
 - 安全性：`session`更安全
 - 存取值的类型不同：`Cookie` 只支持存**字符串数据**，想要设置其他类型的数据，需要将**其转换成字符串**，`Session` 可以存任意数据类型。
 - 有效期不同：cookie可长时间，session一般在**客服端关闭了**就失效了
 - 存储量：4kb，...
 
 **什么是Token**
+- 现在基本都是JWT规范来生成token，在我项目里就用到了JWT生成token。
 - **`Token`是指身份验证的令牌**，一般指`Access Token`比如当用户登录后，**服务器**会生成一个`token`发送给客服端，它包含一些加密的信息，后续请求中`验证`客服端用户的身份
 - 后续的请求中，客服端会把这个`token`作为**请求头的一部分**
 - `token`完全由应用管理，所以他可以避开同源策略
@@ -170,9 +191,13 @@
 
 **使用token时需要考虑的问题**
 - 会用到数据库查询，可能会导致查询时间长。
-- token 可以避免 CSRF 攻击，(因为不需要 cookie 了)
+- token 可以避免 `CSRF` 攻击，(因为不需要 `cookie` 了)
 
-
+# localStorage和sessionStorage
+- localStorage: 存储的数据是永久性的
+- sessionStorage: 窗口或者标签页被关闭,就会清除数据
+- localStorage: 在同一个浏览器内，同源文档之间共享 localStorage 数据，可以互相读取、覆盖。
+- sessionStorage：只有同一浏览器、同一窗口的同源文档才能共享数据。
 
 # HTTPS
 
@@ -184,6 +209,7 @@
 **什么是HTTPS**
 - HTTPS 是 HTTP 协议的一种扩展，它本身并不保证传输的证安全性
 - **传输层安全性**`(TLS)`或**安全套接字层**`(SSL)`对通信协议进行加密。也就是 `HTTP` +` SSL(TLS)` = `HTTPS`。
+- `TLS`是`SSL`的更新版本
 - 原理是`HTTP`和`TCP`之间建立了一个**安全层**，安全层的核心就是加解密
 - HTTPS默认使用**服务器**的`443`端口
 
@@ -194,7 +220,12 @@
 
 **讲讲HTTPS加解密的流程吧**
 
+[图解SSL/TLS协议 - 阮一峰的网络日志 (ruanyifeng.com)](http://www.ruanyifeng.com/blog/2014/09/illustration-ssl.html)
+
 ![image.png](https://p1-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/a912ac78bcbc4270888d418e6eaa520d~tplv-k3u1fbpfcp-watermark.image?)
+
+- 重点在`Premaster secret`，给到了服务器端解密后，有了对称加密的方法，那么两边都有对称加解密的方法了
+- 非对称加密开销大，复杂度高；并且公钥谁都有，可以解开。
 
 1. 用户发起`HTTPS`请求,和服务器的`443`端口连接
 2. `HTTPS`收到请求，返回响应，响应包括`CA`证书、证书里面有公钥`Public`，私钥`Private`保留在了服务器，不公开
@@ -264,6 +295,7 @@
 4. 等待TCP队列，一个域名下可能存在的TCP连接大于6个，就需要排队
 5. 建立TCP连接
   - 三次握手确定连接
+    - **SSL/TLS**
 6. 发起HTTP请求
 
 **为什么很多站点第二次打开速度会很快？**
@@ -340,21 +372,62 @@
 要注意的是，虽然在过去，Promise 对象的“解决”或“拒绝”操作可能会使用 setTimeout 来模拟异步执行，但现代浏览器和 JavaScript 引擎已经对其进行了优化，使得它们可以更加高效地处理微任务，并且不再需要使用 setTimeout 进行处理。因此，当调用 Promise.resolve() 或者 Promise.reject() 方法时，产生的微任务与 setTimeout 函数没有直接关系。
 
 
+# 讲一讲http各个版本
+## http0.9
+- 只支持GET请求，响应内容为纯文本
+## http1.0
+- 引入了POST、HEAD、PUT等方法
+- 支持响应头、状态码、字符集、多部分发送，代理
+- 支持cookie记录会话
+- B/C 和 C/S 两种不同的架构模式
+## http1.1
+- 持久化连接keepAlive
+- 管道传输:pipline
+- 同一个TCP上建立链接，多次发送，减少建立链接的次数
+- Cache值有哪些？
+  - public
+    - Cache-Control：public，max-age=8600
+    - CDN或其他代理服务器缓存 
+  - private
+    - 只能被客服端缓存 不允许中间节点缓存
+  - max-age
+  - no-store
+    - 谁也不可以缓存
+  - no-cache
+    - 一定是协商缓存
+    - 客服端或中间服务器需要发起验证请求，以确认缓存中的数据是否过期，过期就要 向服务器发起请求
+  - must-revalidate
+    - 客服端或中间服务器不得缓存过期的响应，并要求验证
+      - IF-Modified-Since If-None-Match
+- 虚拟主机
+  - 服务器建站角度
+    - 域名->ip DNS映射
+    - 服务器共享
+      - HOST字段，带有指定的域名
+
+# http 2.0
+- 多路复用
+- 二进制分帧(Frame)每个Frame都是一个二进制数据块，大小可控
+
+
+
+
+# 前端直接实现 url 跳转和重定向状态码 302 的区别
+- 发送请求，获取响应资源，加载页面
+- 返回302，会重定向到新的URL上请求资源
+
+# localStorage、sessionStorage
+- localStorage适合存储在多个会话之间需要共享的数据，例如用户喜好设置等；而sessionStorage适合存储一些临时性数据，例如表单数据、用户登陆状态等
+https://juejin.cn/post/6844903587764502536
+
+# http协议的构成
+- 请求
+- 响应
 
 
 
 
 
-
-
-
-
-
-- 样式穿透
-- css定位
-- css选择器优先级
-- 所有的html的选择器标签讲一讲，要举例子
-- Array原型链的理解
 
 
 

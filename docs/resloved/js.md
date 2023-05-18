@@ -131,8 +131,13 @@ const page = ref(pageNumber ? parseInt(`${ pageNumber }`, 10) : 1)
 
 # async/await
 
+# websocket io库？
 
 
-
+# npm yarn
+- npm和yarn都是JavaScript的包管理工具，可以用于在项目中安装、升级、删除和发布依赖项（也称为软件包或模块）。
+- npm是Node.js的默认软件包管理器，它允许用户从npm仓库中下载和安装各种JavaScript软件包。npm还允许用户创建自己的软件包并将其发布到npm仓库供其他人使用。npm提供了命令行工具，使用户可以方便地管理他们的软件包依赖关系，并且通常与Node.js一起安装。
+- 相比之下，Yarn是Facebook开发的软件包管理器，旨在解决npm存在的一些问题。例如，Yarn具有更快的安装速度，更好的缓存管理和更一致的安装结果。Yarn还提供了更多的功能，例如离线模式、自动锁定文件生成、版本控制和增量安装。此外，Yarn与npm很相似，因此对npm用户来说非常容易上手。
+- 虽然npm和yarn在某些方面略有不同，但它们的目标都是使**JavaScript项目的依赖管理**更加可靠和高效。
 
 
