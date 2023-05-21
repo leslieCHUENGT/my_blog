@@ -669,6 +669,7 @@ function getType(value) {
   if (type !== 'object' || value === null) {
     return type;
   }
+  
   // 获取对象类型
   const classType = Object.prototype.toString.call(value).slice(8, -1).toLowerCase();
   // 特殊对象类型

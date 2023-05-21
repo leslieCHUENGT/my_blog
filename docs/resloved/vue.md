@@ -56,10 +56,6 @@
 # vue3关于响应式源码里使用proxy时要用Reflect？
 ![image.png](https://p1-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/13ae065034b742b4af50c74487a6dbcf~tplv-k3u1fbpfcp-watermark.image?)
 
-# Object.defineProperty()
-- vue2里是通过Object.defineProperty()来进行数据劫持
-- 但是对象新增的属性和方法它监听不到，还需要手动Vue.set
-- 对于深度监听，要手动Vue.set
 
 # 懒加载的原理
 - 路由懒加载
@@ -84,6 +80,15 @@
 - 进行读操作的时候会拦截get操作，执行track函数，把相关的effect函数注册到全局的依赖地图里，实质是WeekMap里对于的key-value来存放的。
 - 当修改这个值的时候，就会拦截set操作，执行trigger函数，执行对应的effect函数，这样就完成了响应式：数值改变了，相关的函数自动执行，改变所有有关的数据
 - ref呢，当包裹简单数据类型的值来说，通过普通的对象的get value set vlaue来执行track和trigger函数，当是复杂数据类型时，调用reactive就行了。
+
+# Object.defineProperty 
+- 这个api是es5用来管理对象属性的行为的
+- 当我去研究vue2响应式Object.defineProperty的时候
+- 它是通过只能遍历对象的属性来进行劫持，返回的是对象本身
+- 而proxy是直接在对象外层加拦截，劫持整个对象，返回的是proxy代理的对象
+- Object.defineProperty来实现响应式，因为是get和set方法进行监听，对对象的删除或者添加属性是劫持不到的
+- 而proxy的handler方法是拦截读写等操作
+- 对于数组而言还需要重写数组的方法，里面需要添加执行相关的effect函数
 
 # v-if、v-for为什么不建议同时使用
 - v-if指令用来判断要不要渲染
@@ -111,6 +116,14 @@
 - 一般用来发送异步的请求和监听滚动的事件
 - 其次就是开发国际化组件的时候，用了onBeforeMount
 - 因为在这个时候vue已经编译了模板，生成了虚拟dom，初始化dom，但是在节点里的变量数据还没有挂载到dom上，此时国际化就起到了作用。
+
+
+# 怎么理解porxy对象要用reflect来进行获取操作
+- 因为reflect函数的第三个参数是receiver
+- 他简单来说就是指向的this值
+- 可以确保this的正确指向
+- 当对一个函数进行调用，这个函数里面如果引用了响应式对象的属性，用普通的方法获取，比如.或者[]，那么就只会执行一次。
+
 
 
 
