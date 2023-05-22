@@ -555,34 +555,6 @@ console.log(arr); // [1, 2, 3, 4, 5, 6, 7]
 
 ```
 
-# 深拷贝
-
-
-```javascript
-function clone(target, map = new WeakMap()) {
-    if (typeof target === 'object') {
-        const isArray = Array.isArray(target);
-        let cloneTarget = isArray ? [] : {};
-
-        if (map.get(target)) {
-            return map.get(target);
-        }
-        map.set(target, cloneTarget);
-
-        const keys = isArray ? undefined : Object.keys(target);
-        forEach(keys || target, (value, key) => {
-            if (keys) {
-                key = value;
-            }
-            cloneTarget[key] = clone2(target[key], map);
-        });
-
-        return cloneTarget;
-    } else {
-        return target;
-    }
-}
-```
 
 # 单例模式
 一个经典的单例模式的例子是应用程序中的日志记录器。在一个应用程序中，通常会有多个模块或组件需要记录日志，如果每个模块都自己创建一个日志记录器实例，不仅会浪费系统资源，而且还会导致日志信息的管理和维护变得困难。
@@ -658,6 +630,29 @@ target.target = target;// 自己添加自己属性，克隆时会爆栈
 - 还可以通过用while循环来优化遍历花费的时间
 - 深拷贝一个函数可以使用`Function.prototype.toString()`方法将函数转化为字符串，再使用`eval()`或者new Function()构造函数来创建一个新的函数。
 
+```js
+function deepClone(obj, hash = new WeakMap()) {
+  if (obj === null) return obj; // 如果是null我就不进行拷贝操作
+  if (obj instanceof Date) return new Date(obj);
+  if (obj instanceof RegExp) return new RegExp(obj);
+  // 可能是对象或者普通的值  如果是函数的话是不需要深拷贝
+  if (typeof obj !== "object") return obj;
+  // 是对象的话就要进行深拷贝
+  if (hash.get(obj)) return hash.get(obj);
+  let cloneObj = new obj.constructor();
+  // 找到的是所属类原型上的constructor,而原型上的 constructor指向的是当前类本身
+  hash.set(obj, cloneObj);
+  for (let key in obj) {
+    if (obj.hasOwnProperty(key)) {
+      // 实现一个递归拷贝
+      cloneObj[key] = deepClone(obj[key], hash);
+    }
+  }
+  return cloneObj;
+}
+
+```
+
 
 
 # js判断类型的方法
@@ -665,30 +660,37 @@ target.target = target;// 自己添加自己属性，克隆时会爆栈
 function getType(value) {
   const type = typeof value;
 
-  // 基本数据类型或null
   if (type !== 'object' || value === null) {
     return type;
   }
   
   // 获取对象类型
   const classType = Object.prototype.toString.call(value).slice(8, -1).toLowerCase();
-  // 特殊对象类型
-  if (value instanceof Set) {
-    return 'set';
-  } else if (value instanceof Map) {
-    return 'map';
-  }
+
   return classType;
 }
 ```
 - typeof来判断是否是对象还是原始数据类型
+  - 需要区分一下null和object
+  - 可以识别简单数据类型和function
 - Object.prototype.toString.call().sclice(8,-1).toLowerCase()
-  - 获取调用该方法对象的[[class]]属性
-  - 使用它来获取任何对象的类型信息子类型
-  - 可以识别Date()等
-- 之外，假如我们还要添加新的数据结构判断能力
-- Set、Map是Object的子类，Object.prototype.toString.call()会出来Object
-- 可以用instanceof来在原型上查找
+  - 可以处理各种数据类型
+- instanceof来在原型上查找是否是该对象的实例
+
+```js
+console.log(typeof "hello");   // 输出: "string"
+console.log(typeof 42);        // 输出: "number"
+console.log(typeof true);      // 输出: "boolean"
+console.log(typeof {});        // 输出: "object"
+console.log(typeof []);        // 输出: "object"
+console.log(typeof null);      // 输出: "object"
+console.log(typeof undefined); // 输出: "undefined"
+console.log(typeof function(){}); // 输出: "function"
+
+console.log(Object.prototype.toString.call(NaN));         // [object Number]
+console.log(Object.prototype.toString.call(Infinity));    // [object Number]
+console.log(Object.prototype.toString.call(-Infinity));   // [object Number]
+```
 
 # call、apply、bind
 - B.call (A, args1,args2)
@@ -726,8 +728,10 @@ if(JSON.stringify(obj) === '{}'){
 ```
 
 # for in、for of的区别
-- for in 遍历的是索引index，for of 遍历的是元素值value
-- for in适合遍历对象，也可以遍历数组，但是遍历数组的时候会遍历原型上自定义的方法和属性，并且有个问题是，这个索引index值是string类型的，不是number，可以用hasOwnProperty方法来判断一下是不是非对象自身的属性或者方法
+- for in 遍历的是索引**index**
+- for of 遍历的是元素值**value**
+
+- for in适合遍历对象，也可以遍历数组，但是遍历数组的时候会遍历原型上自定义的方法和属性，并且有个问题是，这个索引index值是string类型的，不是number，可以用**hasOwnProperty**方法来判断一下是不是非对象自身的属性或者方法
 代码如下：
 ```js
 var arr = [1,2,3]

@@ -453,7 +453,7 @@ https://time.geekbang.org/column/article/113513
 - 而eventloop就是执行的机制
 - 实际上浏览器源码里就是一个不会停止的循环，对消息队列取出第一个任务执行，其他线程会把任务添加到消息队列的末尾
 - 现在的浏览器对消息队列里的任务不只分为宏任务和微任务了，为了区别优先级
-- 有微队列、交互队列、延时队列等
+- **微队列**、**交互队列**、**延时队列**等
 - W3C官网的说法是：必须要有微队列，同一种任务要放同一个队列里，微任务的具有最高优先级，必须优先调度执行。
 
 # 讲一讲js计时器可以做到精准计时吗
@@ -509,6 +509,7 @@ https://time.geekbang.org/column/article/113513
 - 返回302，会重定向到新的URL上请求资源
 
 # localStorage、sessionStorage
+[Cookie、localStorage和sessionStorage的区别？](https://juejin.cn/post/6970291738652966942)
 - localStorage适合存储在多个会话之间需要共享的数据，例如用户喜好设置等；而sessionStorage适合存储一些临时性数据，例如表单数据、用户登陆状态等
 https://juejin.cn/post/6844903587764502536
 

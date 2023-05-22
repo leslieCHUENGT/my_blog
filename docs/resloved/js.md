@@ -154,4 +154,57 @@ setTimeOut(function(){
 # 回调函数
 - 回调函数是一种函数，它作为参数传递给另一个函数，并在特定的时刻被该函数调用。
 
+# 原型和原型链的理解
+
+![](https://p1-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/e21b39c61d784492927f9027d8092a7d~tplv-k3u1fbpfcp-zoom-in-crop-mark:4536:0:0:0.awebp?)
+
+```js
+// 构造函数Foo--上溯：Object()
+function Foo(name){
+    this.name=name;
+};
+console.log(Foo.prototype);//{constructor: ƒ}constructor: ƒ Foo(name)[[Prototype]]: Object
+console.log(Foo.prototype.constructor);//[Function: Foo]
+console.log(Foo);//[Function: Foo]
+// 实例化对象f1,f2--上溯：Foo()
+var f1=new Foo();
+console.log(f1.__proto__);//{constructor: ƒ}constructor: ƒ Foo(name)[[Prototype]]: Object==Foo.prototype
+console.log(f1.__proto__==Foo.prototype);//true
+console.log(f1.prototype);//undefined,实例对象上没有显示原型
+
+console.log(Foo.prototype.__proto__);//constructor: ƒ Object()
+//对象
+function Object(){};
+console.log(Object.prototype);//constructor: ƒ Object()==Foo.prototype.__proto__
+console.log(Object.prototype.constructor);//ƒ Object(){}
+console.log(Object);//ƒ Object(){}
+console.log(Object.__proto__);//ƒ () { [native code] }
+
+var o1=new Object();
+console.log(o1.__proto__==Object.prototype);//true
+
+console.log(Object.prototype.__proto__);//null
+
+```
+- Foo和Object都是通过 function Function(){} 创造
+
+# 你讲一讲什么是原型和原型链
+- 原型是构造函数创造的对象的公共祖先，是一个属性，这个属性是一个对象
+- 构造函数创造出来的对象可以继承原型上的方法和属性
+- 就避免了开辟新的内存存放同样的方法和属性
+
+- 原型链就是原型通过__proto__来查找上一层的原型，这样一直下去直到指向null，构成的链
+
+- prototype 函数的原型（显示原型）； __proto__(或者[[prototype]])对象原型（隐式原型）。
+
+
+#   Number  parseInt parseFloat
+第一个例子中，Number 函数试图将给定的字符串转换为数字。由于 '123.3blue' 不是一个合法的数字，Number 函数返回 NaN（Not a Number）。
+
+第二个例子中，parseInt 函数也试图将给定的字符串转换为数字。但是，它只会解析整数部分，遇到非数字字符就会停止解析。因此，对于 '123.3blue'，parseInt 返回整数部分 123。
+
+第三个例子中，parseFloat 函数会尝试解析给定字符串并返回一个浮点数。与 parseInt 不同，parseFloat 可以解析小数点及其后面的数字。因此，对于 '123.3blue'，parseFloat 返回浮点数 123.3。
+
+
+
 

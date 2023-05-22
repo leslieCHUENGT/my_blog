@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Document</title>
+  <style>
+    *{
+      margin: 0;
+      padding: 0;
+    }
+    .header,
+    .footer {
+      height: 40px;
+      width: 100%;
+      background: red;
+    }
+
+    .footer {
+      clear: both;
+    }
+
+    .container {
+      padding-left: 200px;
+      padding-right: 250px;
+    }
+
+    .container div {
+      position: relative;
+      float: left;
+    }
+
+    .middle {
+      width: 100%;
+      background: yellow;
+    }
+
+    .left {
+      width: 200px;
+      background: pink;
+      margin-left: -100%;
+      left: -200px;
+    }
+
+    .right {
+      width: 250px;
+      background: aqua;
+      margin-left: -250px;
+      left: 250px; 
+    }
+    /* 具体来说，这里通过设置了父容器的左右内边距（padding-left:200px 和 padding-right:250px），
+    来给左右两个浮动元素留出足够的空间。
+    这样一来，即使左侧或右侧内容区域的宽度变得很窄，它们也不会完全消失并导致父容器的高度坍塌。
+
+    最后，在底部区域（class="footer"的 div 元素）中使用clear属性清除浮动（clear: both），
+    从而避免浮动元素影响后面的元素布局，并确保底部区域能够正确地放置在整个布局的最下面。 */
+  </style>
+</head>
+
+<body>
+  <div class="header">这里是头部</div>
+  <div class="container">
+
+    <div class="middle">中间部分</div>
+
+
+    <div class="left">左边</div>
+
+    <div class="right">右边</div>
+  </div>
+  <div class="footer">这里是底部</div>
+</body>
+
+</html>

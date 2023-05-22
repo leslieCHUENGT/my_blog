@@ -2,7 +2,7 @@
 
 ## h函数的作用
 
-在模板引擎的年代，组件的产出是 `html` 字符串，而如今的 `Vue` 或 `React`，它们的组件所产出的内容并不是 `html` 字符串，而是大家所熟知的 `Virtual DOM`。下面我们用`snabbdom的h函数`来简单了解一下h函数创建`Virtual DOM`以及渲染到真实DOM的过程。
+在模板引擎的年代，组件的产出是 `html` 字符串，而如今的 `Vue` 或 `React`，它们的组件所产出的内容并不是 `html` 字符串，而是大家所熟知的 `Virtual DOM`。下面我们用`snabbdom的h函数`来简单了解一下`h`函数创建`Virtual DOM`以及渲染到真实DOM的过程。
 
 ***
 

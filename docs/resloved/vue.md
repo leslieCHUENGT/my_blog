@@ -112,11 +112,13 @@
 
 # 讲一讲你对vue生命周期的理解
 - 在vue项目里我用得最多的就是生命周期钩子函数onMounted
-- 它是在组件挂载之后立即被调用和执行
-- 一般用来发送异步的请求和监听滚动的事件
+- 它是在组件**挂载之后立即被调用和执行**
+- 一般用来发**送异步的请求和监听滚动的事件**
 - 其次就是开发国际化组件的时候，用了onBeforeMount
-- 因为在这个时候vue已经编译了模板，生成了虚拟dom，初始化dom，但是在节点里的变量数据还没有挂载到dom上，此时国际化就起到了作用。
+- 因为在这个时候vue已经编译了模板，生成了**虚拟dom**，**初始化dom**，但是在节点里的变量数据**还没有挂载到dom上**，此时国际化就起到了作用。
 
+- beforeCreate->created
+  - 创建vue实例，进行数据处理
 
 # 怎么理解porxy对象要用reflect来进行获取操作
 - 因为reflect函数的第三个参数是receiver
@@ -124,10 +126,73 @@
 - 可以确保this的正确指向
 - 当对一个函数进行调用，这个函数里面如果引用了响应式对象的属性，用普通的方法获取，比如.或者[]，那么就只会执行一次。
 
+# 讲一讲vue里router是怎么实现的
+- vue-router是全局组件，需要再main.js里调用app.use方法引入，它会自动install，注册到全局
+- 会注册两个组件router-link和router-view
+- 正常配置路由的时候，选择创建路由方式hash或者history还有路由的信息，调用createRouter来创建实例对象
+- 创建实例时
+- 一是会需要监听hashchange事件，及时更改响应式数据url
+- 二是通过inject和provide来使全局都可以获取到配置的路由对象的信息
+- 然后router-link就负责是url改变
+- router-view就用vue里的component组件来进行在对应的url下渲染对应组件
 
+# 讲一讲vue里vuex是怎么实现的
+- 一是vuex的Store类里只有commit方法可以去提交然后执行事件，这样就满足了设计
+- 在commit方法里会对mutations进行执行
+- 二是通过provide和inject来使得全局都可以访问store的信息
+- 底层就是订阅发布者模式对数据和视图层进行解构
 
+# 讲一讲你了解的koa源码是怎么回事
+- 在原生Node环境下，不使用框架，对其response和request进行操作，调用listen监听某个端口
+- 相比之下，Koa多了两个实例上的方法use、listen方法和use回调中的ctx、next两个参数
+- 这个基本就是Koa的全部了
+- listen实际上是http的语法糖，实际上用的就是http.createServer()
+- use就是koa的核心——中间件，基于Promise，解决异步的回调地狱问题，原理就是利用了compose函数，使用next方法，从上一个中间件跳到下一个中间件
+  - compose函数就是把当中间件函数进行串联起来，通过递归调用来实现，正因为next方法才可以串起来。
+- use回调的参数ctx把req和res合而为一，可以更方便的直接调用query方法或者path方法解析参数，更加简洁
+  
+# vue组件之间的8种传信方式
+[【vue进阶之旅】组件通信的8种方式，你搞清楚了吗？ - 掘金 (juejin.cn)](https://juejin.cn/post/7022054075411726366#heading-0)
+- 父组件子组件传信
+  - props
+  - 通过$emits触发自定义事件
+  - ref/$refs，父组件通过this.$refs.子组件名来调用子组件上的方法
+- 还有几种就是可以不受限制的
+  - vue2里有一个中央事件总线eventbus，不受组件关系限制，都可以传递和获取
+  - $parent/ $children通过调用方式来确定父子组件的关系，获取信息，官方不推荐使用
+  - vuex/pinia,管理所有组件状态的工具
+  - 本地存储localStorage/sessionStorage
+  - `$attrs`/`$listeners`
+##### 一：`props`/`$emit`(父传子，子传父，子调父)
 
+##### 二：`$bus`（任意组件传值，任意组件调方法）
 
+##### 三：`ref/$refs`（父调子）
 
+##### 四：`$parent`/ `$children`（父子组件）
+
+##### 五：`provide`/`reject`（跨级组件）
+
+##### 六：`Vuex`（任意组件）
+
+##### 七：`localStorage`/`sessionStorage`（任意组件）
+
+##### 八：`$attrs`/`$listeners`（跨级组件）
+
+# 讲一讲虚拟dom和diff算法
+- 首先vue编译模板，生成了ast抽象语法树
+- h函数就可以根据ast抽象语法树上的节点信息进行递归遍历
+- 生成的是虚拟dom
+  - h函数的工作流程就是把类型给确定好
+  - 给节点添加上各种标签
+  - 添加上标签有利于后续的diff算法可以高效进行
+- diff算法
+  - 对比递增子序列的过程
+  - 1234
+  - 2143
+  - 寻找新的vonde节点的最大标记值
+  - 那么就可以知道哪些节点是增加和插入
+  - 对于删除来说，只能通过对比新旧节点来进行标记
+- 最后就通过render函数来进行渲染
 
 

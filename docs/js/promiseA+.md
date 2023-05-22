@@ -497,11 +497,15 @@ myPromise.reject = function(val){
 }
 //race方法 
 myPromise.race = function(promises){
-  return new Promise((resolve,reject)=>{
-    for(let i=0;i<promises.length;i++){
-      promises[i].then(resolve,reject)
-    };
-  })
+  return new Promise((resolve, reject) => {
+    promises.forEach(promise => {
+      Promise.resolve(promise).then(result => {
+        resolve(result);
+      }).catch(error => {
+        reject(error);
+      });
+    });
+  });
 }
 //all方法(获取所有的promise，都执行then，把结果放到数组，一起返回)
 Promise.all = (promises) => {
@@ -519,7 +523,7 @@ Promise.all = (promises) => {
             Promise.resolve(item).then((res) => {
                 results[index] = res;
                 doneCount++;
-                if (doneCount === promises.length) return resolve(results);
+                if (doneCount === promises.length) resolve(results);
             }).catch(err => {
                 reject(err);
             })
@@ -527,6 +531,8 @@ Promise.all = (promises) => {
     })
 }
 ``` 
+- 当你需要遍历一个异步可迭代对象并且该对象中的每个项都返回一个 Promise 时，就可以使用 for-await-of 循环。 在这种情况下，使用普通的 for…of 循环将不起作用，**因为它不能等待 Promise 的解析**。相反，for-await-of 循环会等待 Promise 完成，并将其完成值作为下一个项返回。
+- 
 - Promise.all() 方法`接收一个 promise 的 iterable 类型`（注：Array，Map，Set 都属于 ES6 的 iterable 类型）的输入，并且`只返回一个Promise实例`，那个输入的所有 promise 的 resolve 回调的结果是一个数组。这个Promise的 resolve 回调执行是在所有输入的 promise 的 resolve 回调都结束，或者输入的 iterable 里没有 promise 了的时候。它的 reject 回调执行时，只要任何一个输入的 promise 的 reject 回调执行或者输入不合法的 promise 就会立即抛出错误，并且 reject 的是第一个抛出的错误信息。
 - for of 比forEach靠谱
 
@@ -553,7 +559,8 @@ Promise.all = (promises) => {
 const printNumbers = async () => {
   const array = [1, 2, 3];
   for (let i = 0; i < array.length; i++) {
-    await new Promise((resolve) => setTimeout(() => {
+    await new Promise((resolve) => 
+    setTimeout(() => {
       console.log(array[i]);
       resolve();
     }, 1000));
@@ -592,11 +599,11 @@ const light = (timer,cb) => {
 // 
 const step = () => {
   Promise.resolve().then(() => {
-    return light(3000,red);
+    light(3000,red);
   }).then(() => {
-    return light(2000,green);
+    light(2000,green);
   }).then(() => {
-    return light(1000, yellow)
+    light(1000, yellow)
   })
 }
 
@@ -630,7 +637,65 @@ function loadImage(url){
 }
 ```
 ## 限制异步操作的并发个数并尽可能快的完成全部
+```js
+function limitConcurrency(tasks, concurrencyLimit) {
+  // 返回一个新的 Promise，用于封装所有的异步操作
+  return new Promise((resolve, reject) => {
+    const results = []; // 存放每个任务的结果
+    let runningCount = 0; // 当前正在运行的任务个数
+    let currentIndex = 0; // 当前要执行的任务索引
 
+    // 定义一个递归函数，用于执行任务
+    function runNextTask() {
+      // 如果当前正在运行的任务个数已经达到了限制，或者所有任务都已经执行完成，则退出递归
+      if (runningCount >= concurrencyLimit || currentIndex >= tasks.length) {
+        return;
+      }
+
+      // 取出当前要执行的任务
+      const task = tasks[currentIndex++];
+
+      // 执行任务，并将结果存入 results 数组中
+      const taskPromise = task().then(result => {
+        results.push(result);
+        runningCount--;
+        runNextTask();
+      }).catch(error => {
+        reject(error);
+      });
+
+      // 更新当前正在运行的任务个数，并继续执行下一个任务
+      runningCount++;
+      runNextTask();
+
+      // 返回当前任务的 Promise，可以用来取消任务等操作
+      return taskPromise;
+    }
+
+    // 首次调用递归函数，开始执行任务
+    runNextTask();
+
+    // 当所有任务执行完成后，将结果数组传递给 resolve 函数
+    const checkAllTasksDone = setInterval(() => {
+      if (currentIndex >= tasks.length && runningCount === 0) {
+        clearInterval(checkAllTasksDone);
+        resolve(results);
+      }
+    }, 10);
+  });
+}
+
+// 示例用法
+const tasks = [
+  () => new Promise(resolve => setTimeout(() => resolve(1), 3000)),
+  () => new Promise(resolve => setTimeout(() => resolve(2), 2000)),
+  () => new Promise(resolve => setTimeout(() => resolve(3), 1000)),
+  () => new Promise(resolve => setTimeout(() => resolve(4), 500)),
+];
+
+limitConcurrency(tasks, 2).then(results => console.log(results)); // [3, 4, 2, 1]
+
+```
 [面试 JS 篇 - Promise 相关面试题 - 掘金 (juejin.cn)](https://juejin.cn/post/7217637205589721148)
 
 ## Promise 的含义
@@ -715,7 +780,7 @@ console.log('next');
 // now
 // next
 ```
-```
+```js
 try {
   database.users.get({id: userId})
   .then(...)
@@ -727,7 +792,7 @@ try {
 
 上面这样的写法就很笨拙了，这时就可以统一用`promise.catch()`捕获所有同步和异步的错误。
 
-```
+```js
 Promise.try(() => database.users.get({id: userId}))
   .then(...)
   .catch(...)
@@ -841,11 +906,44 @@ const promiseAll = async (iterable) => {
   }
   const resolvedValues = [];
   for await (const promise of iterable) {
-    resolvedValues.push(await Promise.resolve(promise));
+    try {
+      resolvedValues.push(await Promise.resolve(promise));
+    } catch (error) {
+      console.error(error);
+    }
   }
   return resolvedValues;
 }
 ```
+# [Symbol.iterator]
+- 当我们使用 `for...of` 循环或者展开运算符 `...` 来遍历一个对象时，
+- `JavaScript` 引擎会自动查找该对象是否实现了 [Symbol.iterator] 方法，
+- 如果有，则调用该方法并获取一个迭代器对象，然后通过不断调用迭代器对象的 `next()` 方法来逐个访问该对象的元素，直到迭代器对象的 `done` 属性为 `true` 为止。
+
+```javascript
+const myArray = [1, 2, 3, 4];
+
+myArray[Symbol.iterator] = function() {
+  let index = 0;
+  
+  return {
+    next: () => {
+      if (index < this.length) {
+        return { value: this[index++], done: false };
+      } else {
+        return { done: true };
+      }
+    }
+  }
+}
+
+for (let item of myArray) {
+  console.log(item);
+}
+
+```
+
+
 
 ```javascript
 //all方法(获取所有的promise，都执行then，把结果放到数组，一起返回)
