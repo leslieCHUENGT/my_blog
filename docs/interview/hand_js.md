@@ -127,19 +127,23 @@ function compose(...fn) {
 }
 // 用法如下:
 function fn1(x) {
+  console.log("1")
   return x + 1;
 }
 function fn2(x) {
+  console.log("2")
   return x + 2;
 }
 function fn3(x) {
+  console.log("3")
   return x + 3;
 }
 function fn4(x) {
+  console.log("4")
   return x + 4;
 }
 const a = compose(fn1, fn2, fn3, fn4);
-console.log(a(1)); // 1+4+3+2+1=11
+console.log(a(1)); // 4 3 2 1 11
 
 ```
 
@@ -254,9 +258,15 @@ function flatter(arr) {
 ```
 # new
 ## new 操作符
+- 创建一个空对象。
+- 将这个空对象的原型设置为构造函数的原型。
+- 将构造函数中的 this 绑定到这个新对象上,方便后续可以调用自己这个新对象的属性。
+- 执行构造函数中的代码，初始化这个新对象。
+- 返回这个新对象。
 ```javascript
 function myNew(constructor, ...args) {
   // 创建一个空对象，并将它的原型指向构造函数的 prototype 属性
+  // 它的作用是以指定对象为原型创建一个新的对象，新对象会继承原型对象的所有属性和方法
   const obj = Object.create(constructor.prototype);
   // 调用构造函数，并将 this 绑定到新创建的对象上
   const result = constructor.apply(obj, args);
@@ -633,8 +643,8 @@ target.target = target;// 自己添加自己属性，克隆时会爆栈
 ```js
 function deepClone(obj, hash = new WeakMap()) {
   if (obj === null) return obj; // 如果是null我就不进行拷贝操作
-  if (obj instanceof Date) return new Date(obj);
-  if (obj instanceof RegExp) return new RegExp(obj);
+  // if (obj instanceof Date) return new Date(obj);
+  // if (obj instanceof RegExp) return new RegExp(obj);
   // 可能是对象或者普通的值  如果是函数的话是不需要深拷贝
   if (typeof obj !== "object") return obj;
   // 是对象的话就要进行深拷贝
@@ -727,8 +737,8 @@ if(JSON.stringify(obj) === '{}'){
 ```
 
 # for in、for of的区别
-- for in 遍历的是索引**index**
-- for of 遍历的是元素值**value**
+- for in 遍历的是索引**index**    
+- for of 遍历的是元素值**value**    
 
 - for in适合遍历对象，也可以遍历数组，但是遍历数组的时候会遍历原型上自定义的方法和属性，并且有个问题是，这个索引index值是string类型的，不是number，可以用**hasOwnProperty**方法来判断一下是不是非对象自身的属性或者方法
 代码如下：
