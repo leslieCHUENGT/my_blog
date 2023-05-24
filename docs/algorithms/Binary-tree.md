@@ -114,7 +114,7 @@ var levelOrder = function(root) {
     queue.push(root);
     // 因为结果要求[[],[]],所以在while循环中，嵌套for循环，方便把每一层都存放在数组里面，
     //此时每遍历一个节点就可以把他的左右孩子放入队列中，方便后续的遍历
-    while(queue.length ) {
+    while(queue.length) {
         // 记录当前层级节点数
         let length = queue.length;
         //存放每一层的节点 

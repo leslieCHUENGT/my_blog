@@ -518,7 +518,39 @@ https://juejin.cn/post/6844903587764502536
 - 响应
 
 
+# 淘宝跳转到天猫
+- 单点登录SSO
+# 微信授权
+B端<---->微信(oAuth Accsess token 时间戳)<------>用户
 
+# webscoket
+- 轮询：不停连接或者始终打开
+
+# jsonp
+- `POST` 请求通常需要在请求体中携带数据，而 `script` 标签没有相应的属性可以设置请求体，因此无法使用 `POST` 请求方式进行数据传输。
+
+# 讲一讲http各个版本
+## http1
+- http协议是基于TCP/IP
+- 因为http0.9设计出来的时候，既没有请求头响应头、返回的内容就是ASCII字符流传输的html
+- http1.0为了可以为了支持多种类型的文件的下载，就引入了请求头响应头来进行协商
+- 此时就才引入了get、post请求还有状态码，浏览器重要的缓存机制，用户代理字段信息(不同用户，不同体验)，
+## 讲一讲浏览器的缓存机制
+-   
+
+## 讲一讲常见的响应头、请求头
+```js
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) 
+            AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3
+accept: text/html
+accept-encoding: gzip, br, deflate
+accept-Charset: utf-8
+accept-language: en-US,zh-CN
+```
+```js
+content-encoding: br
+content-type: text/html; charset=UTF-8
+```
 
 
 

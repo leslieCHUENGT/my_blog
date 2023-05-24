@@ -54,12 +54,28 @@
 - `Plugin`的本质就是本质是一个具有apply方法javascript对象，基于`事件流框架 Tapable`，插件可以`扩展 Webpack 的功能`，可以对`JS代码进行压缩混淆`、对`处理图片、字体等资源文件，将其转换为base64格式或者单独的文件`、将`多个JS文件合并成一个`等等。这些操作都需要依靠Plugin来完成。在 Webpack 运行的生命周期中会广播出许多事件，Plugin 可以`监听这些事件`，在`合适的时机`通过 Webpack 提供的 API `改变输出结果。`
 - Plugin 在 plugins 中单独配置，类型为数组，每一项是一个 Plugin 的实例，参数都通过构造函数传入。
 
-
-
-
-
-
-
+# 打包优化
+- 代码压缩和混淆
+  - js压缩的插件`UglifyJSPlugin` / `TerserPlugin`
+    - 混淆、删除多余的空格、注释、console.log()和未使用的代码等
+      - 混淆就是将变量名改为短且无意义的名字，使得难以破解SayHello()->S()
+    - 本质就是根据AST抽象语法树来进行重命名和分配
+    - 报错怎么办：`dev-tool:'source-map'`
+  - css压缩的插件 `MiniCssExtractPlugin`将CSS提取为**单独的文件**，并使用css-loader和uglifyjs-webpack-plugin对其进行压缩。
+    - scoped带来css的安全性？
+  - gzip压缩,Http2.0？  
+- treeshaking
+    - 基于es6模块化，静态分析，无用代码
+  - 图片方面
+    - 为了减小文件的大小，可以把部分小并且不怎么变的的图片转换成`base64`格式的
+    - 为了**减少并发请求数**，还可以放在`js`文件里
+    - webp批处理
+- code splitting
+  -  import() 函数来实现动态代码分割，将一个大型的 JavaScript 应用程序拆分为多个小块，然后按需加载这些小块。
+  - vue3 composition api 函数式使得更友好
+  - 框架懒加载
+  - 图片懒加载
+  - 使用cdn vendor js css
 
 
 

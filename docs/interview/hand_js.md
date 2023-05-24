@@ -654,7 +654,6 @@ function deepClone(obj, hash = new WeakMap()) {
 ```
 
 
-
 # js判断类型的方法
 ```javascript
 function getType(value) {

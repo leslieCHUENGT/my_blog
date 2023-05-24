@@ -205,6 +205,71 @@ console.log(Object.prototype.__proto__);//null
 
 第三个例子中，parseFloat 函数会尝试解析给定字符串并返回一个浮点数。与 parseInt 不同，parseFloat 可以解析小数点及其后面的数字。因此，对于 '123.3blue'，parseFloat 返回浮点数 123.3。
 
+# js事件流机制
+- 当用户点击页面浏览器页面时，浏览器主进程处理事件
+- 跨进程间通信，渲染进程进行任务处理，事件循环机制进行处理
+- js事件流就发生在这个时候
+- 从window上往事件触发处传递，注册的捕获事件就会触发
+- 从事件触发处往window上传递，注册的冒泡事件就会触发
+- body -> div -> button 
+- addEventListener
+  - 第一个参数，必须。**字符串**指定事件名。
+  - 第三个参数，**默认是false，即注册为冒泡事件**
+- **当改为true，即注册为捕获事件**
+```js
+  box.addEventListener('click',()=>{
 
+  },false)
+```
+
+```html
+<ul class="color_list">        
+    <li>red</li>        
+    <li>orange</li>        
+    <li>yellow</li>        
+    <li>green</li>        
+    <li>blue</li>        
+    <li>purple</li>    
+</ul>
+<div class="box"></div>
+```
+```js
+var color_list = document.querySelector("color_list")
+color_list.addEventListener("click",(e)=>{
+  var e = e || window.event;
+  if(e.target.tagName.toLowerCase() === "li"){
+    console.log("click")
+  }
+},false)
+```
+- 阻止事件冒泡
+  - `stopPropagation`和`stopImmediatePropagation`的区别
+  - 都可以阻止事件向上传播，后者还可以立即停止该节点上其他所有的事件监听器的执行
+  - event.target.nodeName === event.CurrentTarget.nodeName
+  - 触发的元素   绑定事件的元素
+```html
+<body onclick="handleClick(event)">
+    <!-- e.target 和 e.currentTarget 区别？ -->
+    <!-- js事件底层 
+    先到达浏览器body 
+    capture 事件捕获 
+    event.target Dom节点 终点
+    -->
+    <button id="btn1">按钮1</button>
+    <button id="btn2">按钮2</button>
+    <button id="btn3">按钮3</button>
+
+    <script>
+        // 事件委托是js 优化的一种方案
+        function handleClick(event) {
+            console.log('点击了：', event.target.nodeName,
+                ', 事件绑定在', event.currentTarget.nodeName
+            );
+        }
+    </script>
+</body>
+```
+
+# js和ts
 
 
