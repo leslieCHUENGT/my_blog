@@ -176,7 +176,7 @@ vw ，就是`根据窗口的宽度`，`分成100等份`，`100vw就表示满宽`
 
 1.  使用 Flexbox 布局：将父元素设置为 display: flex; 并使用 justify-content 和 align-items 属性来分别使子元素水平和垂直居中。
 2.  使用绝对定位和 transform 属性：将父元素设置为相对定位，子元素设置为绝对定位，并将 top、bottom、left 和 right 属性设为 0，然后使用 transform 属性来使子元素水平和垂直居中。
-3.  使用绝对定位和 margin 属性：将父元素设置为相对定位，子元素设置为绝对定位，并将 top、bottom、left 和 right 属性设为 0，然后使用 margin 属性来自动计算居中位置。
+3.  使用绝对定位和 margin 属性：将父元素设置为相对定位，子元素设置为绝对定位，并将 top、bottom、left 和 right 属性设为 0，然后使用 margin 属性 auto 来自动计算居中位置。
 4.  使用表格布局：将父元素设置为 display: table;，并将子元素设置为 display: table-cell;，然后使用 vertical-align 和 text-align 属性来使子元素水平和垂直居中。
 5.  使用 CSS Grid 布局：将父元素设置为 display: grid; 并使用 justify-items 和 align-items 属性来分别使子元素水平和垂直居中。
 6.  使用 JavaScript：通过计算父元素和子元素的宽度和高度以及位置，动态地设置子元素的居中位置。
@@ -215,8 +215,20 @@ child.style.left = `${(parentWidth - childWidth) / 2}px`;
 child.style.top = `${(parentHeight - childHeight) / 2}px`;
 ```
 
+# requestAnimationFrame与requestIdleCallback的区别
+- requestAnimationFrame
+  - ~的回调函数在浏览器下一次重绘之前执行
+  - 会根据刷新率来执行
+  - 很合适处理动画和频繁更新的UI元素
+- requestIdleCallback
+  - ~空闲
+  - 性能优化和复杂计算
 
-
-
-
+# transition和animation
+- transition
+  - 过渡的动画效果
+- animation
+  - 一组关键帧的集合
+  - 每个关键帧定义了某个动画的状态和时间点
+  - 实现比较复杂的动画效果
 

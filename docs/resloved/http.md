@@ -600,6 +600,18 @@ content-type: text/html; charset=UTF-8
 - 强缓存
   - Expires 绝对时间，本地可改
 
+# cors处理http和https的区别
+- Access-Control-Allow-Origin即可允许来自任意域名的请求
+- 不论是HTTP还是HTTPS请求，处理方式都是相同的
+
+
+
+
+
+
+
+
+
 
 
 

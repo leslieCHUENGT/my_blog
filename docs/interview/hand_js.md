@@ -327,7 +327,7 @@ class EventEmitter {
       this.off(event, wrapper);
     };
 
-    // 将新的回调函数添加到回调函数列表中
+    // 将新的回调函数添加到回调函数列表中，并且确保不会重复执行
     this.on(event, wrapper);
   }
 
@@ -660,7 +660,6 @@ function deepClone(obj, hash = new WeakMap()) {
   }
   return cloneObj;
 }
-
 ```
 
 
@@ -797,7 +796,137 @@ for(let v of str){
 # null和undefined的区别
 - 当定义一个变量的时候，设置为空值就会一般会赋值为null，没有赋值就为undefined
 
-# 
-  
+# promiseRetry
+```javascript
+// promise.retry
+// 简单来说就是执行fn
+// 递归判断，注意细节
+const promiseRetry = (fn, retries = 3, delay = 1000) => {
+    return new Promise((resolve, reject) => { 
+        fn()
+            .then(resolve)
+            .catch((err) => {
+                if (retries === 0) {
+                    reject(err);
+                } else {
+                    setTimeout(() => {
+                        promiseRace(fn, retries - 1, delay).then()
+                    },delay);
+                }
+            })
+    })
+}
+```  
+# promise
+```javascript
+// 定义一个用于上传图片的函数
+function uploadImage(image) {
+  return new Promise((resolve, reject) => {
+    const xhr = new XMLHttpRequest();
+    xhr.open('POST', '/upload');
+    xhr.onload = () => {
+      if (xhr.status === 200) {
+        resolve(xhr.responseText);
+      } else {
+        reject(new Error('上传失败'));
+      }
+    };
+    xhr.onerror = () => {
+      reject(new Error('上传失败'));
+    };
+    xhr.send(image);
+  });
+}
+
+// 定义一个异步函数用于上传图片
+async function asyncUploadImages(images) {
+  const groups = [];
+  for (let i = 0; i < images.length; i += 3) {
+    groups.push(images.slice(i, i + 3));
+  }
+  const results = [];
+  for (let i = 0; i < groups.length; i++) {
+    const group = groups[i];
+    const promises = group.map(image => uploadImage(image));
+    const res = await Promise.all(promises);
+    results.push(res);
+  }
+  return results;
+}
+
+// 调用函数上传图片
+const images = [image1, image2, image3, ... , image10];
+asyncUploadImages(images)
+  .then(results => {
+    console.log('所有图片上传成功', results);
+  })
+  .catch(error => {
+    console.error('上传图片失败', error);
+});
+```
+
+# 快速排序
+```javascript
+const quickSort = (arr) => {
+  if(arr.length <= 1) return arr;
+  // 取基准点
+  const pivot = arr[0];
+  const left = [];// 存放比基准值小的数组
+  const right = [];// 存放比基准值大的数组
+  // 遍历数组，进行判断分配
+  for(let i = 0;i < arr.length;i++){
+    if(arr[i] < midIndexVal){
+      left.push(arr[i]);
+    }else{
+      right(arr[i]);
+    }
+  }
+  // 递归执行以上操作
+  return [...quickSort(left),midmidIndexVal,...quickSort(right)]
+}
+
+```
+# 归并排序
+```js
+// 分治思想
+const mergeSort = (arr) => {
+  if(arr.length <= 1) return arr;
+  // 将数组平分
+  const middle = Math.floor(arr.length / 2);
+  const leftArr = arr.slice(0, middle);// 切下0到middle的下标的元素
+  const rightArr = arr.slice(middle);// 保留了middle下标后面的元素
+  const sortedLeftArr = megeSort(leftArr);
+  const sortedRightArr = megeSort(rightArr);
+  return merge(sortedLeftArr, sortedRightArr);
+}
+// 合并两个已经排序的数组
+const merge = (leftArr, rightArr){
+  const result = [];
+  // 比较两个数组元素，将小的元素添加到结果数组中
+  while(leftArr.length && rightArr,length){
+    if(left[0] < right[0]){
+      result.push(leftArr.shift());
+    }else{
+      result.push(rightArr.shift());
+    }
+  }
+  // 如果有剩余,加到后面去就是了
+  while (leftArr.length) {
+    result.push(leftArr.shift());
+  }
+  while (rightArr.length) {
+    result.push(rightArr.shift());
+  }
+}
+```
+
+
+
+
+
+
+
+
+
 
 

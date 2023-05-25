@@ -134,10 +134,9 @@ var levelOrder = function(root) {
 ```
 ## 翻转二叉树
 
-遍历的过程中去翻转每一个节点的左右孩子就可以达到整体翻转的效果。
-注意只要把每一个节点的左右孩子翻转一下，就可以达到整体翻转的效果
-这道题目使用前序遍历和后序遍历都可以，唯独中序遍历不方便，因为中序遍历会把某些节点的左右孩子翻转了两次！
-那么层序遍历可以不可以呢？依然可以的！只要把每一个节点的左右孩子翻转一下的遍历方式都是可以的
+- 遍历的过程中去翻转每一个节点的左右孩子就可以达到整体翻转的效果。
+- 注意只要把每一个节点的左右孩子翻转一下，就可以达到整体翻转的效果
+- 注意递归的单层逻辑要对节点进行操作的时候，判断的返回值的必须是null，否则无法处理
 ```js
 var invertTree = function (root) {
     if(!root)return root;
@@ -168,6 +167,22 @@ var invertTree = function (root) {
 //     }
 // };
 
+// 这段代码的if-else出现错误
+// if (!left && !right) {
+//     return true;
+// } else if ((!left && right) || (left && !right)) {
+//     return false;
+// } else if (left.val === right.val) {
+//     return true;
+// } else if (left.val !== right.val) {
+//     return false;
+// }
+
+
+// 完美逻辑：
+// 比较有无单一为null
+// 比较两个为null
+// 比较值是否相同
 var isSymmetric = function(root) {
     // 因为是判断左右是否对称，所以参数需要两个
     if(root.length === 1)return ture;
@@ -245,7 +260,7 @@ var countNodes = function(root) {
         let leftNum = getNodeSum(node.left);
         let rightNum = getNodeSum(node.right);
         // 后序遍历，直接向上累加了
-        return 1+leftNum+rightNum;
+        return 1 + leftNum + rightNum;
     };
     return getNodeSum(root);
 };
