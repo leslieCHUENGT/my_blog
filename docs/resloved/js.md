@@ -272,4 +272,45 @@ color_list.addEventListener("click",(e)=>{
 
 # js和ts
 
+# 对象哪些属性不可以被序列化
+- 当是属性的值函数function或者undefined
+- 当是属性的值是Symbol
+- 当是属性的值是循环引用的对象
+# get可以被序列化吗
+- 完全可以，在被JSON.parse后可以正常调用
+- get 属性实际上是一个访问器函数
+- get 属性可以被序列化，因为它本身只是一个返回值的函数，而不是一个包含执行逻辑的函数。
+```js
+const obj = {
+  firstName: 'John',
+  lastName: 'Doe',
+  get fullName() {
+    return `${this.firstName} ${this.lastName}`;
+  }
+};
+
+const serialized = JSON.stringify(obj);
+console.log(serialized); // {"firstName":"John","lastName":"Doe"}
+
+const deserialized = JSON.parse(serialized);
+console.log(deserialized.fullName); // "John Doe"
+```
+
+# 高阶函数
+- 指可以接收一个或多个函数作为参数，并且/或者返回一个新的函数的函数。
+- 常见的高阶函数包括 map、filter 和 reduce 等
+
+
+
+```
+
+
+
+
+
+
+
+
+
+
 

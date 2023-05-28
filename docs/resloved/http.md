@@ -165,7 +165,7 @@ https://juejin.cn/post/6844904034181070861#heading-5
 - 使用jwt.sign方法时会先剔除password这种敏感的信息，保护用户的隐私安全
 - 此时响应体里就会携带token信息，前端将token信息放入localStorage
 - 当需要校验是否登录时，会发送`Authorization`头部从中获取JWT
-- 通过jwt.verify方法来解密jwt就得到了用户信息
+- 通过jwt.verify方法来解密jwt进行校验token，防止客服端发出来的被篡改的信息，因为在传输的token里的payload都是只经过base64转码的信息。
 - 前一个项目里用的就是简单的把一个字符串token放入localStorage里
 - 验证有没有表示登录过
 - 但是如果想持久化token，可以放在数据库里来进行校验和验证
@@ -178,9 +178,38 @@ https://juejin.cn/post/6844904034181070861#heading-5
 
 **什么是jwt**
 - JSON Web Token
-- 非对称加解密
+- JTW的组成
+  - Header：包含令牌类型和使用的算法信息
+  ```json
+  {
+  "alg": "HS256",
+  "typ": "JWT"
+  }
+  ```
+  - Payload:可以包含用户id、用户名和过期时间
+  ```json
+  {
+    "user_id": 123456,
+    "username": "john_doe",
+    "exp": 1624898400  # 过期时间，这里为2021-06-29 00:00:00
+  }
+  ```
+  - Signature:使用指定算法对header和payload进行加密生成的签名字符串，用于验证token的合法性。
+  ```js
+  HMACSHA256(
+  base64UrlEncode(header) + "." +
+  base64UrlEncode(payload),
+  secret)
+  ```
+  - secret是服务端保存的私钥，用于生成签名；base64UrlEncode()是一种特殊的base64编码方式，去掉了“+”、“/”和“=”，用“-”、“_”和“”代替，使其在URL中传输更方便。
+- 组合JWT
+```js
+// JWT Token
+// 记住JWT的header.payload.signature结构，我们只需要组合以上的三个部分，用点（.）分隔它们。
+eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VySWQiOiJiMDhmODZhZi0zNWRhLTQ4ZjItOGZhYi1jZWYzOTA0NjYwYmQifQ.-xN_h82PHVTCMA9vdoHrcZxH-x5mb11y1537t3rGzcM
+```
 
-**jwt的原理**
+
 
 **JWT 的使用方式**
 - "Bearer" 是一种**认证机制中的一种类型**
@@ -399,6 +428,10 @@ https://time.geekbang.org/column/article/113513
 - 重排会使主线程传递的绘制指令不同
 - 所以重排必定重绘
 
+# CPU、GPU
+- CPU（Central Processing Unit）即中央处理器，是计算机中的主要晶片之一，其核心功能是执行各种指令并控制计算机的操作。
+- GPU（Graphics Processing Unit）则是一种专门为图形渲染而设计的处理器。GPU 的主要功能是进行图形处理和图像渲染
+
 # 讲一讲重绘
 - 实际上也就是主线程**分层树**发生改变，导致给合成线程的绘制指令不同
 
@@ -456,8 +489,17 @@ https://time.geekbang.org/column/article/113513
 - 实际上浏览器源码里就是一个不会停止的循环，对消息队列取出第一个任务执行，其他线程会把任务添加到消息队列的末尾
 - 现在的浏览器对消息队列里的任务不只分为宏任务和微任务了，为了区别优先级
 - **微队列**、**交互队列**、**延时队列**等
-- W3C官网的说法是：必须要有微队列，同一种任务要放同一个队列里，微任务的具有最高优先级，必须优先调度执行。
-
+- W3C官网的说法是：必须要有微队列，同一种任务要放同一个队列里，微任务的具有最高优先级，必须**优先调度执行**。
+- 微任务
+  - Promise回调函数
+  - MutationObserver 回调函数：MutationObserver 是浏览器提供的一个 API，用于监听 DOM 树的变化。
+  - IntersectionObserver 回调函数：IntersectionObserver 也是浏览器提供的一个 API，用于监听指定元素与视口（即浏览器窗口）的交叉情况。
+- 宏任务
+  - 渲染事件（如解析 DOM、计算布局、绘制）；
+    - requestAnimationFrame 回调函数：在下一次绘制前执行指定的回调函数。自动适应设备的刷新率，从而实现更加平滑的动画效果。
+  - 用户交互事件（如鼠标点击、滚动页面、放大缩小等）；
+  - JavaScript 脚本执行事件；
+  - 网络请求完成、文件读写完成事件。XMLHttpRequest 和 fetch 请求
 # 讲一讲js计时器可以做到精准计时吗
 - 调用的是操作系统的函数，不可能做到精准计时
 - w3c标准：嵌套过5层，就会至少带有4毫秒的默认时间
@@ -603,6 +645,31 @@ content-type: text/html; charset=UTF-8
 # cors处理http和https的区别
 - Access-Control-Allow-Origin即可允许来自任意域名的请求
 - 不论是HTTP还是HTTPS请求，处理方式都是相同的
+
+# head 请求了解过吗？如何用 get 模拟 head 请求？不需要服务器返回数据，怎么实现？
+- 是的，我了解 HEAD 请求。HEAD 请求是 HTTP 协议中的一种请求方法，它与 GET 请求类似，但是服务器不会返回响应体（即不会返回数据），只返回响应头，用于获取目标资源的元数据，**例如最后修改时间、文件类型等信息。**
+
+- 如果要使用 GET 请求模拟 HEAD 请求，可以在发送 GET 请求时，指定 `Content-Length` 头为0，并省略请求体。这样就可以模拟一个 HEAD 请求，因为服务器不会返回任何实际数据，而只会返回请求头和状态码。
+
+- 下面是一个使用 XMLHttpRequest 对象发送 GET 请求并模拟 HEAD 请求的 JavaScript 代码示例：
+```js
+var xhr = new XMLHttpRequest();
+xhr.open('GET', 'http://example.com/mypage');
+xhr.setRequestHeader('Content-Length', '0');
+xhr.onreadystatechange = function() {
+    if (xhr.readyState === 4 && xhr.status === 200) {
+        var headers = xhr.getAllResponseHeaders();
+        console.log(headers); // 输出响应头信息
+    }
+};
+xhr.send();
+```
+- 在上面的代码中，我们创建了一个 XMLHttpRequest 对象并指定了请求方法和 URL。然后，我们设置 `Content-Length` 头为 `0`，以模拟 HEAD 请求。当服务器返回响应时，我们使用 `getAllResponseHeaders()` 方法获取响应头信息，并将其输出到控制台。注意，在此示例中，我们没有设置响应数据的处理方式，因为 HEAD 请求不需要返回实际数据。
+
+- 总之，通过设置 `Content-Length` 头为 `0` 可以使用 GET 请求来模拟 HEAD 请求，并获取目标资源的元数据信息。
+
+
+
 
 
 

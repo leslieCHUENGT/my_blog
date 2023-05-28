@@ -64,6 +64,7 @@
   - css压缩的插件 `MiniCssExtractPlugin`将CSS提取为**单独的文件**，并使用css-loader和uglifyjs-webpack-plugin对其进行压缩。
     - scoped带来css的安全性？
   - gzip压缩,Http2.0？  
+  - 
 - treeshaking
     - 基于es6模块化，静态分析，无用代码
   - 图片方面

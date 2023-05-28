@@ -165,7 +165,7 @@
   - `$attrs`/`$listeners`
 ##### 一：`props`/`$emit`(父传子，子传父，子调父)
 
-##### 二：`$bus`（任意组件传值，任意组件调方法）
+##### 二：`$bus.emit`/`$bus.on`（任意组件传值，任意组件调方法）
 
 ##### 三：`ref/$refs`（父调子）
 
@@ -206,13 +206,117 @@
 - 进行加载
 - 加载完成之后就下载到了本地，进而移除类名就可以了
 
+# eventBus了解吗？
+- 事件总和模式
+- 底层实际上是订阅发布者模式
+- on方法绑定、emit方法触发事件并传参
+
+# vuex 
+- vuex是单例模式
+- mutations可以追溯数据改变的源头
+
+# 设计vue组件
+- 组件必须通过 `defineComponent` 函数进行定义，更好地利用 TypeScript 的类型推断功能
+- `Teleport` 是 Vue 3 中新增的一个组件，用于将子组件指定到父组件之外的 DOM 元素中渲染
+- 
+
+# 前端性能优化
+## 页面渲染
+### 减少页面的repaint和reflow
+#### 讲一讲重排
+- 实际上就是影响了渲染主进程对布局树的生成
+- 并且为了优化重排对**布局树**频繁的生成
+  - 所以对于属性改动的重排会进行异步处理
+  - 也就是改动了，马上去获取布局信息，打印台的结果可能不是最新的
+- 重排会使主线程传递的绘制指令不同
+- 重排必定重绘
+#### 讲一讲重绘
+- 实际上也就是主线程**分层树**发生改变，导致给合成线程的绘制指令不同
+#### 优化的方案
+- 当设置一些复杂的动画效果的时候，position设置为fixed或者absolute，脱离文档流，不会影响其他布局
+- 不使用table布局，里面的一个元素改变了位置、大小和颜色，就会导致整个布局重绘重排
+- 当需要DOM元素移动的时候，尽量用translate()函数，不要用top来设置，因为浏览器的GPU进程会进行加速，也不会影响其他布局
+- GPU加速，可以让transform、opacity和fiters动画不会引起重绘重排，而background-color属性会引发重绘
+### 使用懒加载和预加载
+- 图片懒加载
+  - 判断图片出现在浏览器可视区域的方法
+- import 引入时按需加载、路由的懒加载
+- 预加载，通过预测用户必须的行为进行预加载
+  - 在link标签的rel属性设置为preload
+
+## webpack对前端性能优化可以在哪些方面做文章
+- 主要就是分为几个方面：代码压缩和混淆、代码分割、tree shaking
+- 可以从比较常用的loader和Plugin来讲一讲
+- 就拿url-loader来说
+  - 为了减小文件的大小，可以把部分小并且不怎么变的的图片转换成`base64`格式的
+  - 为了**减少并发请求数**，还可以放在`js`文件里
+  - 为了可以更好的让浏览器使用缓存，在输出的文件夹名里可以生成**新的哈希值**，这点在每个出口文件里都用到了
+- 可以拿MiniCssExtractPlugin来说
+  - 为了实现更好的利用缓存，不同类型的文件最好分离打包、做好**代码分割**
+  - import() 函数来实现动态**代码分割** 将一个大型的 JavaScript 应用程序拆分为多个小块，然后按需加载这些小块。
+  - 为了减少文件的大小，自然离不开**压缩**可以用CssMinimizerPlugin
+- 可以拿TerserWebpackPlugin来说
+  - 也就是tree shaking
+  - 注释、console、没有使用的变量或者函数可以自动剔除
+  - 或者用 UglifyJsPlugin 进行代码的混淆
+- 为了可以更好的实现代码分割，可以再增加一个入口**vendor**
+  - 比如一些**库、框架**抽离出来，独立打包，避免了重复打包，减少文件的体积
+
+## 总体优化
+### SSR服务器端渲染开发
+- 比如nuxtjs，它的渲染过程是在服务端完成，最终的html文件通过http协议发送给客服端
+- 最大的好处就是首屏加载速度提高、和对SEO友好
+### 为什么nuxtjs对SEO更友好？
+- 因为vuejs是动态框架，大部分内容都是js中生成添加到DOM里的
+- nuxtjs返回给客服端的代码是静态的内容，构建的时候已经生成了完整的html内容
+### gzip压缩
+- 对文件压缩可以压缩到原来的40%，有效减少了下载的速度，提高首屏的加载速度
+### 缓存问题
+- 浏览器缓存、CDN缓存、本地缓存
+- Nginx和Apache可以配置HTTP头以控制静态资源的缓存策略，在CDN中使用缓存技术来加速内容交付。
+### 进行DNS预解析
+- 当我们进行解析html文档的时候，遇到script标签暂停html解析，因为要访问其他域名就需要进行DNS解析，找到它的ip
+- async属性，则浏览器会异步下载JavaScript文件并继续解析HTML，而如果使用了defer属性，则会在HTML解析完成后再下载并执行JavaScript文件。
+
+# vue响应式
+- 函数和数据的关联
+  - 被监控的函数：render、computed回调、watchEffect 和 watch ，和哪些数据进行关联
+  - 数据和数据直接是无法进行关联的
+```js
+// 前提props是响应式的
+
+// 
+const doubleCount = ref(props.count * 2);
+//
+const doubleCount = ref(0);
+watchEffect(()=>{
+  doubleCount.value = props.count * 2
+})
+// 可
+function useDouble(props) => {
+  const doubleCount = ref(props.count * 2);
+  watchEffect(()=>{
+    doubleCount.value = props.count * 2 //
+  })
+  retuen doubleCount
+}
+const doubleCount = useDouble(props)
+// 不可,传入的props.count是原始数据的值，不是响应式对象。
+function useDouble(count) => {
+  const doubleCount = ref(0);
+  watchEffect(()=>{
+    doubleCount.value = count * 2 
+  })
+  retuen doubleCount
+}
+const doubleCount = useDouble(props.count)
+// 
+const doubleCount = computed(()=> props.count * 2)
 
 
+```
 
-
-
-
-
+# 缓存问题
 
 
 

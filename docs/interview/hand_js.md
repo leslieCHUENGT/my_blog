@@ -255,6 +255,19 @@ function flatter(arr) {
     [] //初始值是空数组
   );
 }
+
+// 尾递归优化
+function flatten(arr = [], res = []) {
+  arr.forEach((v)=>{
+    if(Array.isArray(v)){
+      res = [...res, ...flatten(v, [])];
+    }else{
+      res.push(v)
+    }
+  })
+  return res;
+}
+
 ```
 # new
 ## new 操作符
@@ -919,8 +932,78 @@ const merge = (leftArr, rightArr){
   }
 }
 ```
+# 尾递归优化
+- 在进行递归调用时，在尾部进行调用自身函数，不带其他的任何参数
+- 也就是单有函数本身，不能乘除加减，否则就会开辟内存来分配
+```js
+function factorial(n) {
+  if (n === 1) return 1;
+  return n * factorial(n - 1);
+}
+
+factorial(5) // O(n)
+
+// 尾递归优化
+function factorial(n, total) {
+  if (n === 1) return total;
+  return factorial(n - 1, n * total);
+}
+
+factorial(5, 1) // O(1)
+
+// 斐波那契数列
+// 递归
+function fn(n){
+  if(n <= 1) return n;
+  return fn(n - 1) + fn(n - 2);
+}
+// 尾递归优化
+function fn(n, start = 1, total = 1) {
+  if(n <= 2) return total;
+  return fn(n - 1, total, total + start);
+}
+// 迭代
+function fn(n){
+  if(n === 0) return 0;
+  if(n === 1) return 1;
+
+  let prev = 0,curr = 0;
+  for(let i = 2; i < n; i++){
+    let next = prev + curr;
+    prev = curr;
+    curr = next;
+  }
+  return curr;
+}
+// 数组扁平化,尾递归优化
+function flatten(arr = [], res = []) {
+  arr.forEach((v)=>{
+    if(Array.isArray(v)){
+      res = [...res, ...flatten(v, [])];
+    }else{
+      res.push(v)
+    }
+  })
+  return res;
+}
+// 将一个对象的所有属性改为小写
+function converKeysToLowerCase(obj){
+  // 创建新数组来存放
+  const newObj = {};
+  // Object.keys(obj)拿到的是属性组成的数组，便于遍历
+  Object.keys(obj).forEach((key)=>{
+    const value = obj[key];
+    const newKey = key.toLowerCase();
+    const newValue = typeof value === 'object' ? converKeysToLowerCase(value) : value;
+    newObj[newKey] = newValue;
+  })
+  return newObj;
+
+}
 
 
+
+```
 
 
 
