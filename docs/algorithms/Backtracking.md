@@ -10,7 +10,7 @@ var combine = function(n, k) {
         // 结合题意，确定终止条件。
         if (path.length === k) {
             result.push([...path]);
-            return;
+            return
         }
         // for循环内，i 初始值设置为startIndex，防止出现重复的组合
         // 剪枝操作：n-i+1是代表还能去的数的个数，k-path.length代表需要的个数
@@ -324,7 +324,7 @@ var permute = function(nums) {
         }
         // 全排列问题i的初始值为0开始，不需要startIndex
         for (let i = 0; i < len; i++ ) {
-            if(used[i]) continue;// 判断路径是是否用过该元素
+            if(used[i]) continue; // 判断路径是是否用过该元素
             path.push(nums[i]);
             used[i] = true; // 同一支
             backtracking();
@@ -332,7 +332,6 @@ var permute = function(nums) {
             used[i] = false;
         }
     }
-
     backtracking();
     return res;
 };

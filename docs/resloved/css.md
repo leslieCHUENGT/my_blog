@@ -162,9 +162,6 @@
 - 再用style-loader将css代码注入到html页面中，就是添加到style标签里
 - 当然还有一些Plugin可以处理css压缩的问题
 
-# 讲一讲移动端适配
-- 首先就是css3的新特性，媒体查询，选择不同精度的图片，以保证图片不会失真；
-- 尺寸自适应：rem em vw vh等
 
 # flex布局最常用的属性
 - flex-direction设置主轴的方向
@@ -290,18 +287,6 @@
 
 # 对requestAnimationframe的理解
 
-# rem vh、vw
-- rem 就是根据根元素font-size来适配的
-- vue项目里用了用lib-flexible来进行适配
-- 如果不设置那正常来说就是1rem=16px
-- 设置了的话就会自动适配，根据宽度，分成10份
-
-- lib-flexible会自动在html的head中添加一个meta name="viewport"的标签，
-- 同时会自动设置html的font-size为屏幕宽度除以10，也就是1rem等于html根节点的font-size。
-- 假如设计稿的宽度是750px，此时1rem应该等于75px。
-
-- 根据窗口的宽高来分成100分，就是vw vh
-
 
 # 讲一讲元素水平垂直居中的方法
 - 利用定位和设置margin为auto就行，因为子元素四个定位属性都设置为0，虚拟占位就撑满了整个父元素
@@ -314,8 +299,22 @@
   - justify-content: center;
   - align-items: center;
 
+# 讲一讲移动端适配
+- 首先就是css3的新特性，媒体查询，选择不同精度的图片，以保证图片不会失真；
+- 尺寸自适应：rem em vw vh等
 
+# rem vh、vw
+- rem 就是根据根元素font-size来适配的
+- vue项目里用了用lib-flexible来进行适配
+- 如果不设置那正常来说就是1rem=16px
+- 设置了的话就会自动适配，根据宽度，分成10份
 
+- lib-flexible会自动在html的head中添加一个meta name="viewport"的标签，
+- 同时会自动设置html的font-size为屏幕宽度除以10，也就是1rem等于html根节点的font-size。
+- 假如设计稿的宽度是750px，此时1rem应该等于75px。
+
+- 根据窗口的宽高来分成100分，就是vw vh
+- em是相对长度单位。相对于当前对象内文本的字体尺寸
 
 
 

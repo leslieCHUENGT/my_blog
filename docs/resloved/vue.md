@@ -316,7 +316,320 @@ const doubleCount = computed(()=> props.count * 2)
 
 ```
 
-# 缓存问题
+# vue虚拟DOM和diff算法
 
+## 组件的本质
+- 模板引擎的年代，组件的产出是 html 字符串
+- Vue 或 React，组件的产出是 Virtual DOM，带来了**分层设计**，可以渲染到其他的平台，不止是浏览器
+- render函数的作用简单来说就是根据VNode创建真实DOM并添加到容器中
+```js
+// 最简单的render
+function render(vnode, container) {
+  mountElement(vnode, container)
+}
+
+function mountElement(vnode, container) {
+  // 创建元素调用了document.createElemrent()
+  const el = document.createElement(vnode.tag)
+  // 将元素添加到容器
+  container.appendChild(el)
+}
+```
+- 组件分为两种
+  - 有状态组件,一种可以维护自己的状态，响应用户交互或其他操作并渲染结果的组件。有状态组件通过**继承Vue实例来获得响应式数据和生命周期方法等特性。**
+```js
+<template>
+  <div>
+    <p>{{ message }}</p>
+    <button @click="increment">{{ count }}</button>
+  </div>
+</template>
+
+<script>
+export default {
+  data() {
+    return {
+      count: 0,
+      message: 'Hello, world!'
+    }
+  },
+  methods: {
+    increment() {
+      this.count++
+    }
+  }
+}
+</script>
+
+```
+  - 函数式组件是一种无状态、无实例、只传递props并返回渲染结果的组件。这意味着它们没有响应式数据，并且不会触发生命周期钩子。通常用于只展示静态内容的场景。
+```js
+<template functional>
+  <div>{{ props.message }}</div>
+</template>
+
+```
+## 设计VNode
+- 以文本节点作为子节点的 div 标签的 VNode 对象
+```javascript
+const elementVNode = {
+  tag: 'div',
+  data: null,
+  children: {
+    tag: null,
+    data: null,
+    children: '文本内容'
+  }
+}
+```
+- 用 VNode 描述抽象内容,区分一个 VNode 到底是普通的 html 标签还是组件。
+```js
+<div>
+  <MyComponent />
+</div>
+
+const elementVNode = {
+  tag: 'div',
+  data: null,
+  children: {
+    tag: MyComponent,
+    data: null
+  }
+}
+```
+- 除了组件之外，还有两种抽象的内容需要描述，即 Fragment 和 Portal。
+- Fragment 的寓意是要渲染一个片段，假设我们有如下模板：
+```js
+<template>
+  <table>
+    <tr>
+      <Columns />
+    </tr>
+  </table>
+</template>
+// 组件 Columns 会返回多个 <td> 元素：
+<template>
+  <td></td>
+  <td></td>
+  <td></td>
+</template>
+```
+- 当渲染器在渲染 VNode 时，如果发现该 VNode 的类型是 Fragment，**就只需要把该 VNode 的子节点渲染到页面。**
+```js
+const Fragment = Symbol()
+const fragmentVNode = {
+  // tag 属性值是一个唯一标识
+  tag: Fragment,
+  data: null,
+  children: [
+    {
+      tag: 'td',
+      data: null
+    },
+    {
+      tag: 'td',
+      data: null
+    },
+    {
+      tag: 'td',
+      data: null
+    }
+  ]
+}
+```
+- 什么是 Portal 呢？
+一句话：它允许你把内容渲染到任何地方。其应用场景是，假设你要实现一个蒙层组件 <Overlay/>，要求是该组件的 z-index 的层级最高
+```js
+<template>
+  <div id="box" style="z-index: -1;">
+    <Overlay />
+  </div>
+</template>
+
+// 使用 Portal 可以这样编写 <Overlay/> 组件的模板
+<template>
+  <Portal target="#app-root">
+    <div class="overlay"></div>
+  </Portal>
+</template>
+// 对应VNode设计
+const Portal = Symbol()
+const portalVNode = {
+  tag: Portal,
+  data: {
+    target: '#app-root'
+  },
+  children: {
+    tag: 'div',
+    data: {
+      class: 'overlay'
+    }
+  }
+}
+```
+![image.png](https://p6-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/c7ec292908724ff595576e641c427866~tplv-k3u1fbpfcp-watermark.image?)
+- VNode的种类
+  - html/svg元素、组件、纯文本、Fragment和Portal
+## 为什么设置了 tag 还要设置 flags
+- vue2 中区别 VNode 是 html 元素还是组件亦或者是普通文本
+- 因为没有flags，只能进行下面的流程
+- tag是html的标签名也可以是是组件的名称，没有办法直接判断
+- 先是当做组件处理
+- 再是检查tag的定义
+- 有了flags就可以知道：
+  - 是否是：
+  - html/svg元素、组件、纯文本、Fragment和Portal
+  - 有没有子节点、只有一个子节点、多个子节点有 key无 key、不知道子节点的情况
+```js
+export interface VNode {
+  // _isVNode 属性在上文中没有提到，它是一个始终为 true 的值，有了它，我们就可以判断一个对象是否是 VNode 对象
+  _isVNode: true
+  // el 属性在上文中也没有提到，当一个 VNode 被渲染为真实 DOM 之后，el 属性的值会引用该真实DOM
+  el: Element | null
+  flags: VNodeFlags
+  tag: string | FunctionalComponent | ComponentClass | null
+  data: VNodeData | null
+  children: VNodeChildren
+  childFlags: ChildrenFlags
+}
+```
+- 源码中一个 VNode 对象除了包含本节我们所讲到的这些属性之外，
+- 还包含诸如 handle 和 contextVNode、parentVNode、key、ref、slots 等其他额外的属性。
+- 比如 handle 属性仅用于函数式组件
+
+# 辅助创建VNode的h函数
+- 要了解h函数的作用，先了解一下vue的模板编译的先行步骤。
+- 首先对字符串模板进行解析，转换为AST抽象语法树
+- 然后vue会对其转换为一个js代码字符串，这个就是h函数的参数
+```js
+function h(tag, data = null, children = null) {
+  //...
+}
+
+// 一个最简单的 h 函数如下
+function h() {
+  return {
+    _isVNode: true,
+    flags: VNodeFlags.ELEMENT_HTML,
+    tag: 'h1',
+    data: null,
+    children: null,
+    childFlags: ChildrenFlags.NO_CHILDREN,
+    el: null
+  }
+}
+```
+
+# 设计模式
+- 使用观察者模式实现数据响应式之外，在一些场景中，Vue 还会使用订阅/发布模式。- 例如，Vue 实例的生命周期就是通过发布/订阅模式来实现的。
+- 在生命周期的各个阶段，Vue 会通过发布消息的方式通知所有订阅者。此外，事件总线 EventBus 也是一种常见的基于订阅/发布模式实现的事件管理机制，
+
+# 讲一讲你是怎么设计modal组件的
+- 首先要设计这个组件就需要进行需求分析
+  - 它是一个遮罩层
+  - 标题的内容可以被定制
+  - 有取消和确定的选项
+  - 主题的内容就有三种：国际化语言的选择、表单提交功能和模拟异步请求的提交的加载过程实现
+- 其次就是分析一下怎么实现上面的功能
+  - 弹窗需要跳到页面上，为了不受父组件的束缚，那就可以用到Vue3的Teleport来绑定到body
+  - 因为主题内容比较灵活，我们就可以用到slot来包裹
+  - 国际化，就是通过定义t这个方法来切换语言
+
+## 那你讲一讲内容切换的slot的具体流程
+- 我是设计成了全局的组件，所以会调用app.use()方法进行注册
+- 调用app.use()方法的时候会自动执行install方法
+- install函数有两个参数：app、options里就会做以下几件事
+  - 进行样式和属性的配置合并
+  - 调用app.component()方法注册全局组件：参数：name，Modal对象
+  - 然后调用app.config.globalProperties.$modal()方法,可以添加到全局方法里，通过vue2这个api来进行的是函数形式配置，不必编写html标签再来绑定数据
+  - 而app.config.globalProperties.$modal方法里面的show方法就是进行配置的
+  - 可以配置title啊、content啊、能不能触发点击modal外面就可以取消的boolean类型的值啊，取消的那个X要不要显示啊、透明度设置成多少啊，还有就是定制的确定功能的函数、取消的函数
+  - 然后用document.createElement()创建一个节点，createVNode()方法创建虚拟DOM，render()函数渲染到节点上
+  - 再是把组件上的props、_hub解构出来和定义一个关闭弹窗的方法：将弹窗移除节点上
+  - 我们需要在_hub上添加一些方法: t方法、on-confirm方法、取消方法
+  - 因为要实现确定的加载效果，因为确认的函数会进行加载，所以先默认它是promise对象，进行判断，把props.loading设置为true那么确定按钮上就会显示圆圈，然后await 确认函数，再进行关闭弹窗
+  - 再把传递的参数进行合并，合并给props
+- 那我们看一看Modal.vue吧
+  - defineComponent来定义，这样语义化更好
+  - 自然是注册的name，实际上我还添加了一个子组件Content，这是一个函数式组件，试一下函数式组件渲染的流程，下面还有就是props的属性，modelValue是boolean类型，title、content可以是字符串或者函数、loading是否加载函数、close是否需要X按钮、maskClose点击外层是否关闭弹窗、设置透明度opacity。
+  - 在setup(组件初始化阶段)方法里
+    - 用computed计算样式
+    - 用getCurrentInstance()方法获取组件实例
+    - 在挂载之前，配置一些方法在hub里方便调用
+    - 然后就是定义emits数组，方便父子组件之间进行通信
+    - 在确认和取消方法被调用时，就向父组件通信，完成相应的操作
+
+
+```javascript
+// 这个语法可以确保代码在 config.props 为真时才会执行 close 方法，避免了可能由 null 或 undefined 值导致的错误
+config.props!.close
+
+// 使用 $modal 插件的实现方式：
+
+html
+<template>
+  <div>
+    <button @click="showModal">显示模态框</button>
+  </div>
+</template>
+
+<script>
+export default {
+  methods: {
+    showModal() {
+      this.$modal.show({
+        title: '提示',
+        content: '确定要执行此操作吗？',
+        buttons: [
+          { text: '取消' },
+          { text: '确定', handler: this.handleConfirm }
+        ]
+      })
+    },
+    handleConfirm() {
+      // 处理确认操作
+    }
+  }
+}
+</script>
+{/* 上面的代码中，我们通过在 methods 中定义了一个 showModal 方法，在点击按钮时调用 $modal.show 方法来显示模态框。在 $modal.show 方法中，我们可以通过传入一些选项来配置模态框的标题、内容和按钮等信息，并且还可以指定每个按钮的点击处理函数。 
+
+使用 Modal 组件的实现方式：
+*/}
+html
+<template>
+  <div>
+    <button @click="showModal">显示模态框</button>
+    <modal v-model="isModalVisible">
+      <h3 slot="title">提示</h3>
+      <p>确定要执行此操作吗？</p>
+      <div slot="footer">
+        <button @click="isModalVisible = false">取消</button>
+        <button @click="handleConfirm">确定</button>
+      </div>
+    </modal>
+  </div>
+</template>
+
+<script>
+import Modal from '@/Modal'
+
+export default {
+  components: { Modal },
+  data() {
+    return { isModalVisible: false }
+  },
+  methods: {
+    showModal() {
+      this.isModalVisible = true
+    },
+    handleConfirm() {
+      // 处理确认操作
+      this.isModalVisible = false
+    }
+  }
+}
+</script>
+```
 
 
