@@ -1003,9 +1003,41 @@ function converKeysToLowerCase(obj){
 
 ```
 
+# 分割URL参数
+```javascript
+// https://www.example.com/search?query=JavaScript&sort=desc&page=2
+function splitUrlParams(url, res){
+  // 分割的第二个
+  let params = url.split('?')[1];
+  if(!params) return;
 
+  params.spilt('&').forEach((items)=>{
+    let item = items.split('=');
+    let paramsName = decodeURIComponent(item[0]);
+    let paramsValue = decodeURIComponent(item[1]);
+    if(paramsName === res){
+      return paramsValue;
+    }
+  })
+}
 
+```
 
+# 合并对象
+```js
+// 传进来的是对象数组
+const mergeObject = (...agrs) => {
+  let mergeObj = {};
+  args.forEach((item) => {
+    for(const v in item){
+      if(item.hasOwnProperty(v)){
+        mergeObj[v] = item[v];
+      }
+    }
+  })
+  return mergeObj;
+}
+```
 
 
 
