@@ -314,19 +314,20 @@ var findSubsequences = function(nums) {
 // 全排列去重是定义一个全局变量used来记录nums中的元素有没有重复使用
 // 并且要记得回溯uset
 var permute = function(nums) {
-    const res = [], path = [],used = [];
+    const res = [], path = [], used = [];
     const len = nums.length;
-    function backtracking() {
+    function backtracking(nums) {
         // 终止条件
-        if(path.length === len) {
+        if(path.length === len){
             res.push([...path]);
             return;
         }
-        // 全排列问题i的初始值为0开始，不需要startIndex
-        for (let i = 0; i < len; i++ ) {
-            if(used[i]) continue; // 判断路径是是否用过该元素
+        // 全排列问题从i的初始值为0开始，不需要startIndex
+        for(let i = 0;i < len;i++){
+            // 定义的used数组来判断
+            if(used[i]) continue;// 判断同一条路径下不可以用同一个数字
             path.push(nums[i]);
-            used[i] = true; // 同一支
+            used[i] = true;
             backtracking();
             path.pop();
             used[i] = false;

@@ -9,6 +9,7 @@
 ```html
 <input type="number" id="myInput">
 <script>
+    // document.getElementById('myInput')获取节点的信息，.value拿到值，监听回调
     let input = document.getElementById('myInput');
     input.addEventListener('input', function(){
         let value = input.value;
@@ -16,12 +17,11 @@
         input.value = currentValue;
     })
 </script>
-
 ```
 
 # 怎么引入js、css文件
-- script标签src引入
-- link标签，要指定rel(relation关系)`stylesheet`,和type为`text/css`
+- script标签**src**引入<script src="">
+- **link**标签，要指定rel(relation关系)`stylesheet`,和type为`text/css` <link rel="stylesheet" href="">
 - 渲染的时候要通过stylesheet来构造布局树
 
 # href和src的区别，什么时候使用
@@ -29,7 +29,7 @@
 - script，嵌入外部资源
   - 引入视频图片音频
   - 还有js文件
-- href，定义锚点，超链接、css样式表
+- href，**定义锚点，超链接、css样式表**
   - a标签、link标签会使用href
   -  <a href="https://www.example.com">Link text</a>
   -  <a href="#section2">Go to Section 2</a> 跳转到同页面的某个位置

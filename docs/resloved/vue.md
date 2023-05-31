@@ -152,32 +152,27 @@
 - use回调的参数ctx把req和res合而为一，可以更方便的直接调用query方法或者path方法解析参数，更加简洁
   
 # vue组件之间的8种传信方式
-[【vue进阶之旅】组件通信的8种方式，你搞清楚了吗？ - 掘金 (juejin.cn)](https://juejin.cn/post/7022054075411726366#heading-0)
-- 父组件子组件传信
-  - props
-  - 通过$emits触发自定义事件
-  - ref/$refs，父组件通过this.$refs.子组件名来调用子组件上的方法
-- 还有几种就是可以不受限制的
-  - vue2里有一个中央事件总线eventbus，不受组件关系限制，都可以传递和获取
-  - $parent/ $children通过调用方式来确定父子组件的关系，获取信息，官方不推荐使用
-  - vuex/pinia,管理所有组件状态的工具
-  - 本地存储localStorage/sessionStorage
-  - `$attrs`/`$listeners`
-##### 一：`props`/`$emit`(父传子，子传父，子调父)
+1. 父子组件通信：props、$emit、
+2. 兄弟组件通信：vuex、eventbus
+3. 跨层级组件：vuex、pinia、provide + inject、eventbus
 
-##### 二：`$bus.emit`/`$bus.on`（任意组件传值，任意组件调方法）
+```js
+// this.$emit('on-confirm','Confirmed!'); // 发送自定义事件，触发点击事件
 
-##### 三：`ref/$refs`（父调子）
+<Child @on-confirm="handleConfirm"></Child>
 
-##### 四：`$parent`/ `$children`（父子组件）
+methods: {
+  handleConfirm(data) {
+    console.log(data); // 输出 'Confirmed!'
+  }
+}
 
-##### 五：`provide`/`reject`（跨级组件）
+```
+# eventBus了解吗？
+- 事件总和模式
+- 底层实际上是订阅发布者模式
+- on方法绑定、emit方法触发事件并传参
 
-##### 六：`Vuex`（任意组件）
-
-##### 七：`localStorage`/`sessionStorage`（任意组件）
-
-##### 八：`$attrs`/`$listeners`（跨级组件）
 
 # 讲一讲虚拟dom和diff算法
 - 首先vue编译模板，生成了ast抽象语法树
@@ -187,13 +182,20 @@
   - 给节点添加上各种标签
   - 添加上标签有利于后续的diff算法可以高效进行
 - diff算法
-  - 对比递增子序列的过程
+- react 对比递增子序列的过程
   - 1234
   - 2143
   - 寻找新的vonde节点的最大标记值
   - 那么就可以知道哪些节点是增加和插入
   - 对于删除来说，只能通过对比新旧节点来进行标记
-- 最后就通过render函数来进行渲染
+  - 最后就通过render函数来进行渲染
+- vue双端比较
+  - dfs遍历，同级比较新旧节点
+  - 新旧节点的头尾指针进行比较
+  - 先是会在旧节点上两个指针进行向中间收拢，找出新节点的第一个节点，找不到就直接添加到容器上，后续就是插入操作，找到了就进行复制、添加
+  - 后续也是这样遍历，旧节点的头尾指针向中间靠拢，而新节点的头指针向后进行
+  - 当旧节点上的头尾指针变成一后一前了，就退出循环
+  
 
 # 讲一讲路由懒加载和图片懒加载
 - 路由懒加载实际上是通过import()函数动态导入路由组件
@@ -206,10 +208,6 @@
 - 进行加载
 - 加载完成之后就下载到了本地，进而移除类名就可以了
 
-# eventBus了解吗？
-- 事件总和模式
-- 底层实际上是订阅发布者模式
-- on方法绑定、emit方法触发事件并传参
 
 # vuex 
 - vuex是单例模式
@@ -535,8 +533,8 @@ function h() {
   - 因为主题内容比较灵活，我们就可以用到slot来包裹
   - 国际化，就是通过定义t这个方法来切换语言
 
-## 那你讲一讲内容切换的slot的具体流程
-- 我是设计成了全局的组件，所以会调用app.use()方法进行注册
+## 具体流程
+- 设计成了全局的组件，所以会调用app.use()方法进行注册
 - 调用app.use()方法的时候会自动执行install方法
 - install函数有两个参数：app、options里就会做以下几件事
   - 进行样式和属性的配置合并
@@ -631,5 +629,63 @@ export default {
 }
 </script>
 ```
+在Vue 3中，由于引入了Composition API的概念，组件的生命周期钩子发生了一些变化。相比Vue 2，Vue 3提供了更灵活、更强大的编程方式，其中就包括了setup()函数。在setup()函数中，我们可以使用新的生命周期钩子函数onMounted()，它的作用和mounted()类似，都是在组件被挂载后执行一些操作。不过，与mounted()函数不同的是，onMounted()是一个响应式的函数，可以在template中直接使用，并且其返回值可以作为组件内部的reactive状态。
+
+另外，由于setup()函数是在组件创建之前执行的，因此onMounted()函数也可以在组件渲染前执行一些逻辑，以提高性能和用户体验。而mounted()函数则只能在组件已经被完全挂载之后才会被调用。
+
+
+# 讲一讲vue的生命周期
+- 生命周期就像是一个人的一生，会经历生老病死
+- Vue的组件就会经历像这样的阶段：创建、挂载、更新、销毁，
+- 我们可以在生命周期钩子函数添加代码，就可以在不同的生命周期里执行了
+## 生命周期的阶段
+- 创建前后、挂载前后、更新前后、销毁前后、还有就是一些特殊的场景的生命周期
+- 就是keepalive激活的时候、捕捉后代组件错误时候，vue3里还增加了三个关于调试、服务端渲染的生命周期
+## 钩子函数
+- 这几个阶段对应的钩子函数 API依次为：beforeCreate create beforeMount mounted beforeUpdate updated activated(keep-alive 激活时调用) deactivated(keep-alive 停用时调用) beforeDestory destoryed errorCaptured（捕获子孙组件错误时调用）。
+- 在 Vue3 中的变化 绝大多数只要加上前缀 on 即可，比如 mounted 变为 onMounted，除了 beforeDestroy 和 destroyed 被重新命名为 beforeUnmount 和 unMounted
+
+## 他们分别的作用
+- beforeCreate之前
+  - 组件创建初始化
+- created之前
+  - 初始化data和methods
+- beforeMount之前
+  - 开始解析Vue模板，在内存里生成虚拟dom
+- mounted之前
+  - 虚拟dom转换为真实dom插入到页面里
+  - 所以只有在mounted之后的生命周期，才能对dom'元素进行新的操作
+  - 这个时候可以进行发送请求、触发绑定的事件
+- 进行updated，简单来说就是前后虚拟dom，dispatch的过程。
+- beforeUnmounted
+  - 清除实例里的定时器、订阅事件
+- unMounted
+  - 销毁组件实例
+
+# 讲一讲什么是SPA
+- 也就是单页应用
+- 动态重写当前的页面与用户交互，通过前端路由进行无刷新跳转
+- 讲就是一个杯子，早上装的牛奶，中午装的是开水，晚上装的是茶，我们发现，变的始终是杯子里的内容，而杯子始终是那个杯子结构
+- 用户体验好，通过ajax获取数据，全端负责渲染
+- 首屏加载慢，大部分文件都是通过在首页加载，获取数据
+- webpack打包工具缩小js文件、SSR开发、图片压缩
+
+# hash和history模式
+- hash模式实现的方式就是通过监听hashchange事件，执行回调函数
+- url会带有#号
+- history路由的实现主要就是通过pushState和replaceState实现的
+- 一个是压入、另一个是替换
+- 那么是不是如果我们能够监听到改变URL这个动作，就可以实现前端渲染逻辑的处理呢？
+- popstate无法监听history.pushState和history.replaceState方法
+
+- 当是hash路由的时候，我们可以通过监听hashchange事件
+- 当是history路由的时候，本来popstate事件监听浏览器历史栈状态的变化
+- 但是只能监听到前进或者后退导致的历史变化
+- 当我们调用history.pushState和history.replaceState方法的时候，就算改变了URL，因为popState监听不到，就不会使页面重绘。
+- 我们需要手动调用window.dispatchEvent(new PopStateEvent('popstate'))
+- 通过监听自定义事件，完成功能
+- 但是history模式有个缺点，跳转路由之后再刷新，会404，浏览器端在该路径下找静态资源，但是服务器端是没有这个文件的，所以我们就会配置，当访问的路径不存在的时候，默认指向index
+
+
 
 

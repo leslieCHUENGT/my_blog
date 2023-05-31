@@ -9,7 +9,3 @@
 - 能用 interface 实现，就用 interface , 如果不能就用 type 。
 
 
-
-
-
-

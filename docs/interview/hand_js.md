@@ -285,7 +285,7 @@ function myNew(constructor, ...args) {
   const result = constructor.apply(obj, args);
   // 如果构造函数返回了一个对象，则直接返回该对象；否则返回新创建的对象
   return (typeof result === 'object' && result !== null) ? result : obj;
-}
+} 
 
 const person = myNew(Person, 'John', 30);
 
@@ -823,7 +823,8 @@ const promiseRetry = (fn, retries = 3, delay = 1000) => {
                     reject(err);
                 } else {
                     setTimeout(() => {
-                        promiseRace(fn, retries - 1, delay).then()
+                        // 必须.then(),否则无法得到上一次的结果
+                        promiseRetries(fn, retries - 1, delay).then()
                     },delay);
                 }
             })
@@ -888,14 +889,14 @@ const quickSort = (arr) => {
   const right = [];// 存放比基准值大的数组
   // 遍历数组，进行判断分配
   for(let i = 0;i < arr.length;i++){
-    if(arr[i] < midIndexVal){
+    if(arr[i] < pivot){
       left.push(arr[i]);
     }else{
       right(arr[i]);
     }
   }
   // 递归执行以上操作
-  return [...quickSort(left),midmidIndexVal,...quickSort(right)]
+  return [...quickSort(left),pivot,...quickSort(right)]
 }
 
 ```
@@ -988,7 +989,7 @@ function flatten(arr = [], res = []) {
 }
 // 将一个对象的所有属性改为小写
 function converKeysToLowerCase(obj){
-  // 创建新数组来存放
+  // 创建新对象来存放
   const newObj = {};
   // Object.keys(obj)拿到的是属性组成的数组，便于遍历
   Object.keys(obj).forEach((key)=>{
@@ -998,10 +999,7 @@ function converKeysToLowerCase(obj){
     newObj[newKey] = newValue;
   })
   return newObj;
-
 }
-
-
 
 ```
 

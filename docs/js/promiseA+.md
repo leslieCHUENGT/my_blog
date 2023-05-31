@@ -849,7 +849,7 @@ function uploadImages(images){
     const currentBatch = images.slice(currentIndex, currentIndex + MAX_CONCURRENT_UPLOADS);
     currentIndex += MAX_CONCURRENT_UPLOADS;// 更新当前上传的图片索引
     
-    const uoloadPromises = currentBatch.map(image => {
+    const uploadPromises = currentBatch.map(image => {
       return uploadImageToServer(image);// 将当前批次的图片上传到服务器
     })
     // 当前批次的所有图片上传完成后，递归调用自身以上传下一个批次的图片
