@@ -303,11 +303,6 @@ console.log(deserialized.fullName); // "John Doe"
 
 
 
-```
-
-
-
-
 
 
 

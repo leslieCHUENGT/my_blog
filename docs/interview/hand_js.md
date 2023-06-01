@@ -1039,6 +1039,153 @@ const mergeObject = (...agrs) => {
 }
 ```
 
+# [1, 2, 3].map(parseInt)
+- parseInt
+  - 要被解析的值。如果参数不是一个字符串，则将其转换为字符串
+  - 从 2 到 36 的整数，表示进制的基数。例如指定 16 表示被解析值是十六进制数。如果超出这个范围，将返回 NaN。假如指定 0 或未指定，基数将会根据字符串的值进行推算。
+- parseInt(1,0) 1
+- parseInt(2,1) NaN
+- parseInt(3,2) NaN
+
+# map
+```js
+const words = ['foo', 'bar', 'baz'];
+// map的回调函数有三个参数：当前元素、当前索引和数组本身
+const result = words.map(function(item, index, arr) {
+  return item.toString().substring(0, 2);
+});
+
+console.log(result); // 输出 ["fo", "ba", "ba"]
+
+const person = {
+  name: 'Alice',
+  greet: function() {
+    console.log(`Hello, my name is ${this.name}`);
+  }
+};
+
+const people = [
+  {name: 'Bob'},
+  {name: 'Charlie'},
+  {name: 'Dave'}
+];
+
+// 使用 map 方法调用 person.greet，回调函数后还有一个thisArgs，保证指向
+people.map(person.greet, person);
+// 输出 "Hello, my name is Alice" 三次
+```
+# 给定目录路径,聚合成树形结构
+```js
+const paths = [
+  'root/a',
+  'root/b/c/d',
+  'root/a/e/f'
+];
+const tree = buildTree(paths);
+console.log(JSON.stringify(tree, null, 2));
+{
+  "name": "root",
+  "children": [
+    {
+      "name": "a",
+      "children": [
+        {
+          "name": "e",
+          "children": [
+            {
+              "name": "f",
+              "children": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "b",
+      "children": [
+        {
+          "name": "c",
+          "children": [
+            {
+              "name": "d",
+              "children": []
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
+
+function buildTree(paths) {
+  // 创建根节点，包含一个空的 children 数组
+  const root = { name: 'root', children: [] };
+  for (const path of paths) {
+    // 将路径按照 '/' 分隔成多个部分
+    const parts = path.split('/');
+    let node = root; // 从根节点开始遍历
+    for (const part of parts) {
+      let child = node.children.find(c => c.name === part); // 查找当前层级的子节点中是否已有该部分
+      if (!child) {
+        // 如果没有，就新建一个节点并添加到当前节点的 children 数组中
+        child = { name: part, children: [] };
+        node.children.push(child);
+      }
+      node = child; // 进入子节点继续遍历
+    }
+  }
+  return root;
+}
+```
+
+# 反转链表
+```js
+// 迭代
+function reverseList(head) {
+  let prev = null;
+  let curr = head;
+  while (curr !== null) {
+    const next = curr.next; // 记录当前节点的下一个节点
+    curr.next = prev; // 将当前节点的 next 属性指向上一个节点
+    prev = curr; // 更新上一个节点为当前节点
+    curr = next; // 更新当前节点为下一个节点
+  }
+  return prev;
+}
+// 递归
+function reverseList(head) {
+  if (head === null || head.next === null) {
+    return head; // 处理边界情况：链表为空或只有一个节点
+  }
+  const tail = reverseList(head.next); // 递归反转剩余部分
+  head.next.next = head; // 将当前节点的下一个节点的 next 属性指向当前节点
+  head.next = null; // 将当前节点的 next 属性设为 null
+  return tail; // 返回反转后的新链表的尾节点
+}
+```
+# 大数相加
+
+```javascript
+function addStrings(num1, num2) {
+  let i = num1.length - 1; // 初始化指向 num1 的末位的指针 i
+  let j = num2.length - 1; // 初始化指向 num2 的末位的指针 j
+  let carry = 0; // 初始化进位为 0
+  let result = ''; // 初始化结果字符串为空字符串
+  while (i >= 0 || j >= 0 || carry !== 0) { // 当还有数字或者存在进位时，继续执行循环
+    // parseInt() 函数来将字符串转换为数字
+    const digit1 = i >= 0 ? parseInt(num1[i]) : 0; // 取出 num1 当前位上的数字，如果越界了就用 0 补齐
+    const digit2 = j >= 0 ? parseInt(num2[j]) : 0; // 取出 num2 当前位上的数字，如果越界了就用 0 补齐
+    const sum = digit1 + digit2 + carry; // 计算当前位上的数字和
+    result = (sum % 10).toString() + result; // 将该位上的数字插入到结果字符串的最前面
+    carry = Math.floor(sum / 10); // 计算进位
+    i--; // 将指针 i 向前移动一位
+    j--; // 将指针 j 向前移动一位
+  }
+  return result; // 返回结果字符串
+}
+```
+
+
 
 
 
