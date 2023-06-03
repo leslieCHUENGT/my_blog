@@ -301,9 +301,46 @@ console.log(deserialized.fullName); // "John Doe"
 - 指可以接收一个或多个函数作为参数，并且/或者返回一个新的函数的函数。
 - 常见的高阶函数包括 map、filter 和 reduce 等
 
+# js继承
+- 借助call，只能拿到父类的属性
+- 重新给原型赋值，构造函数
+- 寄生组合继承
+```js
+function Parents(){
+  this.name = 'parent';
+  this.play = [1,2,3];
+}
+function Child(){
+  Parent.call(this);
+  this.type = 'child'
+}
+Child.prototype = Object.create(Parent.prototype);
+Child.prototype.constructor = Child5;
+// 借助解决普通对象的继承问题的Object.create 方法
+```
 
-
-
+# 垃圾回收机制复盘
+- 首先栈、堆
+- 栈内存
+  - 记录当前执行状态的指针ESP
+  - js引擎通过向下移动ESP来销毁该函数保存在栈中的执行上下文
+- 堆
+  - 代际假说和分代收集
+  - Chrome的js引擎V8
+  - 垃圾回收机制里比较重要的概念：代际假说
+    - 部分对象会在内存里存放的时间比较短
+    - 部分对象会存活很久
+  - 分代收集就是V8会把堆分为新生代和老生代两个区域
+  - 其实不论什么类型的垃圾回收器，它们都有一套共同的执行流程
+    - 标记对象，分为活动和非活动，通过ESP来判断标记
+    - 清理非活动的对象的内存
+    - 内存整理，对内存碎片进行整理
+  - 新生代用 Scavenge 清除算法
+    - 为了解决大量的内存碎片问题
+    - 分为空闲区、对象区，通过复制和排序放入另一个区域
+    - 对象晋升政策
+  - 老生代用标记-清除法、标记-整理法
+  - 增量标记算法，完整的任务拆分为小的任务
 
 
 

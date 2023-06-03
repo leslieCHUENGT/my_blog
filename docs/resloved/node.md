@@ -1,6 +1,7 @@
 # JEST
-- toBe用于判断两个值是否严格相等，也就是类型和值都要相同。
-- toEqual用于判断两个值是否深度相等
+- toBe用于**判断两个值是否严格相等**，也就是类型和值都要相同。检验状态码
+- toEqual用于**判断两个值是否深度相等**
+- describe test async await
 ```js
     describe('测试用户账户接口', () => {
         test('响应里应该包含指定的属性', async () => {
@@ -127,12 +128,17 @@ async uploadChunks(){
 }
 // 合并切片，即前端主动通知服务端进行合并
 // 发送post请求，告知服务器合并
-
 ```
+## 总结
+- 先e.target.files拿到文件
+- while循环，核心是利用 Blob.prototype.slice 方法，放入数组
+- 再用map方法生成一个对象，file切片、hash：数组下标
+- 然后把切片对象传入封装的request方法里，promise.all并发请求这个数组
+
 
 # 后端
 ```js
-// 使用multiparty.parse可以把http请求的formData解析为js对象
+// 使用 multiparty.parse 可以把 http 请求的 formData 解析为js对象
 // 在mutiparty.parse的回调中，files 参数保存了 formData 中文件，fields 参数保存了 formData 中非文件的字段
 // 调用files.move()来保存文件和名字：hash + filename组成
 const multipart = new multiparty.From();
@@ -223,8 +229,18 @@ if(req.url === '/merge'){
         })
     )
 }
-
 ```
+
+## 总结
+- multipart 处理前端传来的 formData
+- path.resolved创建临时文件
+
+
+
+
+
+
+
 
 
 

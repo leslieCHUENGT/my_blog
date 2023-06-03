@@ -1074,6 +1074,122 @@ const people = [
 people.map(person.greet, person);
 // 输出 "Hello, my name is Alice" 三次
 ```
+
+
+# 反转链表
+```js
+// 迭代
+function reverseList(head) {
+  let prev = null;
+  let curr = head;
+  while (curr !== null) {
+    const next = curr.next; // 记录当前节点的下一个节点
+    curr.next = prev; // 将当前节点的 next 属性指向上一个节点
+    prev = curr; // 更新上一个节点为当前节点
+    curr = next; // 更新当前节点为下一个节点
+  }
+  return prev;
+}
+// 递归
+function reverseList(head) {
+  if (head === null || head.next === null) {
+    return head; // 处理边界情况：链表为空或只有一个节点
+  }
+  const tail = reverseList(head.next); // 递归反转剩余部分
+  head.next.next = head; // 将当前节点的下一个节点的 next 属性指向当前节点
+  head.next = null; // 将当前节点的 next 属性设为 null
+  return tail; // 返回反转后的新链表的尾节点
+}
+```
+# 大数相加
+
+```javascript
+function addStrings(num1, num2) {
+  let i = num1.length - 1; // 初始化指向 num1 的末位的指针 i
+  let j = num2.length - 1; // 初始化指向 num2 的末位的指针 j
+  let carry = 0; // 初始化进位为 0
+  let result = ''; // 初始化结果字符串为空字符串
+  while (i >= 0 || j >= 0 || carry !== 0) { // 当还有数字或者存在进位时，继续执行循环
+    // parseInt() 函数来将字符串转换为数字
+    const digit1 = i >= 0 ? parseInt(num1[i]) : 0; // 取出 num1 当前位上的数字，如果越界了就用 0 补齐
+    const digit2 = j >= 0 ? parseInt(num2[j]) : 0; // 取出 num2 当前位上的数字，如果越界了就用 0 补齐
+    const sum = digit1 + digit2 + carry; // 计算当前位上的数字和
+    result = (sum % 10).toString() + result; // 将该位上的数字插入到结果字符串的最前面
+    carry = Math.floor(sum / 10); // 计算进位
+    i--; // 将指针 i 向前移动一位
+    j--; // 将指针 j 向前移动一位
+  }
+  return result; // 返回结果字符串
+}
+```
+
+# 合并升序数组
+[面试题 10.01. 合并排序的数组 - 力扣（LeetCode）](https://leetcode.cn/problems/sorted-merge-lcci/)
+- 思路
+  - 数组A和数组B的长度进行思考
+  - n = m
+  - n > m
+    - 此时说明留下的都是更小的，没必要进行遍历了
+  - n < m
+    - 则需要循环将数组B加到数组A里去
+```js
+const merge = (A, n, B, m) => {
+  // 定义索引指针
+  let i = n - 1;
+  let j = m - 1;
+  let k = m + n - 1;
+
+  // 循环处理情况1、2
+  while(i >= 0 && j >= 0){
+    if(A[i] > B[j]){
+      A[k] = A[i];
+      i--;
+    }else{
+      A[k] = B[j];
+      j--;
+    }
+    k--;
+  }
+  // 处理情况3
+  while(j >= 0){
+    A[k] = B[j];
+    j--;
+    k--;
+  }
+  return A;
+}
+```
+# 合并有序链表
+## 迭代法
+- 考虑链表1和链表2长度问题
+- 情况1
+  - 构造循环，条件是l&&2
+  - 新的头结点.next的指定
+  - 谁小指谁
+- 情况2、3
+  - 接上去就行
+```js
+const merge = (l1, l2) => {
+  // 创建虚拟头结点，便于返回头结点
+  let prehead = new ListNode(0);
+  let prev = prehead;
+  // 迭代,处理情况1
+  while(l1 && l2){
+    if(l1.val < l2.val){
+      prev.next = l1;
+      l1 = l1.next;
+    }else{
+      prev.next = l2.next;
+      l2 = l2.next;
+    }
+    // 指向下一个
+    prev = prev.next
+  }
+  // 处理情况2、3
+  prev.next = l1 === null ? l1 : l2 
+  return prehead.next;
+}
+```
 # 给定目录路径,聚合成树形结构
 ```js
 const paths = [
@@ -1123,6 +1239,7 @@ function buildTree(paths) {
   for (const path of paths) {
     // 将路径按照 '/' 分隔成多个部分
     const parts = path.split('/');
+    //  ['root', 'a', 'b', 'c']
     let node = root; // 从根节点开始遍历
     for (const part of parts) {
       let child = node.children.find(c => c.name === part); // 查找当前层级的子节点中是否已有该部分
@@ -1137,56 +1254,5 @@ function buildTree(paths) {
   return root;
 }
 ```
-
-# 反转链表
-```js
-// 迭代
-function reverseList(head) {
-  let prev = null;
-  let curr = head;
-  while (curr !== null) {
-    const next = curr.next; // 记录当前节点的下一个节点
-    curr.next = prev; // 将当前节点的 next 属性指向上一个节点
-    prev = curr; // 更新上一个节点为当前节点
-    curr = next; // 更新当前节点为下一个节点
-  }
-  return prev;
-}
-// 递归
-function reverseList(head) {
-  if (head === null || head.next === null) {
-    return head; // 处理边界情况：链表为空或只有一个节点
-  }
-  const tail = reverseList(head.next); // 递归反转剩余部分
-  head.next.next = head; // 将当前节点的下一个节点的 next 属性指向当前节点
-  head.next = null; // 将当前节点的 next 属性设为 null
-  return tail; // 返回反转后的新链表的尾节点
-}
-```
-# 大数相加
-
-```javascript
-function addStrings(num1, num2) {
-  let i = num1.length - 1; // 初始化指向 num1 的末位的指针 i
-  let j = num2.length - 1; // 初始化指向 num2 的末位的指针 j
-  let carry = 0; // 初始化进位为 0
-  let result = ''; // 初始化结果字符串为空字符串
-  while (i >= 0 || j >= 0 || carry !== 0) { // 当还有数字或者存在进位时，继续执行循环
-    // parseInt() 函数来将字符串转换为数字
-    const digit1 = i >= 0 ? parseInt(num1[i]) : 0; // 取出 num1 当前位上的数字，如果越界了就用 0 补齐
-    const digit2 = j >= 0 ? parseInt(num2[j]) : 0; // 取出 num2 当前位上的数字，如果越界了就用 0 补齐
-    const sum = digit1 + digit2 + carry; // 计算当前位上的数字和
-    result = (sum % 10).toString() + result; // 将该位上的数字插入到结果字符串的最前面
-    carry = Math.floor(sum / 10); // 计算进位
-    i--; // 将指针 i 向前移动一位
-    j--; // 将指针 j 向前移动一位
-  }
-  return result; // 返回结果字符串
-}
-```
-
-
-
-
 
 
