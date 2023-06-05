@@ -1255,4 +1255,76 @@ function buildTree(paths) {
 }
 ```
 
+# 最长公共前缀
+- 思路
+- 求最长的公共前缀，不断缩小前缀来验证
+- .indexOf() 匹配
+```js
+function longestCommonPrefix(strs){
+  if(strs.length === 0){
+    return '';
+  }
+  // 先赋初始值，后续不断缩小
+  let prefix = strs[0];
+  for(let i = 0; i < strs.length; i++){
+    // 对于单层的字符串，不断缩小公共前缀
+    // 注意此时要求的.indexOf()不为0，意思就是直到匹配到
+    while(strs[i].indexOf(prefix) !== 0){
+      // 缩短字符串,不断缩短
+      prefix = prefix.slice(0,prefix.length - 1);
+      if(prefix === ''){
+        return '';
+      }
+    }
+  }
+  return prefix;
+}
+
+```
+
+```js
+function dfsFindNode(node) {
+  const res = []; // 存放符合条件的节点的数组
+  if (node && node.nodeType === 1) { // 判断当前节点是否为元素节点
+    if (/\ba\b/.test(node.className)) { // 判断当前节点的 class 属性是否包含 a
+      res.push(node); // 如果符合条件，则将当前节点加入结果数组中
+    }
+    const children = node.children; // 获取当前节点的子元素列表
+    for (let i = 0; i < children.length; i++) { // 遍历每个子元素
+      const child = children[i];
+      res.push(...dfsFindNode(child)); // 递归调用自身，并将返回的节点列表合并到结果数组中
+    }
+  }
+  return res; // 返回所有符合条件的节点组成的数组
+}
+
+const aNodes = dfsFindNode(document.body); // 查找 document.body 下所有 class 为 a 的元素节点
+
+
+function bfsFindNode(node) {
+  const res = []; // 存放符合条件的节点的数组
+  const queue = [node]; // 定义一个队列，初始值为根节点
+  while (queue.length > 0) { // 当队列不为空时进行遍历
+    const cur = queue.shift(); // 取出队头元素，并作为当前处理的节点
+    if (cur.nodeType === 1 && /\ba\b/.test(cur.className)) { // 判断当前节点是否为元素节点，并且其 class 属性是否包含 a
+      res.push(cur); // 如果符合条件，则将当前节点加入结果数组中
+    }
+    const children = cur.children; // 获取当前节点的所有子元素
+    for (let i = 0; i < children.length; i++) { // 遍历每个子元素
+      const child = children[i];
+      queue.push(child); // 将子元素加入队列尾部，等待被处理
+    }
+  }
+  return res; // 返回所有符合条件的节点组成的数组
+}
+
+const aNodes = bfsFindNode(document.body); // 查找 document.body 下所有 class 为 a 的元素节点
+
+```
+
+
+
+
+
+
 

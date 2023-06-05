@@ -668,16 +668,95 @@ xhr.send();
 - 总之，通过设置 `Content-Length` 头为 `0` 可以使用 GET 请求来模拟 HEAD 请求，并获取目标资源的元数据信息。
 
 
+# 跨域
+- 跨站请求的响应一般会被浏览器拦截，成功到达了客服端，但是会被拦截。
+- 渲染进程是沙箱模式，防止读取或修改用户的文件、截取网络传输的数据。
+- 沙箱当中的渲染进程是没有办法发送网络请求，通过进程间通信`IPC`使得网络进程来发送。
+- 数据传递给了浏览器主进程，主进程接收到后，才真正地发出相应的网络请求。
+- 服务端处理完数据后，将响应返回，**浏览器主进程**检查到跨域，且没有cors响应头，将响应体全部丢掉，并不会发送给**渲染进程**。
+## CORS跨域资源共享
+- 简单请求和非简单请求
+- 简单请求
+  - 请求方法：GET、POST和HEAD
+  - 请求头的范围：
+    - Accept：可以接收的响应类型
+    - Accept-Language：指定客户端接受的自然语言，存在优先级。
+    - Content-Language：指定请求或响应实体使用的语言。
+    - Content-Type：指定请求或响应实体的MIME类型。JSON、multipart/form-data
+  - 在发送时，自动添加`Origin`字段,用来说明请求来自哪个源
+  - 在回应时
+    - 在白名单内，会自动添加`Access-Control-Allow-Origin`字段，其值设置为`Origin`
+    - 不在白名单，不添加` Access-Control-Allow-Origin `字段，并返回错误信息。
+  - 浏览器端进行校验
+    - `Access-Control-Allow-Origin`字段的值`Origin`与请求头的`Origin`进行比对
+  - `Access-Control-Allow-Credentials`,取值为boolean类型，表示是否发送`cookie`
+    - 前端也需要设置`withCredentials`属性
+    ```js
+    let xhr = new XMLHttpRequest();
+    xhr.withCredentials = true;
+    ```
+  - `Access-Control-Expose-Headers` 的作用则是允许在响应中公开**额外的、自拓展的**响应头供客户端访问。
+  ```js
+  Access-Control-Expose-Headers: aaa
+  XMLHttpRequest.getResponseHeader('aaa')// 拿到该字段的值
+  ```
+- 非简单请求：PUT、DELETE
+- 预检请求和响应字段
+  - 预检请求，请求行和请求体是下面这个格式:
+    - 方法、源、主机名、Access-Control-Request-Method、Access-Control-Request-Headers
+    ```js
+    OPTIONS / HTTP/1.1
+    Origin: 当前地址
+    Host: xxx.com
+    Access-Control-Request-Method: PUT
+    Access-Control-Request-Headers: X-Custom-Header
+    ```
+  - 预检请求的响应体
+    - Access-Control-Allow-Origin、Methods、Headers、Credentials和Max-Age
+    ```js
+    HTTP/1.1 200 OK
+    Access-Control-Allow-Origin: *
+    Access-Control-Allow-Methods: GET, POST, PUT
+    Access-Control-Allow-Headers: X-Custom-Header
+    Access-Control-Allow-Credentials: true
+    Access-Control-Max-Age: 1728000 
+    Content-Type: text/html; charset=utf-8
+    Content-Encoding: gzip
+    Content-Length: 0
+    ```
+## JSONP
+- 通过script标签动态填写src，发送GET请求，实现跨域，在回调函数里拿到响应数据
 
+## Nginx
+- 正向代理
+  - 用于访问限制客服端访问的资源，VPN
+- 反向代理
+  - 代理服务器将请求转发给后端的多台服务器，根据**负载均衡算法**选择其中一台服务器进行处理，并将该服务器的响应结果返回给客户端
+  - 配置文件
+```js
+server {
+    listen 80;
+    
+    server_name frontend.example.com;    # 前端域名
 
+    location /api/ {
+        add_header 'Access-Control-Allow-Origin' 'http://frontend.example.com';   # 允许跨域请求的源
+        add_header 'Access-Control-Allow-Credentials' 'true';     # 允许传递 Cookie 等凭证信息
+        add_header 'Access-Control-Allow-Methods' 'GET, POST, PUT, DELETE, OPTIONS';   # 允许的 HTTP 方法
+        add_header 'Access-Control-Allow-Headers' 'Content-Type, Authorization';     # 允许的 HTTP 头
+        proxy_pass http://backend_server;    # 转发请求到后端服务器
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;    # 将客户端真实 IP 传递给后端
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;   # 添加头信息，记录请求链路
+    }
 
-
-
-
-
-
-
-
+    location / {
+        root /var/www/frontend;
+        index index.html;
+    }
+}
+```
+  - location /api/ 会匹配子域名下带有/api/的域名，将其发送的请求转发到后端服务器上
 
 
 

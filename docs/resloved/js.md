@@ -342,7 +342,7 @@ Child.prototype.constructor = Child5;
   - 老生代用标记-清除法、标记-整理法
   - 增量标记算法，完整的任务拆分为小的任务
 
-
+# 
 
 
 
