@@ -329,5 +329,52 @@
 let currentValue = parseFloat(value).toFixed(2);
 ```
 
-
+# 再聊flex布局
+## 轴
+- 主轴是由flex-direction决定，进而决定了交叉轴的方向
+- flex-direction: row | row-reverse | column | column-reverse
+## 父容器
+- justify-content
+  - flex-start
+  - flex-end
+  - center
+  - space-between
+  - space-around
+- align-content
+  - stretch 
+    - 拉伸，文字基线对齐
+  - center
+  - flex-start
+  - flex-end
+  - baseline
+    - 文字基线对齐
+- flex-warp 换不换行
+  - wrap
+  - nowrap
+  - wrap-reverse
+## 子容器
+- align-self属性: 单独设置子容器如何沿交叉轴排列,可以改变父容器的设置
+  - stretch 
+    - 拉伸，文字基线对齐
+  - center
+  - flex-start
+  - flex-end
+  - baseline
+    - 文字基线对齐
+- flex
+  - flex-grow flex-shrink flex-basis的简写
+  - flex:1 —> flex:1 1 0%;
+  - flex:3 —> flex:3 1 0%;
+- 单个值
+  - flex：flex-basis
+- 两个值
+  - flex：flex-grow flex-basis
+- 三个值
+  - flex：flex-grow flex-shrink flex-basis
+- flex-basis 设置基准值，单位就是长度单位
+  - **在不伸缩的情况下**，flex-basis 给子容器设置大小才有作用
+  - 当主轴为横向时，`flex-basis`设置的大小为宽度，并且会覆盖witdh值
+  - 当主轴为纵向时,flex-basis设置的大小为高度，并且会覆盖height值
+- flex-grow 当存在剩余空间时，设置伸缩比例
+- flex-shrink 当超出空间时，设置伸缩比例，相对缩小
 

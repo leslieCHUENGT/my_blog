@@ -232,8 +232,8 @@ if(req.url === '/merge'){
 ```
 
 ## 总结
-- multipart 处理前端传来的 formData
-- path.resolved创建临时文件
+
+
 
 
 

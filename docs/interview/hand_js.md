@@ -246,6 +246,7 @@ function myInstanceOf(obj, constructor) {
 
 # 数组扁平化(flatter)
 ## 手写flatter
+
 ```js
 function flatter(arr) {
   if (!arr.length) return [];
@@ -268,6 +269,8 @@ function flatten(arr = [], res = []) {
   return res;
 }
 
+// toString()方法会剔除[],变成字符串
+[[1,[2]],3].toString().split(',').map(x => Number(x))  
 ```
 # new
 ## new 操作符
