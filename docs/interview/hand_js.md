@@ -527,7 +527,7 @@ function quickSort(arr) {
   }
 
   // 分别对left和right数组进行递归排序，并将它们和基准值合并成一个新数组
-  return [...quickSort(left), pivot, ...quickSort(right)];
+  return quickSort(left).concat(pivot, quickSort(right));
 }
 
 // 测试用例
@@ -677,7 +677,6 @@ function deepClone(obj, hash = new WeakMap()) {
   return cloneObj;
 }
 ```
-
 
 # js判断类型的方法
 ```javascript
@@ -968,6 +967,7 @@ function fn(n, start = 1, total = 1) {
 }
 // 迭代
 function fn(n){
+  // 迭代法，前两项不必
   if(n === 0) return 0;
   if(n === 1) return 1;
 
@@ -1345,5 +1345,22 @@ var search = function(nums, target) {
     }
     return -1;
 };
+```
+
+# find
+```js
+function find(obj, str) {
+    const keys = str.split('.'); // 将属性路径按照 . 分割成数组
+    let value = obj; // 初始化 value 为输入对象 obj
+    for (let key of keys) {
+        if (value.hasOwnProperty(key)) { // 如果当前对象有该属性，则更新 value 为该属性对应的值
+            value = value[key];
+        } else { // 如果当前对象没有该属性，则返回 undefined
+            return undefined;
+        }
+    }
+    return value;
+}
+
 ```
 

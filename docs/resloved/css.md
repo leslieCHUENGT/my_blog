@@ -19,6 +19,7 @@
     - flex布局，利用flex为1的属性
     - 绝对定位也可以
 
+ 
 - 绝对定位和固定定位会完全脱离文档流
   - 相对于其最近的已定位祖先元素进行定位
   - 相对于视口进行定位
@@ -36,7 +37,7 @@
 - 无论是哪种方法都是为了创建新的**BFC**
   - **添加额外的标签，属性设置clear为both**
   - 父级添加**overflow**属性，设置为**hidden或者auto**，设置高度肯定可以，但是违背了初衷
-  - 建立**伪类**选择器清除浮动，会用到**clear**属性，一般添加：after就行
+  - 建立**伪元素**选择器清除浮动，会用到**clear**属性，一般添加：after就行
 
 # 伪元素和伪类的区别和作用？
 - 不会在文档的源代码中找到它们
@@ -55,7 +56,7 @@
 - id选择器，`#` 100
 - 类选择器即为标签的class属性， `.` 10 
 - 伪类选择器，`li:last-child` 10 
-- 属性选择器，[title]、[title~=hello]、input[type="text"] 10 
+- 属性选择器，[title]、[title~=hello]、input[type="text"]，语法比较特殊，使用中括号匹配 10 
 - 标签选择器，所有的HTML标记名都可以作为标签选择器 `div p h1 span ` 1
 - 伪元素选择器，`li:after` 1
 - 并集选择器，`span,div, .content ` 0
@@ -82,6 +83,7 @@
 - inline-block，行内块级元素类型
 - table，作为块级表格元素显示
 - flex，弹性盒子容器
+- gird，网格布局
 - inherit，继承
 
 # 讲一讲display：table
@@ -102,7 +104,7 @@
 # 标准盒子模型和IE盒子模型
 - 这两种盒子模型，在网页布局中主要就是计算布局时会有不同
 - 标准盒模型的wh属性只包括了content
-- IE盒模型就还包含了内外边距的值
+- IE盒模型就还包含了padding、boder的值
 
 # 讲一讲css3的新特性
 - 比较常用的新增的选择器：
@@ -340,7 +342,10 @@ let currentValue = parseFloat(value).toFixed(2);
   - center
   - space-between
   - space-around
+- align-items
+  - **定义项目在交叉轴上如何对齐**
 - align-content
+  - 定义了多根轴线的对齐方式。如果项目只有一根轴线，该属性不起作用
   - stretch 
     - 拉伸，文字基线对齐
   - center

@@ -362,19 +362,18 @@ var findBottomLeftValue = function(root) {
     // 1. 确定递归函数的函数参数
     const dfsTree = function(node, curPath) {
         // 2. 确定递归函数终止条件
-        if(!node)return;
+        if(!node) return;
         // 并且左子树优先递归，在同一层上只会统计一次resNode的值
         if(node.left === null && node.right === null) {
-            // 
             if(curPath > maxPath) {
-            maxPath = curPath;
-            resNode = node.val;
+                maxPath = curPath;
+                resNode = node.val;
             }
             return;
         }
         // 左节点优先递归，在同一高度下，只记录一次value。
-        dfsTree(node.left, curPath+1);
-        dfsTree(node.right, curPath+1);
+        dfsTree(node.left, curPath + 1);
+        dfsTree(node.right, curPath + 1);
     }
     // 高度默认为1
     dfsTree(root,1);

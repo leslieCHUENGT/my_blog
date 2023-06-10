@@ -232,10 +232,27 @@ if(req.url === '/merge'){
 ```
 
 ## 总结
-
-
-
-
+- 后端难点介绍
+  - 大文件上传处理视频或者音频
+  - 后端使用MVC设计模式
+    - 入口文件安排 跨域 bodyParser 鉴权 数据库连接 路由中间件 错误处理中间件
+    - 路由交给controller负责参数校验和逻辑
+    - controller交给service负责数据存储
+    - middewqres文件夹提供鉴权，参数校验，密码md5
+  - 使用面向对象思想来组织代码
+- 切片
+  - 大文件 上传失败的概率大 TCP/IP
+  - Promise.all 并发 数组有上限
+- 断点续传
+  - 已经上传的不用再上传
+- 秒传
+  - hash
+# 如何用命令行测试文件上传
+- centos/ubuntu + 命令行
+- curl
+```js
+curl -X POST -F "file=C:\Users\86199\Desktop\tsd.jpg" http://localhost:3000
+```
 
 
 
