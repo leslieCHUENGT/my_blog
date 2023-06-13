@@ -155,11 +155,6 @@
     - 因为这是css3的属性，防止有些浏览器不支持那就要加-webkit
     - 设置行数，overflow：hidden，text-overflow：ellipsis即可
 
-
-
-
-
-
 # 讲一讲css工程化
 - 我了解的主要就是webpack处理
 - 我在vue项目里用了stylus来写css
@@ -375,8 +370,8 @@ let currentValue = parseFloat(value).toFixed(2);
 - 两个值
   - flex：flex-grow flex-basis
 - 三个值
-  - flex：flex-grow flex-shrink flex-basis
-- flex-basis 设置基准值，单位就是长度单位
+  - flex：flex-grow flex-shrink flex-basis 
+- flex-basis 设置基准值，单位就是长度单位 
   - **在不伸缩的情况下**，flex-basis 给子容器设置大小才有作用
   - 当主轴为横向时，`flex-basis`设置的大小为宽度，并且会覆盖witdh值
   - 当主轴为纵向时,flex-basis设置的大小为高度，并且会覆盖height值
