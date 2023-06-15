@@ -18,8 +18,6 @@
     - 左盒子设置为向左浮动，右盒子设置`margin`值就可以，宽度设置为auto（默认为auto，撑满整个父元素）,不设置也行，默认就是，或者设置为`overflow: hidden;`触发了BFC，BFC不会和浮动元素重叠，是独立的渲染区域，单独的图层
     - flex布局，利用flex为1的属性
     - 绝对定位也可以
-
- 
 - 绝对定位和固定定位会完全脱离文档流
   - 相对于其最近的已定位祖先元素进行定位
   - 相对于视口进行定位
@@ -44,13 +42,20 @@
 - 伪元素就是前后插入额外的元素或者样式，它的本质就是在已有的元素添加别的
 - 伪类是通过在元素选择器上加入伪类来改变元素状态的比如hover、first-child
 - :before 和 :after 这两个伪元素，是在CSS2.1里新出现的。起初，伪元素的前缀使用的是单冒号语法，但随着Web的进化，在CSS3的规范里，**伪元素**的语法被修改成使用**双冒号**，成为::before、::after。
+
+
 # BFC
 - 我对BFC的理解就是会形成一个独立的渲染区域，和外部元素相互隔离开
 - 怎么创建BFC容器
-  - 左右浮动
+  - float
   - overflow的auto、hidden等属性
-  - display:inline-block 实现行内块元素的特性，但是不会脱离文档流
-  - 弹性布局、网格布局、定位布局
+  - display
+    - inline-block 实现行内块元素的特性，但是不会脱离文档流
+    - flex弹性布局、grid网格布局
+  - position
+    - absolute
+    - fixed
+    - sticky
 
 # css常见选择器
 - id选择器，`#` 100
@@ -60,9 +65,10 @@
 - 标签选择器，所有的HTML标记名都可以作为标签选择器 `div p h1 span ` 1
 - 伪元素选择器，`li:after` 1
 - 并集选择器，`span,div, .content ` 0
-- 后代选择器，`ul a` 0
-- 子选择器，只会查找儿子，不会查找孙子`#box > p` 0 
-- 兄弟选择器，匹配第一个，紧接第二个`h1 + p` 查找某一个指定元素的后面的所有兄弟结点。`h1 ~ p` 0 
+- 关系选择器
+  - 后代选择器，`ul a` 0
+  - 子选择器，只会查找儿子，不会查找孙子`#box > p` 0 
+  - 兄弟选择器，匹配第一个，紧接第二个`h1 + p` 查找某一个指定元素的后面的所有兄弟结点。`h1 ~ p` 0 
 - 通配符选择器， `*` 0
 
 # css继承性和不可继承性
@@ -72,9 +78,9 @@
   - 元素可见性：`visibility`
   - 光标属性
 - 不可继承
-  - 定位属性：float、clear、position、top、right、bottom、left、
+  - position、float、clear、position、top、right、bottom、left、
   - display 布局
-  - 宽高等属性
+  - weigth、height
 
 # 讲一讲display属性
 - none，DOM树上依然会存在，在渲染过程中，布局树上就不存在这个节点了
@@ -93,12 +99,12 @@
 
 # 隐藏元素有哪些方法
 - display：none，DOM树上依然会存在，在渲染过程中，布局树上就不存在这个节点了
-- visibility: hidden，DOM树上依然会存在，在渲染过程中，布局树上存在这个节点，所以会占据空间和相应的位置，看不见但是摸不着，不会响应点击事件
+- visibility: hidden，DOM树上依然会存在，在渲染过程中，布局树上存在这个节点，所以会占据空间和相应的位置，看不见但是摸不着，**不会响应点击事件**
 - opacity: 0，透明度为0，DOM树、布局树上存在这个节点，浏览器处理这个属性，是将透明度为0，看不见但是可以摸着，可以响应点击事件。
 - 设置宽高为0，移出视图外，裁剪，都是和visibility: hidden差不多的流程。
 
 # 从继承角度讲一讲display:none与visibility:hidden的区别
-- display：none是非继承属性，子孙节点修改了属性也无法显示
+- display：none是**非继承属性**，子孙节点修改了属性也无法显示
 - visibility：hidden是继承属性，子孙节点可以通过设置visibility：visible来显示
 
 # 标准盒子模型和IE盒子模型
@@ -375,6 +381,6 @@ let currentValue = parseFloat(value).toFixed(2);
   - **在不伸缩的情况下**，flex-basis 给子容器设置大小才有作用
   - 当主轴为横向时，`flex-basis`设置的大小为宽度，并且会覆盖witdh值
   - 当主轴为纵向时,flex-basis设置的大小为高度，并且会覆盖height值
-- flex-grow 当存在剩余空间时，设置伸缩比例
+- flex-grow 当存在剩余空间时，设置伸缩比例，当把 flex-basis 设置为 0% 时，表示子元素的初始大小为 0，即其尺寸将完全由 flex-grow 和 flex-shrink 属性来决定。
 - flex-shrink 当超出空间时，设置伸缩比例，相对缩小
 

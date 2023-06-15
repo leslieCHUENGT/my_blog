@@ -59,7 +59,7 @@
 - 由于 Cookie 存储的敏感信息，本应只能在设置了 `Secure` 和 `HttpOnly` 属性、使用 `HTTPS` 协议的情况下才能传输
 - 浏览器默认禁止在非 HTTPS 的环境下跨域携带 Cookie。
 - 失效
-- 
+
 
 # nginx
 **讲一下nginx的反向代理**
@@ -196,11 +196,11 @@ https://juejin.cn/post/6844904034181070861#heading-5
   - Signature:使用指定算法对header和payload进行加密生成的签名字符串，用于验证token的合法性。
   ```js
   HMACSHA256(
-  base64UrlEncode(header) + "." +
-  base64UrlEncode(payload),
+    base64UrlEncode(header) + "." +
+    base64UrlEncode(payload),
   secret)
   ```
-  - secret是服务端保存的私钥，用于生成签名；base64UrlEncode()是一种特殊的base64编码方式，去掉了“+”、“/”和“=”，用“-”、“_”和“”代替，使其在URL中传输更方便。
+  - secret是服务端保存的**私钥**，用于生成签名；base64UrlEncode()是一种特殊的base64编码方式，去掉了“+”、“/”和“=”，用“-”、“_”和“”代替，使其在URL中传输更方便。
 - 组合JWT
 ```js
 // JWT Token
@@ -495,10 +495,10 @@ https://time.geekbang.org/column/article/113513
   - IntersectionObserver 回调函数：IntersectionObserver 也是浏览器提供的一个 API，用于监听指定元素与视口（即浏览器窗口）的交叉情况。
 - 宏任务
   - 渲染事件（如解析 DOM、计算布局、绘制）；
-    - requestAnimationFrame 回调函数：在下一次绘制前执行指定的回调函数。自动适应设备的刷新率，从而实现更加平滑的动画效果。
+    - `requestAnimationFrame `回调函数：在下一次绘制前执行指定的回调函数。自动适应设备的**刷新率**，从而实现更加平滑的动画效果。
   - 用户交互事件（如鼠标点击、滚动页面、放大缩小等）；
   - JavaScript 脚本执行事件；
-  - 网络请求完成、文件读写完成事件。XMLHttpRequest 和 fetch 请求
+  - 网络请求完成、文件读写完成事件。`XMLHttpRequest` 和` fetch `请求
 # 讲一讲js计时器可以做到精准计时吗
 - 调用的是操作系统的函数，不可能做到精准计时
 - w3c标准：嵌套过5层，就会至少带有4毫秒的默认时间
