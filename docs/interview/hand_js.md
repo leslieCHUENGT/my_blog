@@ -2,7 +2,7 @@
 ```js
 // 创建一个函数 memoize，接受一个函数作为参数
 function memoize(func) {
-  // 创建一个空对象 cache，用于存储计算结果
+  // 创建一个空对象 cache，用于存储计算结果,形成闭包
   const cache = {};
   // 返回一个新的函数，此处使用了 rest parameter 操作符 ...args，
   // 它可以让我们将传入的参数转换成一个数组
@@ -16,13 +16,13 @@ function memoize(func) {
     } else {
       // 否则，执行原始函数，将结果存入缓存对象中，并返回结果
       console.log('进行计算');
-      const result = func.apply(this, args);
+      const result = func.apply(this, args);// 执行函数
       cache[key] = result;
       return result;
     }
   }
 }
-
+// 
 function fib(n) {
   if (n < 2) return n;
   return fib(n - 1) + fib(n - 2);
@@ -244,8 +244,7 @@ function myInstanceOf(obj, constructor) {
 
 这个实现方式利用了 `isPrototypeOf()` 的底层优化，可以更快地判断一个对象是否是另一个对象的实例。
 
-# 数组扁平化(flatter)
-## 手写flatter
+# 数组扁平化(flatter)## 手写flatter
 
 ```js
 function flatter(arr) {
