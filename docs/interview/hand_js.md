@@ -16,7 +16,7 @@ function memoize(func) {
     } else {
       // 否则，执行原始函数，将结果存入缓存对象中，并返回结果
       console.log('进行计算');
-      const result = func.apply(this, args);// 执行函数
+      const result = func(args);// 执行函数
       cache[key] = result;
       return result;
     }
