@@ -195,6 +195,19 @@ function throttle(fn, delay) {
   };
 }
 
+function throttle(fn, delay) {
+  let lastTime = 0;
+  
+  return function (...args) {
+    const now = Date.now();
+    
+    if (now - lastTime >= delay) {
+      fn.apply(this, args);
+      lastTime = now;// 更新时间戳
+    }
+  }
+}
+
 window.addEventListener(
   "scroll",
   throttle(() => {
@@ -244,7 +257,7 @@ function myInstanceOf(obj, constructor) {
 
 这个实现方式利用了 `isPrototypeOf()` 的底层优化，可以更快地判断一个对象是否是另一个对象的实例。
 
-# 数组扁平化(flatter)## 手写flatter
+# 数组扁平化(flatter)
 
 ```js
 function flatter(arr) {
@@ -342,7 +355,7 @@ class EventEmitter {
       this.off(event, wrapper);
     };
 
-    // 将新的回调函数添加到回调函数列表中，并且确保不会重复执行
+    // 将新的回调函数添加到回调函数列表中
     this.on(event, wrapper);
   }
 
