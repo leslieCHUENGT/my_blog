@@ -43,7 +43,7 @@ var combinationSum3 = function(k, n) {
     let res = [];
     let path = [];// 存储满足条件的单个结果，记得回溯
     let sum = 0;// 存储和，需要记得回溯
-    const dfs = (index)=>{
+    const dfs = (startIndex)=>{
         // 确定终止条件，对sum和path都有要求
         
         if(path.length === k){
@@ -54,7 +54,7 @@ var combinationSum3 = function(k, n) {
         }
         // for循环,可以剪枝。能用的最大的数是9 
         // 有sum则可剪枝
-        for(let i = index;9 - i + 1 >= k - path.length && (sum + i) <= n;i++){
+        for(let i = startIndex;9 - i + 1 >= k - path.length && (sum + i) <= n;i++){
             sum += i;path.push(i);
             dfs(i+1);
             sum -=i;path.pop();
@@ -108,12 +108,11 @@ var combinationSum = function(candidates, target) {
     const len =  candidates.length; 
     const res = [], path = [];
     let sum = 0;
-    candidates.sort((a,b)=>a-b); // 排序
-    backtracking(0);
-    return res;
+    candidates.sort((a,b) => a - b); // 排序
+
     function backtracking(startIndex) {
         if (sum === target) {
-            res.push(Array.from(path));
+            res.push([...path]);
             return;
         }
         for(let i = startIndex; i < len && sum + candidates[i] <= target; i++ ) {
@@ -123,6 +122,9 @@ var combinationSum = function(candidates, target) {
             path.pop();sum -= n;
         }
     }
+
+    backtracking(0);
+    return res;
 };
 ```
 
@@ -253,21 +255,21 @@ var subsets = function(nums) {
 var subsetsWithDup = function(nums) {
     let result = []
     let path = []
-    let sortNums = nums.sort((a, b) => {
+    nums.sort((a, b) => {
         return a - b
     })
-    function backtracing(startIndex, sortNums) {
+    function backtracing(startIndex) {
         result.push([...path])
         for(let i = startIndex; i < nums.length; i++) {
             if(i > startIndex && nums[i] === nums[i - 1]) {
                 continue
             }
             path.push(nums[i])
-            backtracing(i + 1, sortNums)
+            backtracing(i + 1)
             path.pop()
         }
     }
-    backtracing(0, sortNums)
+    backtracing(0, nums)
     return result
 };
 ```
@@ -288,6 +290,7 @@ var findSubsequences = function(nums) {
         }
         // 在每次循环之前定义一个uset来帮助去重，目地是使得每个分支去重
         let uset = []
+
         for(let i = startIndex; i < nums.length; i++) {
             // 当满足加入path的元素不是满足可以成为递增子序列时
             if((path.length > 0 && nums[i] < path[path.length - 1])) {
@@ -315,6 +318,9 @@ var findSubsequences = function(nums) {
 // 并且要记得回溯uset
 var permute = function(nums) {
     const res = [], path = [], used = [];
+    nums.sort((a, b) => {
+        return a - b
+    })
     const len = nums.length;
     function backtracking(nums) {
         // 终止条件
@@ -353,14 +359,14 @@ var permuteUnique = function (nums) {
     let path = []
     let used = []
     function backtracing() {
-        // used[i - 1] == true，说明同一树枝nums[i - 1]使用过
-        // used[i - 1] == false，说明同一树层nums[i - 1]使用过
-        // 如果同一树层nums[i - 1]使用过则直接跳过
+        
         if (path.length === nums.length) {
             result.push([...path])
             return;
         }
+
         for (let i = 0; i < nums.length; i++) {
+            // 
             if (i > 0 && nums[i] === nums[i - 1] && !used[i - 1]) {
                 continue;
             }

@@ -814,7 +814,6 @@ function getMinNode(root) {
 }
 ```
 ## 修建二叉树
-
 ```javascript
 // 思考：root.val不在区间里，那么放弃左子树或者右子树
 // 然后再返回裁剪的右子树或者左子树
