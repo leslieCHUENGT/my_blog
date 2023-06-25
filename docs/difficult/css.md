@@ -118,13 +118,31 @@ function multiplyBigNum(num1, num2) {
 
     return result - 0 || '0';
 }
+
+function dfsFindNode(node){
+	const res = [];
+	if(node && node.nodeType === 1){// 判断是否是元素节点
+		if(/\ba\b/.test(node.className)){
+			// 符合条件
+			res.push(node);
+		}
+		const children = node.children;// 当前节点的子节点
+		const len = children.length;
+		if(len === null) break;
+		for(let i = 0;i < len;i++){
+			const child = children[i];
+			res.push(...dfsFindNode(child))
+		}
+	}
+	return res;
+}
 ```
 
 - 面试官你好，我叫赖经涛，本科来自江西财经大学软件与物联网工程学院，专业是软件工程
 - 在校期间担任过班长和班主任助理，去年参与了学院的算法集训，后续加入了一个研究生导师的课题，极限学习机瞬变电课题，立项获得省奖
 - 在去年下半年决定走前端方向，在这期间在自己的github上上传了自己的三个项目
 - 在这个学期在独立完成vue项目后，为了让基础更加扎实，通过书籍和博客的渠道学习了vue源码、浏览器架构、前端工程化、V8引擎的执行机制、axios源码和学习使用koa搭建后端
-- 最近参与了一个企业级前端开发框架开源项目，在里面贡献pr，对标蚂蚁的bigfish和字节的web infra，现在在负责npm包以及类库研发场景的检测,现在处于初学阶段,刚接触umi。
+- 最近参与了一个企业级前端开发框架开源项目，在里面贡献pr，已经有50个star，对标蚂蚁的bigfish和字节的web infra，现在在负责npm包以及类库研发场景的检测,现在处于初学阶段,刚接触umi。正要学习react使用，热爱开源。
 - 希望自己可以通过实习，提升自己的能力和对基础知识的更加完善认识。
 - 谢谢面试官老师，这是我的自我介绍。
 
