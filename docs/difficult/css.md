@@ -66,123 +66,74 @@
 }
 ```
 
-# 归并排序
-## code
+# 给定目录路径,聚合成树形结构
 ```js
-// 归并排序
-// 思路:中间拆、拆到单、回溯合并
-const mergeSort = (arr) => {
-    if (arr.length < 2) return arr;
-    // 拆分
-    let midIndex = Math.floor(arr.length / 2);// arr.length >> 1
-    let left = arr.slice(0, midIndex),
-        right = arr.slice(midIndex);
-    // 返回
-    return merge(mergeSort(left), mergeSort(right));
-}
-// 合并
-const merge = (left, right) => {
-    let result = [];
-    // 情况1
-    while (left.length && right.length) {
-		// 判断条件是<=如果是<那么不稳定
-        if (left[0] <= right[0]) {
-            result.push(left.shift());
-        } else {
-            result.push(right.shift());
-        }
-    }
-    // 情况2
-    while (left.length) result.push(left.shift());
-    // 情况3
-    while (right.length) result.push(right.shift());
-    // 返回
-    return result;
-
+function buildTree(paths) {
+  // 创建根节点，包含一个空的 children 数组
+  const root = { name: 'root', children: [] };
+  for (const path of paths) {
+    // 将路径按照 '/' 分隔成多个部分
+    const parts = path.split('/');
+    //  ['root', 'a', 'b', 'c']
+    let node = root; // 从根节点开始遍历
+    for (const part of parts) {
+      let child = node.children.find(c => c.name === part); // 查找当前层级的子节点中是否已有该部分
+      if (!child) {
+        // 如果没有，就新建一个节点并添加到当前节点的 children 数组中
+        child = { name: part, children: [] };
+        node.children.push(child);
+      }
+      node = child; // 进入子节点继续遍历
+    }
+  }
+  return root;
 }
 
-```
-## 分析
-- **不是原地排序算法**，原地排序算法是仅使用输入数组本身的空间，需要额外的空间来存储临时数组，合并操作时需要开辟新的数组空间
-- **是稳定的排序算法**，稳定排序算法是指排序后相等的元素，相对顺序会不会改变
-- **时间复杂度：拆logn步，合并n步。故为nlogn**
-# 快速排序
-## code
-```js
-// 快排
-// 定基准，放两边，直到单，回溯合并
-function quickSort(arr) {
-    if (arr.length < 2) return arr;
-    // 定基准
-    let pivot = arr[0];
-    let left = [], right = [];
-    // 存放
-    for (let i = 1; i < arr.length; i++){
-        if (arr[i] < pivot) {
-            left.push(arr[i]);
-        } else {
-            greater.push(arr[i]);
-        }
-    }
-    // 递归拆、回溯合并
-    return quickSort(left).concat(pivot, quickSort(right));
+function multiplyBigNum(num1, num2) {
+    //判断输入是不是数字
+    if (isNaN(num1) || isNaN(num2)) return "";
+    num1 = num1 + ""
+    num2 = num2 + ""
+    let len1 = num1.length,
+        len2 = num2.length;
+    let pos = [];
 
-}
+    //j放外面，先固定被乘数的一位，分别去乘乘数的每一位，更符合竖式演算法
+    for (let j = len2 - 1; j >= 0; j--) {
+        for (let i = len1 - 1; i >= 0; i--) {
+            //两个个位数相乘，最多产生两位数，index1代表十位，index2代表个位
+            let index1 = i + j,
+                index2 = i + j + 1;
+            //两个个位数乘积加上当前位置个位已累积的数字，会产生进位，比如08 + 7 = 15，产生了进位1
+            let mul = num1[i] * num2[j] + (pos[index2] || 0);
+            //mul包含新计算的十位，加上原有的十位就是最新的十位
+            pos[index1] = Math.floor(mul / 10) + (pos[index1] || 0);
+            //mul的个位就是最新的个位
+            pos[index2] = mul % 10;
+        }
+    }
 
-// 双指针法
-function quickSort(arr, left = 0, right = arr.length - 1) {
-    // 如果数组元素小于等于1个，则返回
-    if (left >= right) return;
-    // 取第一个元素为基准值
-    const pivot = arr[left];
-    // 定义左右指针
-    let i = left;
-    let j = right;
-    // 利用左右指针交换元素位置
-    while (i < j) {
-        // 从右边向左扫描，找到第一个小于基准值的元素
-        while (arr[j] >= pivot && i < j) {
-           j--;
-        }
-        // 从左边向右扫描，找到第一个大于基准值的元素
-        while (arr[i] <= pivot && i < j) {
-            i++;
-        }
-        // 如果左右指针未相遇，交换元素位置
-        if (i < j) {
-           [arr[i], arr[j]] = [arr[j], arr[i]];
-        }
-    }
-    // 将基准值归位
-    [arr[left], arr[i]] = [arr[i], arr[left]];
-    // 递归对左右两个子序列进行快排
-    quickSort(arr, left, i - 1);
-    quickSort(arr, i + 1, right);
-    // 返回有序数组
-    return arr;
+    //去掉前置0
+    let result = pos.join("").replace(/^0+/, "");
 
+    return result - 0 || '0';
 }
 ```
 
-## 分析
-![[Pasted image 20230601164555.png]]
-- 双指针法下的快排是原地排序
-- 采用两个数组存放：定基准、放两边、拆到单、回溯合并
-- 双指针：参数三、判断单、循环交换（注意都有i < j）、将基准值放中间、快排子序列
-- 不稳定：相同元素之间的顺序可能会改变，交换
-- 每次分区所选取的枢轴元素都恰好为中间位置时，快排的时间复杂度为 O(nlogn)
-	- 原因是分区的时候比较log2n，进行分区n次
-- 每次分区所选取的枢轴元素恰好为最大或最小值，时间复杂度达到 O(n^2)
-	- 原因是分区的时候比较n-1，进行分区 n次
+- 面试官你好，我叫赖经涛，本科来自江西财经大学软件与物联网工程学院，专业是软件工程
+- 在校期间担任过班长和班主任助理，去年参与了学院的算法集训，后续加入了一个研究生导师的课题，极限学习机瞬变电课题，立项获得省奖
+- 在去年下半年决定走前端方向，在这期间在自己的github上上传了自己的三个项目
+- 在这个学期在独立完成vue项目后，为了让基础更加扎实，通过书籍和博客的渠道学习了vue源码、浏览器架构、前端工程化、V8引擎的执行机制、axios源码和学习使用koa搭建后端
+- 最近参与了一个企业级前端开发框架开源项目，在里面贡献pr，对标蚂蚁的bigfish和字节的web infra，现在在负责npm包以及类库研发场景的检测,现在处于初学阶段,刚接触umi。
+- 希望自己可以通过实习，提升自己的能力和对基础知识的更加完善认识。
+- 谢谢面试官老师，这是我的自我介绍。
 
-
-# 归并排序和快速排序的区别
-- 归并是由下而上，先处理子问题，再合并
-- 快排是由上而下，先分区，再处理子问题
-- 归并稳定，但是不是原地排序算法
-- 快排不稳定，但是是原地排序算法  
-
-
+  - umi 基于 react
+  - 现在在根据umi的father这款npm包研发工具来，编写相应的逻辑
+    - 构建工具的插件中，检查项目中导入模块的路径是否存在大小写问题。
+    - 基于Umijs插件函数，通过静态代码检测CommonJS引入ES module的情况
+    - Umi.js 插件函数，用于检查项目中包依赖关系是否存在问题
+    - 基于Umijs的插件函数，来检查规则，通过检查项目里package.json的peerDependencies和dependencies字段，会不会出现同时存在的问题
 
 
 
