@@ -1982,7 +1982,7 @@ function sqrt(s, precision = 16) {
     return s;
   }
 
-  // 计算精度值
+  // 计算精度值，调用Math.pow()来实现
   const precisionValue = Math.pow(10, -precision);
 
   let low = 0;
