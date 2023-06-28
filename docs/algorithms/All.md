@@ -2038,7 +2038,34 @@ var isNumber = function(s) {
     }
     return numFlag;
 };
-
-
 ```
+### 左旋字符串
+```javascript
+// 方法一:调用.slice()方法
+var reverseLeftWords = function(s, n) {
+	// s.slice(n)代表n以后的，包括n
+    return s.slice(n) + s.slice(0,n);
+};
+// 方法二：把字符串变成数组，进行shift()和push()方法的调用，再调用join方法变成字符串
+var reverseLeftWords = function (s, n) {
+    var i = 0;
+    var arr = [...s];
+    while(i<n){
+        arr.push(arr.shift());
+        i++;
+    }
+    return arr.join('')
+};
+```
+
+
+
+
+
+
+
+
+
+
+
 
