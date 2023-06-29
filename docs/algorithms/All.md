@@ -2059,7 +2059,21 @@ var reverseLeftWords = function (s, n) {
 ```
 
 
+## 链表
+### 反转打印链表
+```javascript
+function reverseLinkedList(head) {
+  let result = [];
 
+  let current = head;
+  while (current !== null) {
+    result.unshift(current.val);
+    current = current.next;
+  }
+
+  return result;
+}
+```
 
 
 
