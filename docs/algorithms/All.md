@@ -2067,14 +2067,52 @@ function reverseLinkedList(head) {
 
   let current = head;
   while (current !== null) {
-    result.unshift(current.val);
+    result.unshift(current.val);// 调用 unshift() 将每次的值导入到头部
     current = current.next;
   }
 
   return result;
 }
 ```
-
+### 复杂链表的复制
+```javascript
+var copyRandomList = function(head) {
+    if (!head) {
+        return null;
+    }
+    
+    // 创建新节点，并将新节点插入原节点后方
+    let currentNode = head;
+    while (currentNode) {
+        const newNode = new Node(currentNode.val, currentNode.next, null);
+        currentNode.next = newNode;
+        currentNode = newNode.next;
+    }
+    
+    // 复制random指针
+    currentNode = head;
+    while (currentNode) {
+        if (currentNode.random) {
+            currentNode.next.random = currentNode.random.next;
+        }
+        currentNode = currentNode.next.next;
+    }
+    
+    // 分离新旧链表
+    const newHead = head.next;
+    currentNode = head;
+    while (currentNode) {
+        const newNode = currentNode.next;
+        currentNode.next = newNode.next;
+        if (newNode.next) {
+            newNode.next = newNode.next.next;
+        }
+        currentNode = currentNode.next;
+    }
+    
+    return newHead;
+};
+``` 
 
 
 
