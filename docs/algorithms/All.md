@@ -2135,6 +2135,32 @@ var maxArea = function(height) {
     return maxArea;
 };
 ```
+### 括号生成
+```js
+function generateParenthesis(n) {
+  const res = [];
+  
+  backtrack('', 0, 0);
+  
+  return res;
+  
+  function backtrack(curr, open, close) {
+    if (curr.length === 2 * n) {
+      res.push(curr);
+      return;
+    }
+    
+    if (open < n) {
+      backtrack(curr + '(', open + 1, close);
+    }
+    
+    if (close < open) {
+      backtrack(curr + ')', open, close + 1);
+    }
+  }
+}
+
+```
 
 
 
