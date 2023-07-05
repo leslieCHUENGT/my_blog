@@ -2218,7 +2218,29 @@ LRUCache.prototype.put = function (key, value) {
 
 
 ```
-
+### 二叉树展开为链表
+```js
+function flatten(root) {
+    if (!root) {
+        return;
+    }
+    
+    flatten(root.left);
+    flatten(root.right);
+    
+    const left = root.left;
+    const right = root.right;
+    
+    root.left = null;
+    root.right = left;
+    
+    let curr = root;
+    while (curr.right) {
+        curr = curr.right;
+    }
+    curr.right = right;
+}
+```
 
 
 
