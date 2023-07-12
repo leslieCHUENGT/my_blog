@@ -65,7 +65,7 @@ function curry(fn, ...args) {
   return args.length >= fn.length ? fn(...args) : (...moreArgs) =>
     curry(fn, ...args, ...moreArgs);
 }
-
+1
 const add = (x, y) => x + y;
 const multiply = (x, y) => x * y;
 
@@ -376,7 +376,7 @@ class EventEmitter {
     }
 
     // 移除指定的回调函数
-    const index = callbacks.indexOf(callback);
+    const index = callbacks.indexOf(callback);// 找到索引值，然后调用splice方法
     if (index !== -1) {
       callbacks.splice(index, 1);
     }
@@ -1339,6 +1339,7 @@ const aNodes = bfsFindNode(document.body); // 查找 document.body 下所有 cla
 
 # 二分查找
 ```js
+// 
 var search = function(nums, target) {
     // right是数组最后一个数的下标，num[right]在查找范围内，是左闭右闭区间
     let mid, left = 0, right = nums.length - 1;
