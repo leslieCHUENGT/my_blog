@@ -661,6 +661,59 @@ function bfsFindNode(node){
 - 初始化dp数组
 - 确定递推公式
 - 确定遍历顺序
+## 最小路径和
+```js
+/**
+ * 05-最小路径和
+ * 核心DP：dp[i][j] = Math.min(dp[i - 1][j], dp[i][j - 1]) + grid[i][j]
+ * @param grid
+ * @return 
+ */
+function minPathSum(grid: number[][]): number {
+    const m = grid.length, n = grid[0].length;
+    // 确定dp数组的含义：第i，j阶的最小数字和为dp[i][j]
+    const dp:number[][] = new Array(m).fill(0).map(() => Array(n).fill(0));
+    // 初始化第一排
+    dp[0][0] = grid[0][0]
+    for(let j = 1; j < n; j++) {
+        dp[0][j] = dp[0][j - 1] + grid[0][j]
+    }
+
+    for(let i = 1; i < m; i++) {
+        dp[i][0] = dp[i - 1][0] + grid[i][0] //初始化第一列
+    }
+    
+    for(let i = 1; i < m; i++) {
+        for(let j = 1; j < n; j++) {
+            dp[i][j] = Math.min(dp[i - 1][j], dp[i][j - 1]) + grid[i][j]
+        }
+    }
+    return dp[m - 1][n - 1]
+};
+```
+## 最长公共子序列
+```js
+function longestCommonSubsequence(text1: string, text2: string): number {
+    const m:number = text1.length;
+    const n:number = text2.length;
+
+    // 确定dp数组的含义：前i个、j个结果最大的值为dp[i][j]
+    // dp数组的初始化
+    let dp:number[][] = new Array(m + 1).fill(0).map(() => Array(n + 1).fill(0));
+    
+    // 确定遍历顺序
+    for(let i = 1; i <= m; i++){
+        for(let j = 1; j<= n; j++){
+            if(text1[i - 1] === text2[j - 1]){
+                dp[i][j] = dp[i - 1][j - 1] + 1;
+            }else{
+                dp[i][j] = Math.max(dp[i - 1][j], dp[i][j - 1]);
+            }
+        }
+    }
+    return dp[m][n];
+};	
+```
 ## 斐波那契数列
 - 递归
 ```js
@@ -1798,6 +1851,25 @@ const evalRPN = function(tokens){
 
 
 # 哈希表
+## 字母异位词分组
+```javascript
+function groupAnagrams(strs: string[]): string[][] {
+  let map: Map<string, Array<string>> = new Map();
+
+  for (let i = 0; i < strs.length; i++) {
+    // 将字母排序后用作 map key，如 'eve' => 'eev'， 'vee' => 'eev'
+    let key = strs[i].split("").sort().join("");
+
+    if (!map.has(key)) {
+      map.set(key, []);
+    }
+    map.get(key).push(strs[i]);
+  }
+
+  return [...map.values()];
+}
+
+```
 ## 前 `k` 个频率高的元素
 ```js
 const topKFrequent = function(nums, k) {
