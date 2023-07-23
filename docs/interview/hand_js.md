@@ -1377,3 +1377,62 @@ function find(obj, str) {
 
 ```
 
+# sleep
+
+```js
+const sleep = (time) => {
+  return new Promise((reslove, reject) => {
+    setTimeout(()=<{
+      reslove();
+    }, time)
+  })
+}
+
+const soTtired = async (time)=>{
+  await sleep(time);
+}
+
+soTired(2000);
+```
+# 带并发限制的异步调度器Scheduler
+```js
+class Scheduler{
+  constructor(){
+    this.count = 0;
+    this.queue = [];
+    this.run = [];
+  }
+  add(task){
+    return new Promise((resolve, reject) => {
+      const taskWithResolve = async () => {
+        try{
+          resolve(await task());
+        }catch(err){
+          reject(err);
+        }finally{
+          this.count--;
+          this.runNextTask();
+        }
+      }
+      if(this.count < 2){
+        this.count++;
+        this.run.push(taskWithResolve);
+        this.runNextTask();
+      }else{
+        this.queue.push(taskWithResolve);
+      }
+    })
+  }
+  runNextTask() {
+    if (this.count < 2 && this.queue.length > 0) {
+      this.count++;
+      const nextTask = this.queue.shift();
+      this.run.push(nextTask);
+      nextTask();
+    }
+  }
+
+}
+```
+
+
