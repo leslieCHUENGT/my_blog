@@ -16,7 +16,7 @@ function memoize(func) {
     } else {
       // 否则，执行原始函数，将结果存入缓存对象中，并返回结果
       console.log('进行计算');
-      const result = func(args);// 执行函数
+      const result = func.apply(this, args);// 执行函数
       cache[key] = result;
       return result;
     }
@@ -199,7 +199,7 @@ function throttle(fn, delay) {
   let lastTime = 0;
   
   return function (...args) {
-    const now = Date.now();
+    const now = Date.now();// 时间戳实现重要的函数调用：Date.now(),使用lastTime进行闭包
     
     if (now - lastTime >= delay) {
       fn.apply(this, args);
@@ -261,7 +261,7 @@ function myInstanceOf(obj, constructor) {
 
 ```js
 function flatter(arr) {
-  if (!arr.length) return [];
+  if (!arr.length) return [];// 完全是为了首次进去直接结束
   return arr.reduce(
     (pre, cur) =>
       Array.isArray(cur) ? [...pre, ...flatter(cur)] : [...pre, cur],
@@ -355,7 +355,7 @@ class EventEmitter {
       this.off(event, wrapper);
     };
 
-    // 将新的回调函数添加到回调函数列表中
+    // 将新的回调函数添加到回调函数列表中，那么调用的时候就只会进行一次
     this.on(event, wrapper);
   }
 
@@ -378,7 +378,7 @@ class EventEmitter {
     // 移除指定的回调函数
     const index = callbacks.indexOf(callback);// 找到索引值，然后调用splice方法
     if (index !== -1) {
-      callbacks.splice(index, 1);
+      callbacks.splice(index, 1);// 执行结果的返回值是被删除的元素
     }
   }
 }
@@ -873,7 +873,7 @@ async function asyncUploadImages(images) {
     groups.push(images.slice(i, i + 3));
   }
   const results = [];
-  for (let i = 0; i < groups.length; i++) {
+  for async (let i = 0; i < groups.length; i++) {
     const group = groups[i];
     const promises = group.map(image => uploadImage(image));
     const res = await Promise.all(promises);
@@ -1253,10 +1253,10 @@ function buildTree(paths) {
   const root = { name: 'root', children: [] };
   for (const path of paths) {
     // 将路径按照 '/' 分隔成多个部分
-    const parts = path.split('/');
+    const partsList = path.split('/');
     //  ['root', 'a', 'b', 'c']
     let node = root; // 从根节点开始遍历
-    for (const part of parts) {
+    for (const part of partsList) {
       let child = node.children.find(c => c.name === part); // 查找当前层级的子节点中是否已有该部分
       if (!child) {
         // 如果没有，就新建一个节点并添加到当前节点的 children 数组中
@@ -1313,7 +1313,7 @@ function dfsFindNode(node) {
   return res; // 返回所有符合条件的节点组成的数组
 }
 
-const aNodes = dfsFindNode(document.body); // 查找 document.body 下所有 class 为 a 的元素节点
+const Nodes = dfsFindNode(document.body); // 查找 document.body 下所有 class 为 a 的元素节点
 
 
 function bfsFindNode(node) {
@@ -1333,7 +1333,7 @@ function bfsFindNode(node) {
   return res; // 返回所有符合条件的节点组成的数组
 }
 
-const aNodes = bfsFindNode(document.body); // 查找 document.body 下所有 class 为 a 的元素节点
+const Nodes = bfsFindNode(document.body); // 查找 document.body 下所有 class 为 a 的元素节点
 
 ```
 
@@ -1396,43 +1396,103 @@ soTired(2000);
 ```
 # 带并发限制的异步调度器Scheduler
 ```js
-class Scheduler{
-  constructor(){
-    this.count = 0;
-    this.queue = [];
-    this.run = [];
-  }
-  add(task){
-    return new Promise((resolve, reject) => {
-      const taskWithResolve = async () => {
-        try{
-          resolve(await task());
-        }catch(err){
-          reject(err);
-        }finally{
-          this.count--;
-          this.runNextTask();
-        }
-      }
-      if(this.count < 2){
-        this.count++;
-        this.run.push(taskWithResolve);
-        this.runNextTask();
-      }else{
-        this.queue.push(taskWithResolve);
-      }
-    })
-  }
-  runNextTask() {
-    if (this.count < 2 && this.queue.length > 0) {
-      this.count++;
-      const nextTask = this.queue.shift();
-      this.run.push(nextTask);
-      nextTask();
-    }
+// JS实现一个带并发限制的异步调度器Scheduler，
+// 保证同时运行的任务最多有两个。
+// 完善代码中Scheduler类，
+// 使得以下程序能正确输出
+
+class Scheduler {
+  constructor() {
+   this.count = 2
+   this.queue = []
+   this.run = []
   }
 
-}
+  add(task) {
+    
+  }
+
+ }
+ 
+ const timeout = (time) => new Promise(resolve => {
+  setTimeout(resolve, time)
+ })
+ 
+ const scheduler = new Scheduler()
+ const addTask = (time, order) => {
+  scheduler.add(() => timeout(time)).then(() => console.log(order))
+ }
+ 
+ addTask(1000, '1')
+ addTask(500, '2')
+ addTask(300, '3')
+ addTask(400, '4')
+ // output: 2 3 1 4
+ 
+ // 一开始，1、2两个任务进入队列
+ // 500ms时，2完成，输出2，任务3进队
+ // 800ms时，3完成，输出3，任务4进队
+ // 1000ms时，1完成，输出1
+ // 1200ms时，4完成，输出4
+
 ```
 
+```js
+class Scheduler {
+  constructor() {
+    this.count = 0; // 当前正在运行的任务数量
+    this.queue = []; // 等待运行的任务队列
+  }
+
+  add(task) {
+    return new Promise((resolve) => {
+      const runTask = async () => {
+        this.count++; // 运行任务数量加一
+        await task(); // 执行任务
+        resolve(); // 任务完成，resolve Promise
+        this.count--; // 运行任务数量减一
+
+        if (this.queue.length > 0) {
+          // 如果等待队列中有任务，则继续运行下一个任务
+          const nextTask = this.queue.shift();
+          nextTask();
+        }
+      };
+
+      if (this.count < 2) {
+        // 当前运行的任务数量小于2，可以直接执行任务
+        runTask();
+      } else {
+        // 否则将任务添加到等待队列中
+        this.queue.push(runTask);
+      }
+    });
+  }
+}
+
+const timeout = (time) =>
+  new Promise((resolve) => {
+    setTimeout(resolve, time);
+  });
+
+const scheduler = new Scheduler();
+const addTask = (time, order) => {
+  scheduler.add(() => timeout(time)).then(() => console.log(order));
+};
+
+addTask(1000, '1');
+addTask(500, '2');
+addTask(300, '3');
+addTask(400, '4');
+
+```
+# 串行异步调度器
+```js
+function runPromiseInSequence(arr, input) {
+  return arr.reduce(
+    (promiseChain, currentFunction) => promiseChain.then(currentFunction),
+    Promise.resolve(input)
+  );
+}
+```
 
