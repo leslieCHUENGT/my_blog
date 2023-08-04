@@ -950,14 +950,14 @@ for (let item of myArray) {
 Promise.all = (promises) => {
     // 检查是否是可迭代类型
     // Symbol.iterator 为每一个对象定义了默认的迭代器。该迭代器可以被 for...of 循环使用。
-    if (! typeof promises[Symbol.iterator] === 'function') {
+    if ( typeof promises[Symbol.iterator] !== 'function') {
         return Promise.reject();
     }
     let doneCount = 0;// 执行成功计数器
     let results = [];// 执行结果数组
     return new Promise((resolve, reject) => {
          // Object.entries将promises转换为[ ['0', 'a'], ['1', 'b'], ['2', 'c'] ]这种键值对数组，便于获取索引
-        for (const [index, item] of Object.entries(promises)) {
+        for (const [index, item] of promises) {
             // 保证数组内接收的元素都是promise实例对象
             Promise.resolve(item).then((res) => {
                 results[index] = res;

@@ -36,7 +36,7 @@ app.get('/', async function(req, res) {
     let vapp = Vue.createSSRApp(vueapp);
     let html = await renderer3.renderToString(vapp)
     const title = "Vue SSR"
-    let res = `
+    res = `
         <!DOCTYPE html>
         <html lang="en">
             <head>

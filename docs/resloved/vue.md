@@ -33,7 +33,6 @@
 - 在自己的vue项目里用了
 - 在路由里配置`meta`属性来标记，通过v-if判断是否需要进行keep-alive
 - keep-alive是vue中的内置组件，将状态保留在内存中，防止重复渲染DOM
-- 
 - 当在创建keep-alive组件的时候
 - 会有三个钩子函数
   - created
@@ -698,14 +697,41 @@ export default {
 
 # diff算法复盘
 - 逐层比较，降低时间复杂度，跨层比对不多见
-- 
-- 
 
+# SSR开发细节
+## components
+- 自动导入组件，基于路径、目录和文件名
+- 两种导入的策略
+  - 文件名+组件名
+  - 组件名
+  - 通过配置即可
+- 可以绕过自动导入，只在某个文件下自动导入
+- 显示进行导入
+- 我在项目里是进行了统一的设置别名进行全局导入，在.nuxtjs文件下进行声明
+- 某些弹层组件进行Lazy处理
 
+## composables
+- 将常用逻辑和逻辑相关代码抽离出来
+- 没有使用useState，整个项目通过pinia来进行状态管理
 
+## layout
+- 异步导入自动加载
+- 在layouts目录下添加，default.vue
+## 路由
+- 约定路由
+- 自动整合vue-router,映射pages目录下，应用到routes配置下
+- 动态路由
+  - 方括号[]，解构出来
+```js
+  const { params, query } = route;
+  const { path } = params;
+```
+- 目录名和文件同名，形成了路由嵌套
+- 使用NuxtChild来进行调用
+- 使用navigateTo来进行重定向，是一个路由中间件
 
-
-
-
-
+## 发送请求
+- 使用了ofetch库，方便添加拦截器，对请求拦截进行处理，自动添加Authorization，还有语言
+- 遇到的问题
+  - 
 

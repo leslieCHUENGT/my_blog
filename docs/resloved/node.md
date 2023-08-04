@@ -254,7 +254,15 @@ if(req.url === '/merge'){
 curl -X POST -F "file=C:\Users\86199\Desktop\tsd.jpg" http://localhost:3000
 ```
 
-
+# 说说对中间件的理解
+- 主要是指封装http请求的细节封装处理
+- koa框架里，中间件的本质就是请求对象和响应对象、执行下一个中间件的函数
+- 两个参数：
+  - ctx，封装了request和response
+  - next，记录下一个要执行的中间件函数
+- koa-bodyparser
+  - 将post请求等转换成对象，并挂载在ctx.requset.body上
+  - 
 
 
 
