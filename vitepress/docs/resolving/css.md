@@ -143,7 +143,7 @@
 
 # IE盒模型和标准盒模型
 - IE盒子模型的content的大小会受到padding、border的影响
-- 标准盒子模型的content不会受影响，会根据padding、border扩大自身的大小
+- 标准盒子模型的content不会受影响，会根据padding、border**扩大**自身的大小
 
 
 # 说一下盒子模型，什么是怪异盒子模型，如果盒子内部元素设置了 margin 属性，怎么让盒子不出现滚动条
