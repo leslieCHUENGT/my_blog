@@ -145,3 +145,19 @@
 - IE盒子模型的content的大小会受到padding、border的影响
 - 标准盒子模型的content不会受影响，会根据padding、border扩大自身的大小
 
+
+# 说一下盒子模型，什么是怪异盒子模型，如果盒子内部元素设置了 margin 属性，怎么让盒子不出现滚动条
+- 给父盒子设置`overflow: hidden`,进行裁剪，可能会影响布局
+- 使用`padding`来代替`margin`
+
+# Chrome浏览器最低只能显示12px的字体大小，怎么在不改变整体字体大小的情况下让单独某个区域的字体显示为10px的效果
+
+```css
+  .small-font {
+    transform: scale(0.83); /* 缩放比例为 12/10 ≈ 0.83 */
+    transform-origin: top left; /* 设置缩放的基准点为左上角 */
+  }
+```
+
+
+
