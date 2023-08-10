@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        /* 默认样式 */
+        .my-element{
+            color: aqua;
+            font-size: larger;
+        }
+        .my-element.meida-query{
+            color: blue;
+            font-size: x-large;
+        }
+    </style>
+</head>
+<body>
+    <div class="my-element"></div>
+    <script>
+        function handleResize(){
+            const element = document.querySelector("my-element");
+            const isMobile = window.innerWidth <= 768;
+            if(!isMobile){
+                element.classList.add("meida-query");
+            }else{
+                element.classList.remove("meida-query");
+            }
+        }
+    </script>
+</body>
+</html>
