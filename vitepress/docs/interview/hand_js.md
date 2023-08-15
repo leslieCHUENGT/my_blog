@@ -1496,3 +1496,48 @@ function runPromiseInSequence(arr, input) {
 }
 ```
 
+# 三数之和
+```js
+function threeSum(nums) {
+  const result = [];
+  if(nums.length < 3){
+    return result;
+  }
+  // 排序方便去重
+  nums.sort((a, b) => a - b);
+  for(let i = 0; i < nums.length - 2; i++){
+    if(nums[i] > 0) return result;// 当出现元素
+    // 跳过重复元素1
+    if(i > 0 && nums[i] === nums[i - 1]){
+      continue;
+    }
+    // 定义中右指针
+    let left = i + 1;
+    let right = nums.length - 1;
+    // 进入循环，比较后续的相加是否可以为 0 
+    while(left < right){
+      const sum = num[i] + nums[left] + nums[right];
+      // 如果满足条件
+      if(sum === 0){
+        result.push([nums[i], nums[left], nums[right]]);
+        left++;
+        right--;
+        // 跳过重复元素2,并且控制指针
+        while(left < right && nums[left] === nums[left + 1]){
+          left++;
+        }
+        // 跳过重复元素3,并且控制指针的走向
+        while(right < left && nums[right] === nums[right + 1]){
+          right--;
+        }
+      }else if(sum < 0){
+        left++;
+      }else{
+        right--;
+      }
+    }
+  }
+  return result;
+}
+```
+
