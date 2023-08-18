@@ -171,18 +171,20 @@ var LRUCache = function(capacity){
 	this.capacity = capacity;
 }
 LRUCache.prototype.put = function(key, value){
-	// 如果存在则删除
+	// 如果存在则删除，不存在则继续
 	if(this.catch.has(key)){
 		this.catch.delete(key);
 	}
 	// 判断会不会超出
 	// map只有size属性，没有length属性
+	// map.keys().next().value，键的下一个的value值
+	// 当恰好是不存在且容量不足
 	if(this.capacity <= this.catch.size){
 		this.catch.delete(this.catch.keys().next().value);
 	}
 	this.catch.set(key, value);
 }
-LRUCache.prototype.get = function(key, value){
+LRUCache.prototype.get = function(key){
 	if(this.cache.has(key)){
 		let value = this.catch.get(key);
 		this.catch.detele(key);

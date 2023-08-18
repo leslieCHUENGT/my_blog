@@ -302,6 +302,16 @@ function myNew(constructor, ...args) {
   return (typeof result === 'object' && result !== null) ? result : obj;
 } 
 
+function Object.create(property){
+  if(typeof property !== 'object' || property === null){
+    throw new TypeError();
+  }
+  // 定义构造函数
+  function F(){ }
+  F.prototype = property;
+  return new F();
+}
+
 const person = myNew(Person, 'John', 30);
 
 ```
@@ -1540,4 +1550,23 @@ function threeSum(nums) {
   return result;
 }
 ```
+# 实现一个无限可扩容add(1)(2)(3)(4)()
+```js
+function add(num){
+  let sum = num;
+  function innerAdd(nextnum){
+    if(nextnum === undefined){
+      return sum;
+    }
+    sum += nextnum;
+    return innerAdd;
+  }
+  return innerAdd;
+}
+```
+
+
+
+
+
 
