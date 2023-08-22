@@ -56,7 +56,11 @@
     - absolute
     - fixed
     - sticky
-
+- 特点
+  - 防止边距重叠
+  - 不会与浮动元素box重叠
+  - 独立容器
+  - 浮动元素的高度也会参与计算
 # css常见选择器
 - id选择器，`#` 100
 - 类选择器即为标签的class属性， `.` 10 
@@ -383,4 +387,24 @@ let currentValue = parseFloat(value).toFixed(2);
   - 当主轴为纵向时,flex-basis设置的大小为高度，并且会覆盖height值
 - flex-grow 当存在剩余空间时，设置伸缩比例，当把 flex-basis 设置为 0% 时，表示子元素的初始大小为 0，即其尺寸将完全由 flex-grow 和 flex-shrink 属性来决定。
 - flex-shrink 当超出空间时，设置伸缩比例，相对缩小
+
+# 居中
+## 水平居中
+- 行内元素：父盒子使用`text-align: center`
+- 块级元素
+  - 父盒子已经有宽高了
+    - `margin: 0 auto`该属性是在没有定位的情况下生效
+    - 绝对定位和相对定位，使用margin-left: width/2实现偏移
+  - 不知高度
+    - 表格布局：`display:table;margin: 0 auto`(可以生效)
+    - 行内块级元素：`display:inline-block;text-align:center`
+    - 弹性布局
+    - 网格布局
+## 垂直居中
+- `transform: translateY()`
+
+
+
+
+
 

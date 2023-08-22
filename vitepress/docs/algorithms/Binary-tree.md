@@ -112,6 +112,7 @@ var levelOrder = function(root) {
         return res;
     }
     queue.push(root);
+    // 不是回溯，所以path要在循环里定义
     // 因为结果要求[[],[]],所以在while循环中，嵌套for循环，方便把每一层都存放在数组里面，
     //此时每遍历一个节点就可以把他的左右孩子放入队列中，方便后续的遍历
     while(queue.length) {
@@ -392,6 +393,7 @@ var findBottomLeftValue = function(root) {
     queue.push(root);
     let resNode;
     while(queue.length) {
+        // 必须缓存
         let length = queue.length;
         for(let i = 0; i < length; i++) {
             let node = queue.shift();
@@ -444,30 +446,24 @@ var hasPathSum = function(root, targetSum) {
 ## 路径总和II
 
 ```js
-var pathSum = function(root, sum) {
-    let arr = [];
-    let path = [];
-    dfs(root,  path, arr, sum);
-    return arr;
-};
-// 要求所有路径问题，需要思考到path数组的回溯过程，递归有回溯过程
-// 数组需要我们手动pop
-// 无返回值，有余值作为参数
-function dfs(root, path, arr, sum) {
-    // 终止条件
-    if(!root) return;
-    // 非空节点一律push
-    path.push(root.val);
-    // 符合条件则push
-    if(root.val == sum && root.left == null && root.right == null) {
-        arr.push([...path]);
+var binaryTreePaths = function(root) {
+    let res = [];
+    // 确定参数和返回值:需要把路径传递下去，那么需要两个参数
+    // 叶子节点需要进行记录,空节点则返回空
+    const getAllPath = (root,cur) =>{
+        if(!root) return;
+        // 叶子结点
+        if(!root.left && !root.right){
+            cur += root.val;
+            res.push(cur);
+        }
+        cur += root.val + "->"
+        getAllPath(root.left,cur);
+        getAllPath(root.right,cur);
     }
-    // 
-    dfs(root.left, path, arr, sum - root.val);
-    dfs(root.right, path, arr, sum - root.val);
-    // 后序的pop
-    path.pop();
-}
+    getAllPath(root,'')
+    return res;
+};
 
 ```
 
@@ -579,11 +575,13 @@ var mergeTrees = function(root1, root2) {
 // 二叉树中的搜索，返回值要求是返回符合条件的节点
 // 因为是搜索二叉树，是有序的，左小右大
 // 所以if语句判断，进入分支，一旦找到了就不会进入其他分支
+// 确定参数、返回值
 var searchBST = function (root, val) {
-    // 逻辑判断放最前面好，不用担心root后序为null的情况，导致报错
+    // 终止条件，当找到是叶子节点或者找到了，那就返回节点即可
     if (!root || root.val === val) {
         return root;//此处返回了root，后续的左右递归后可以不考虑再返回root
     }
+    // 对于搜索二叉树的查找，必定可以进行剪枝
     if (root.val > val)// 实际上进入该分支完成了两件事，查找，返回，此处的返回相当于后序遍历返回节点
         return searchBST(root.left, val);
     if (root.val < val)
@@ -599,20 +597,22 @@ var searchBST = function (root, val) {
 // 遇到叶子节点，返回true即可
 // 遇到不在区间的返回false
 // 进行递归，左子树递归存在的是上限，右子树存在的是下限
+// 我们要比较的是 左子树所有节点小于中间节点，右子树所有节点大于中间节点。
 var isValidBST = function(root) {
-    const helper = (root, lower, upper) => {
-    // root为null，则到了叶子节点，返回true
-    if (root === null) {
-        return true;
+    let pre = null;
+    const inOrder = (node) => {
+        // 终止条件,能到叶子节点那么就是 ture
+        if(node === null) return true;
+        let left = inOrder(node.left);
+        // 中序比较
+        if(pre !== null && pre.val >= node.val) {
+            return false;
+        }
+        pre = node;
+        let right = inOrder(node.right);
+        return right && left;
     }
-    // root.val不在给定的区间里，则返回false
-    if (root.val <= lower || root.val >= upper) {
-        return false;
-    }
-    // 左右子树只要一个不满足条件，就返回false
-    return helper(root.left, lower, root.val) && helper(root.right, root.val, upper);
-    }
-    return helper(root, -Infinity, Infinity);
+    return inOrder(root);
 };
 ```
 ## 二叉搜索树的最小绝对差
@@ -630,7 +630,7 @@ var getMinimumDifference = function(root) {
         inorder(node.left);
         // 确保第一次进入该分支时，不会报错
         if(preNode){
-            res = Math.min(res,node.val - preNode.val)
+            res = Math.min(res, node.val - preNode.val)
         }
         preNode = node;
         inorder(node.right)
@@ -684,8 +684,8 @@ var findMode = function(root) {
 ## 二叉搜索树的最近公共祖先
 
 ```js
-//找到最近的公共祖先，换而言之就是找到第一个root满足在pq区间之间即可
-
+// 找到最近的公共祖先，换而言之就是找到第一个root满足在p q区间之间即可
+// 由于是二叉搜索树，我们可以考虑只有出现在[p, q]里的root.val那么就是满足条件了
 var lowestCommonAncestor = function(root, p, q) {
     // 使用递归的方法
     // 1. 使用给定的递归函数lowestCommonAncestor
@@ -693,20 +693,16 @@ var lowestCommonAncestor = function(root, p, q) {
     // 二叉搜索树的中序遍历是有序的，但是此题并没有考虑使用，直接判断给定的区间来寻找
     // 终止条件：遇到null则return
     if(root === null) {
-        return
+        return null;
     }
-    // 当 root.val 不在p，q区间里就需要去查找
-    // 有两种情况，都大或者都小
-    // 大的时候找小的left 小的时候找大的在right
+    // 对于不在区间的进行定向查询
     if(root.val > p.val && root.val > q.val) {
-        // 向左子树查询
          return lowestCommonAncestor(root.left,p,q);
     }
     if(root.val < p.val && root.val < q.val) {
-        // 向右子树查询
         return lowestCommonAncestor(root.right,p,q);
     }
-    // 当找到时直接返回root，其他逻辑处理是，没有返回root
+    // 当找到时直接返回root
     return root;
 };
 ```
@@ -727,7 +723,7 @@ var insertIntoBST = function(root, val) {
             let node = new TreeNode(val);
             return node;
         }
-        // 缩小区间，因为返回值是root，则调用递归，重新指向新的节点即root的左右重新指向
+        // 剪枝，快速查找
         if (root.val > val)
             root.left = setInOrder(root.left, val);
         else if (root.val < val)
@@ -765,7 +761,7 @@ var deleteNode = function(root, key) {
         curNode.left = root.left;
         return root.right;
     }
-    // 不断缩小区间找到对应的节点值
+    // 增加判断语句进行《剪枝》快速进入相应的子树进行裁剪
     if (root.val > key) root.left = deleteNode(root.left, key);
     if (root.val < key) root.right = deleteNode(root.right, key);
     // 最后递归返回根节点
@@ -821,8 +817,10 @@ var trimBST = function(root, low, high) {
     if (!root) {
         return null;
     }
+    // 前序遍历进行裁剪
     if (root.val < low) {
-        // 左子树都不符合，返回裁剪的右子树
+        // 左子树都不符合，返回裁剪的右子树，为什么不是直接返回右节点
+        // 实际上是因为我们要对右节点的树也要进行排查
         return trimBST(root.right, low, high);
     } else if (root.val > high) {
         // 右子树都不符合，返回裁剪的左子树
@@ -867,6 +865,8 @@ var sortedArrayToBST = function (nums) {
 
 ## 把二叉搜索树转换为累加树
 ```js
+// 确定参数和返回值，终止条件（return什么是由返回值决定的）
+// 单层逻辑：中序遍历，需要在函数外保存一个变量
 // 从树中可以看出累加的顺序是右中左，所以我们需要反中序遍历这个二叉树，然后顺序累加就可以了。
 var convertBST = function(root) {
     // 设置pre的初始值

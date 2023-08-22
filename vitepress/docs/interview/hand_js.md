@@ -1516,7 +1516,7 @@ function threeSum(nums) {
   // 排序方便去重
   nums.sort((a, b) => a - b);
   for(let i = 0; i < nums.length - 2; i++){
-    if(nums[i] > 0) return result;// 当出现元素
+    if(nums[i] > 0) return result;
     // 跳过重复元素1
     if(i > 0 && nums[i] === nums[i - 1]){
       continue;
@@ -1565,7 +1565,28 @@ function add(num){
 }
 ```
 
+# 千分位分隔
+```javascript
+function thousandSeparator(n) {
+    let nStr = n.toString();
+    let [integerPart, decimalPart = ''] = nStr.split('.');
+    if (integerPart[0] === '-') {
+        integerPart = integerPart.slice(1);
+    }
+    let formattedIntegerPart = '';
 
+    for (let i = integerPart.length - 1, count = 0; i >= 0; i--, count++) {
+      if (count === 3) {
+        formattedIntegerPart = ',' + formattedIntegerPart;
+        count = 0;
+      }
+      formattedIntegerPart = integerPart[i] + formattedIntegerPart;
+    }
+    return (n < 0 ? '-' : '') + formattedIntegerPart + (decimalPart ? '.' + decimalPart : '');
+}
+  
+console.log(thousandSeparator(123456.1)); 
+```
 
 
 
