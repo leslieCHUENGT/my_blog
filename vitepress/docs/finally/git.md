@@ -1,0 +1,43 @@
+- git clone
+- git branch xxx
+  - 把你的工作从开发主线上分离开来，以免影响开发主线
+- git fork
+  - 转到git仓库中，fork则可以代表分叉、克隆 出一个（仓库的）新拷贝,可以通过的 Pull Request 把你的提交贡献回 原仓库
+- git rebase main
+  - 进行补丁合并（patch merge）算法，在开发分支进行git rebase main操作，会使得 main分支的更新
+  - 如果你希望保留完整的分支历史记录，或者在跟踪特定功能分支的开发进度时，保持清晰的合并点，那么使用git merge是一个很好的选择
+  - 如果你希望提交历史保持线性、干净，并且能够减少合并提交的数量，那么可以考虑使用git rebase
+- git log 拿到 hash值
+- git checkout hash
+  - Head 指针进行移动
+- git checkout main^
+  - 移动向上回去一个版本
+- git checkout main~n
+- git checkout Head^~
+- git branch -f main HEAD~3
+  - 上面的命令会将 main 分支强制指向 HEAD 的第 3 级 parent 提交
+- git branch -f main c6
+  - 上面的命令会将 main 分支强制指向 c6
+- git checkout xx/yy
+  - 是将HEAD的指向进行改变
+- git reset HEAD~1
+  - 直接撤回提交记录
+- git Revert HEAD
+  - 新建一个提交记录，回退到之前的版本
+- git cherry-pick c2 c4
+  - 将其他分支提交的（c2 和 c4）记录转到HEAD指向的分支上
+  - 将修改的bug提交的记录迅速合并到main分支
+- git rebase -i HEAD~4
+  - 弹出UI界面，选择
+- git fetch只会将远程仓库的最新提交下载到本地，并更新本地仓库的远程跟踪分支（remote tracking branch），并不会将这些更新直接应用到当前分支。
+- git pull则包含了git fetch的功能，同时还会自动执行git merge或git rebase来将从远程仓库获取到的最新提交应用到当前分支。
+  - git fetch
+  - git merge origin/main
+- git push
+  - git fetch来获取远程仓库的最新提交，并执行合并操作（git merge或git rebase）将本地分支与远程分支合并
+  - 最后再将代码推送到远程分支
+- 如何理解代码发生冲突
+  - pull、push、merge、rebase实际上都可能会发生冲突
+  - 在同一个文件上不同位置发生了代码的修改，就会发生冲突
+
+

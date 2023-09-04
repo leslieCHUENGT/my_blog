@@ -41,13 +41,12 @@ const getContent = (obj) => {
     let pathContent = obj.content ? obj.content : '';
     content.push(pathContent);
     if (!obj.hasOwnProperty('children')) { 
-        return '';
+        return;
     } else {
         for (let child of obj.children) { 
             getContent(child);
         }
     }
-    return content;
 }
 
 console.log(getContent(obj));

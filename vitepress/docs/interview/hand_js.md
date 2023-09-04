@@ -273,7 +273,7 @@ function flatter(arr) {
 function flatten(arr = [], res = []) {
   arr.forEach((v)=>{
     if(Array.isArray(v)){
-      res = [...res, ...flatten(v, [])];
+      res = [...res, ...flatten(v)];
     }else{
       res.push(v)
     }
@@ -353,7 +353,7 @@ class EventEmitter {
 
     // 执行回调函数列表中的所有回调函数，并传入参数
     callbacks.forEach((callback) => {
-      callback.apply(this, args);
+      callback.apply(this, ...args);
     });
   }
 
@@ -1296,7 +1296,7 @@ function longestCommonPrefix(strs){
     // 注意此时要求的.indexOf()不为0，意思就是直到匹配到
     while(strs[i].indexOf(prefix) !== 0){
       // 缩短字符串,不断缩短
-      prefix = prefix.slice(0,prefix.length - 1);
+      prefix = prefix.slice(0, prefix.length - 1);
       if(prefix === ''){
         return '';
       }

@@ -204,7 +204,6 @@ var isSymmetric = function(root) {
 ```
 
 ## 求二叉树的最大深度
-
 ```js
 var maxDepth = function(root) {
     // 使用递归的方法 递归三部曲
@@ -244,14 +243,13 @@ var minDepth = function(root) {
         // 使得有一个子树的最小深度是1
         if(node.left === null && node.right !==null) return 1+rightDepth;
         if(node.left !== null && node.right === null) return 1+leftDepth;
-        return 1+Math.min(leftDepth,rightDepth)
+        return 1 + Math.min(leftDepth,rightDepth)
     };
     return getMinDepth(root);
 };
 ```
 
 ## 完全二叉树的节点数
-
 ```javascript
 var countNodes = function(root) {
     const getNodeSum = (node)=>{
@@ -281,6 +279,7 @@ var isBalanced = function(root) {
         let leftDepth = getDepth(node.left);
         // 已经不符合条件，返回-1
         if(leftDepth === -1) return -1;
+
         let rightDepth = getDepth(node.right);
         if(rightDepth === -1) return -1;
         
@@ -372,7 +371,7 @@ var findBottomLeftValue = function(root) {
             }
             return;
         }
-        // 左节点优先递归，在同一高度下，只记录一次value。
+        // 左节点优先递归，在同一高度下，只记录一次value
         dfsTree(node.left, curPath + 1);
         dfsTree(node.right, curPath + 1);
     }
@@ -418,27 +417,22 @@ var findBottomLeftValue = function(root) {
 // 判断返回值
 // 都不满足需要返回false
 var hasPathSum = function(root, targetSum) {
-    
-  // 递归法
-  const traversal = (node, cnt) => {
-    // 遇到叶子节点，并且计数为0
-    if (cnt === 0 && !node.left && !node.right) return true;
-    // 遇到叶子节点而没有找到合适的边(计数不为0)，直接返回
-    if (!node.left && !node.right) return false;
-
-    //  左（空节点不遍历）.遇到叶子节点返回true，则直接返回true
-    if (node.left && traversal(node.left, cnt - node.left.val)) return true;
-    //  右（空节点不遍历）
-    if (node.right && traversal(node.right, cnt - node.right.val)) return true;
-    return false;
-  };
-  if (!root) return false;
-  return traversal(root, targetsum - root.val);
-
-  // 精简代码:
-  // if (!root) return false;
-  // if (!root.left && !root.right && targetsum === root.val) return true;
-  // return haspathsum(root.left, targetsum - root.val) || haspathsum(root.right, targetsum - root.val);
+    if(!root) return false;
+    // 确定参数:剩余和保留下来
+    // 返回值就是boolean类型
+    const pathSum = (node, cur) => {
+        // 判断条件
+        if(!node) return false;
+        // 叶子节点
+        if(!node.left && !node.right){
+            return cur === node.val;
+        }
+        cur -= node.val;
+        let left = pathSum(node.left, cur);
+        let right = pathSum(node.right, cur);
+        return left || right;// 只要一个为true即可
+    }
+    return pathSum(root,targetSum)
 
 };
 ```
@@ -504,9 +498,8 @@ var buildTree = function(preorder, inorder) {
 ## 最大二叉树
 
 ```js
-// 解题步骤与前中、中后构造二叉树的解法如法炮制
-// 找到最大值与其索引
-// 切割、递归即可
+// 确定参数：对分下来的数组进行切割，派分
+// 确定返回值，创建新的节点，那么就是返回 root
 function constructMaximumBinaryTree(nums) {
   if (nums.length === 0) {
     return null;
@@ -697,17 +690,17 @@ var lowestCommonAncestor = function(root, p, q) {
     }
     // 对于不在区间的进行定向查询
     if(root.val > p.val && root.val > q.val) {
-         return lowestCommonAncestor(root.left,p,q);
+        return lowestCommonAncestor(root.left,p,q);
     }
     if(root.val < p.val && root.val < q.val) {
         return lowestCommonAncestor(root.right,p,q);
     }
-    // 当找到时直接返回root
+    // 当在p,q区间里，那么就可以直接返回了，所以上面的都是return
     return root;
 };
 ```
 
-##
+## 二叉搜索树的插入操作
 
 ```js
 // 插入操作，实际上只要找到符合条件可以插入的位置就可以
