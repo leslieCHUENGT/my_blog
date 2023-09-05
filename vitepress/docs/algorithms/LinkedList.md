@@ -29,6 +29,39 @@ const reverseList = (head) => {
 	return tail;
 }
 ```
+## 两数相加
+```js
+const addTwoNumber = (l1, l2) => {
+	// 创造虚拟头结点
+	const dummy = new ListNode(0);
+	let cur = dummy;
+	// 创建指针指向
+	let p1 = l1,p2 = l2;
+	// 记录进位状态
+	let carry = 0;
+	// 当两个均为空就停止遍历
+	while(p1 || p2){
+		const value1 = p1 ? p1.val : 0;
+		const value2 = p2 ? p2.val : 0;
+		// 求和
+		let sum = value1 + value2 + carry;
+		// 求进位的值
+		carry = Math.floor(sum / 10);
+		// 更新当前位置的值
+		sum %= 10;
+		// 创建新节点
+		cur.next = new ListNode(sum);
+		// 移动当前指针
+		cur = cur.next;
+		// 指针后移
+		// 增加判断语句，可能不存在
+		p1 && p1 = p1.next;
+		p2 && p2 = p2.next;
+	}
+	if(carry > 0) cur.next = new ListNode(carry);
+	return dummy.next;
+}
+```
 ## 合并有序链表
 ```js
 // 考虑l1、 l2的长度问题
@@ -39,8 +72,7 @@ const merge = (l1, l2){
 	let prev = prevHead;
 	while(l1 && l2){
 		if(l1.val < l2.val){
-			prev.next = l1;
-			
+			prev.next = l1;			
 			l1 = l1.next;
 		}else{
 			prev.next = l2;
@@ -71,7 +103,7 @@ function detectCycle(head){
 	}
 	// 通过flag来进行判断是否成环
 	if(!flag) return null;
-	// 此时将慢指针指向头节点，那么以同样的速度遍历会在环出相遇
+	// 此时将慢指针指向头节点，那么以同样的速度遍历会在环出相遇（慢指向头，同步走）
 	slow = head;
 	while(slow !== fast){
 		slow = slow.next;
@@ -135,10 +167,10 @@ function sortList(head){
 	return mergeTwoList(sortList(head), sortList(rightNode));
 }
 function getMiddleNode(head){
-	// 不统一处理，奇数取左侧
+	// 排序是不进行统一处理的，奇数取左侧
 	let slow = head;
 	let fast = head.next.next;
-	while(fast.next && fast.next.next){
+	while(fast != null && fast.next != null){
 		slow = slow.next;
 		fast = fast.next.next;
 	}

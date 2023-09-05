@@ -3,6 +3,7 @@
 ```js
 // 确定参数和返回值：
 // 参数：startIndex 就是防止出现重复的组合。无返回值
+
 var combine = function(n, k) {
     let result = []
     let path = []
@@ -14,7 +15,7 @@ var combine = function(n, k) {
         }
         // for循环内，i 初始值设置为startIndex，防止出现重复的组合
         // 剪枝操作：n-i+1是代表还能去的数的个数，k-path.length代表需要的个数
-        for (let i = startIndex;n - i + 1 >=  k - path.length; ++i) {
+        for (let i = startIndex; n - i + 1 >=  k - path.length; ++i) {
             path.push(i);
             combineHelper(i + 1);
             path.pop();// 不要忘记回溯了。
@@ -108,7 +109,7 @@ var combinationSum = function(candidates, target) {
     const len =  candidates.length; 
     const res = [], path = [];
     let sum = 0;
-    candidates.sort((a,b) => a - b); // 排序
+    candidates.sort((a, b) => a - b); // 排序，后续需要进行剪枝
 
     function backtracking(startIndex) {
         if (sum === target) {
@@ -133,12 +134,12 @@ var combinationSum = function(candidates, target) {
 var combinationSum2 = function(candidates, target) {
     const res = []; path = [], len = candidates.length;
     let sum = 0;
-    candidates.sort((a,b)=>a-b);
+    candidates.sort((a, b) => a - b);
     backtracking(0);
     return res;
     function backtracking(startIdex) {
         if (sum === target) {
-            res.push(Array.from(path));
+            res.push([...path]);
             return;
         }
         for(let i = startIdex; i < len && sum + candidates[i] <= target; i++) {
@@ -163,11 +164,12 @@ var combinationSum2 = function(candidates, target) {
 ```js
 // 判断是否是回文串，三个参数：s left right
 const isPalindrome = (s, l, r) => {
-    for (let i = l, j = r; i < j; i++, j--) {
+    for(let i = l, i = r; i < j; i++, j--){
         if(s[i] !== s[j]) return false;
     }
     return true;
 }
+
 // 确定参数和返回值：参数为startIndex
 // 整体思路相当于组合问题稍作整理做成切割问题
 var partition = function(s) {
@@ -176,15 +178,15 @@ var partition = function(s) {
     const dfs = (startIndex) => {
         // 终止条件，当切割板到最后一个，即是该分支下已经判读完了，
         // 即当startIndex等于子串长度时,return
-        if(startIndex === len){
+        if(startIndex === len){// 切到尾巴
             result.push([...path]);
             return;
         } 
         for(let i = startIndex;i < len;i++){
             // 每一次切，怎么切呢?起始位置就是startIndex,结束位置自然是i
             // 不符合是回文串，则continue
-            if(!isPalindrome(s,startIndex,i))continue;
-            path.push(s.slice(startIndex,i+1));// 注意切割时，末位置记得加1
+            if(!isPalindrome(s,startIndex, i))continue;
+            path.push(s.slice(startIndex, i + 1));// 注意切割时，末位置记得加1
             dfs(i+1); // 不允许重复使用，则i+1
             path.pop();// 回溯
         }
@@ -206,17 +208,17 @@ var restoreIpAddresses = function(s) {
         //终止条件，需要用到startIndex=s.length来比较什么时候退出
         //此时比较的是 path.length=4
         const len = path.length;
-        if(len>4)return;
-        if(len === 4 && startIndex=== s.length){
+        if(len > 4)return;
+        if(len === 4 && startIndex === s.length){// 切到尾巴
             res.push(path.join("."));
             return;
         }
-        for(let j = startIndex;j < s.length;j++){
-            const str = s.slice(startIndex,j+1);// 切割时注意是j+1
-            if(str.length>3||+str>255)break; // 只能是百位数以内并且不可以大于255
-            if(str.length>1&&str[0]==="0")break;// 当是十位或者百位数的时候，首位不可以是'0'
+        for(let j = startIndex; j < s.length; j++){
+            const str = s.slice(startIndex, j + 1);// 切割时注意是j+1，我们对这个区间的进行分析
+            if(str.length > 3 || +str > 255) break; // 只能是百位数以内并且不可以大于255
+            if(str.length > 1 && str[0] === "0") break;// 当是十位或者百位数的时候，首位不可以是'0'
             path.push(str);
-            dfs(j+1);
+            dfs(j + 1);
             path.pop()
         }
     }
@@ -299,7 +301,7 @@ var findSubsequences = function(nums) {
             // 当使用过了
             // 为什么不选择使用uset[i]的方式，因为我们要标记的是相同元素，i都是不同的
             if(uset[nums[i] + 100]) continue;
-            uset[nums[i] + 100] = true
+            uset[nums[i] + 100] = true;// 排列不需要回溯辅助去重的数组
             path.push(nums[i])
             backtracing(i + 1)
             path.pop()
@@ -318,9 +320,7 @@ var findSubsequences = function(nums) {
 // 并且要记得回溯uset
 var permute = function(nums) {
     const res = [], path = [], used = [];
-    nums.sort((a, b) => {
-        return a - b
-    })
+    nums.sort((a, b) => a - b)
     const len = nums.length;
     function backtracking(nums) {
         // 终止条件

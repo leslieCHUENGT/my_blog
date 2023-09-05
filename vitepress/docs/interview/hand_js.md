@@ -171,6 +171,7 @@ function debounce(fn, delay = 500) {
     clearTimeout(timer); // 清除之前的定时器
     timer = setTimeout(() => {
       fn.apply(this, args); // 延迟执行传入的函数
+      timer = null; // 清空定时器
     }, delay);
   };
 }

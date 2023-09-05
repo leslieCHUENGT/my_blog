@@ -410,12 +410,7 @@ var findBottomLeftValue = function(root) {
 ## 路径总和
 
 ```js
-// 本题求是否满足条件，则返回值是boolean
-// 需要判断targetSum,则需要它作为参数。
-// 无关遍历顺序，找叶子节点即可。
-// 终止条件： 
-// 判断返回值
-// 都不满足需要返回false
+// 确定参数和返回值：参数上增加cur来进行判断
 var hasPathSum = function(root, targetSum) {
     if(!root) return false;
     // 确定参数:剩余和保留下来
@@ -423,11 +418,12 @@ var hasPathSum = function(root, targetSum) {
     const pathSum = (node, cur) => {
         // 判断条件
         if(!node) return false;
-        // 叶子节点
+        // 到了叶子节点，进行判断剩下的是否可以满足相等
         if(!node.left && !node.right){
             return cur === node.val;
         }
         cur -= node.val;
+        // 考虑到返回值是true/false,那么我们需要对左右子树的结果进行判断
         let left = pathSum(node.left, cur);
         let right = pathSum(node.right, cur);
         return left || right;// 只要一个为true即可
@@ -525,26 +521,7 @@ function constructMaximumBinaryTree(nums) {
 ```
 ## 合并二叉树
 
-```js
-// 自身解答存在的问题
-// 1.最后返回的是根节点，所以要在遍历后返回节点
-// 2.
-var mergeTrees = function(root1, root2) {
-        // 确定终止条件 
-        // 如果root1为null，返回root2
-        // 如果root2为null，返回root1
-        // 都不符合则返回和
-        if (!root1)
-            return root2
-        if (!root2)
-            return root1;
-        // 进行和操作
-        root1.val += root2.val;
-        // 构造新的子树
-        root1.left = preOrder(root1.left, root2.left);
-        root1.right = preOrder(root1.right, root2.right);
-};
-```
+``
 
 ```js
 var mergeTrees = function(root1, root2) {

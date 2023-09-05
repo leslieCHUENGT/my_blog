@@ -24,6 +24,10 @@ describe("computed", () => {
     })
 })
 ```
+- 先是describe描述，注册回调函数，it里做单个功能测试，注册回调函数
+- 通过Jest.fn()监控函数的调用情况
+- expect().toBe()
+- expect().toHaveBeenCalled()
 - 实现的流程：
   - 设置变量 dirty 进行开关上锁，定义 scheduler 来进行控制关锁
 
