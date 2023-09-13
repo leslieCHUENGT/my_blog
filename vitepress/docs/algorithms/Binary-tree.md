@@ -428,7 +428,7 @@ var hasPathSum = function(root, targetSum) {
         let right = pathSum(node.right, cur);
         return left || right;// 只要一个为true即可
     }
-    return pathSum(root,targetSum)
+    return pathSum(root, targetSum)
 
 };
 ```
@@ -524,8 +524,9 @@ function constructMaximumBinaryTree(nums) {
 ``
 
 ```js
+// 确定参数和返回值：参数（左左合并、右右合并），返回值（节点，我们可以依据root1来进行构造，在后序遍历中返回即可）
 var mergeTrees = function(root1, root2) {
-    // 确定终止条件 
+    // 确定终止条件，当遇到空节点的时候，我们需要处理节点                   
     if (!root1)
         return root2
     if (!root2)
@@ -666,11 +667,13 @@ var lowestCommonAncestor = function(root, p, q) {
         return null;
     }
     // 对于不在区间的进行定向查询
+    // 如果都大于，那么再左子树进行查找
     if(root.val > p.val && root.val > q.val) {
         return lowestCommonAncestor(root.left,p,q);
     }
+    // 如果都小于，那么在右子树进行查找
     if(root.val < p.val && root.val < q.val) {
-        return lowestCommonAncestor(root.right,p,q);
+        return lowestCommonAncestor(root.right, p, q);
     }
     // 当在p,q区间里，那么就可以直接返回了，所以上面的都是return
     return root;
@@ -731,7 +734,7 @@ var deleteNode = function(root, key) {
         curNode.left = root.left;
         return root.right;
     }
-    // 增加判断语句进行《剪枝》快速进入相应的子树进行裁剪
+    // 通过if判断来快速查找到 key所在之处
     if (root.val > key) root.left = deleteNode(root.left, key);
     if (root.val < key) root.right = deleteNode(root.right, key);
     // 最后递归返回根节点

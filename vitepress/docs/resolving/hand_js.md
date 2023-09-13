@@ -135,4 +135,27 @@
   - 背包->物品 排列数
 
 
+## object常见方法
+- Object.keys(obj): 返回一个包含对象自身可枚举属性名称的数组。
+- Object.values(obj): 返回一个包含对象自身可枚举属性值的数组。
+- Object.entries(obj): 返回一个包含对象自身可枚举属性键值对的数组。
+- Object.hasOwnProperty(prop): 判断对象是否具有指定的属性（不包括原型链上的属性）。
+- Object.is(obj1, obj2): 比较两个对象是否相等。
+- Object.create(proto, propertiesObject): 使用指定的原型对象创建一个新对象。
+- Object.defineProperty(obj, prop, descriptor): 定义对象的新属性或修改现有属性的特性。
+```js
+let obj = {
+    a:1,
+    b:2
+}
+console.log(Object.xxx(obj))
+['a', 'b']
+[1, 2]
+[['a', 1], ['b', 2]]
+```
+
+
+
+
+
 

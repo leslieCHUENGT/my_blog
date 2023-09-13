@@ -159,6 +159,23 @@ var combinationSum2 = function(candidates, target) {
     }
 };
 ```
+# 组合总和IV
+```js
+const combinationSum4 = (nums, target) => {
+    // 确定dp数组的含义：容量为i最多有dp[i]种方式
+    const dp = Array(target + 1).fill(0);
+    dp[0] = 1;
+    // 求排列数问题，我们先遍历背包再遍历物品，必须满足容量大于物品重量
+    for(let i = 0; i < target; i++){
+        for(let j = 0; j < nums.length; j++){
+            if(i >= nums[j]){
+                dp[i] += dp[i - nums[j]] 
+            }
+        }
+    }
+    return dp[target];
+}
+```
 # 分割回文子串
 
 ```js
