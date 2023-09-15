@@ -39,5 +39,7 @@
 - 如何理解代码发生冲突
   - pull、push、merge、rebase实际上都可能会发生冲突
   - 在同一个文件上不同位置发生了代码的修改，就会发生冲突
-
+- 开发
+  - git checkout -b <本地开发分支名字> origin/<远程分支>
+  - git pull origin <远程分支>
 

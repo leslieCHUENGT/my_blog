@@ -199,5 +199,19 @@ const person2:KeyValue<number,string> = {
 
 ```
 - 内置工具类型
-	- Required：变成必选
-	- Partial：变为可选
+```js
+const user: Required<Person>
+type User = Partial<Person>
+
+type P1 = Pick<Person, "name" | "age">
+
+type Property = 'key1'|'key2' 
+type Person = Record<Property, string>
+
+type P1 = Omit<Person, "age" | "gender">
+```
+- Required：变成必选 
+- Partial：变为可选 
+- Pick : 挑选 
+- Record: 转化，指定 
+- Omit： 去除 
