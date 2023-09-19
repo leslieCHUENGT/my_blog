@@ -9,7 +9,7 @@
   - 面向字节流的通信协议
   - 
 
-
+# 如何理解cookie、JWT、session
 
 
 
