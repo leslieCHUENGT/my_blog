@@ -63,7 +63,7 @@ const addTwoNumber = (l1, l2) => {
 }
 ```
 ## 合并有序链表
-```js
+```javascript
 // 考虑l1、 l2的长度问题
 // 迭代法解决问题
 const merge = (l1, l2){

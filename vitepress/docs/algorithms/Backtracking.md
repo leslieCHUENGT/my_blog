@@ -114,7 +114,7 @@ var combinationSum = function(candidates, target) {
     function backtracking(startIndex) {
         if (sum === target) {
             res.push([...path]);
-            return;
+            return; 
         }
         for(let i = startIndex; i < len && sum + candidates[i] <= target; i++ ) {
             const n = candidates[i];
