@@ -22,7 +22,7 @@ function memoize(func) {
     }
   }
 }
-// 
+
 function fib(n) {
   if (n < 2) return n;
   return fib(n - 1) + fib(n - 2);
@@ -224,6 +224,14 @@ window.addEventListener(
 
 # instanceof
 ## 手写 instanceof
+
+![image.png](https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/9be25629d9064fa691d08a8d5be2e073~tplv-k3u1fbpfcp-jj-mark:0:0:0:0:q75.image#?w=611&h=760&s=184821&e=png&b=fefefe)
+- 对象只有隐式原型（__proto__），指向构造函数的`prototype`
+- 构造函数有隐式原型和显式原型
+  - 隐式原型是`Function.prototype`,所以有`function Function()`为其`构造函数`，`function Function()`的隐式原型和显式原型都是`Function.prototype`.
+  - 显式原型是构造函数的`prototype`，而`prototype`是对象，只有隐式原型，指向`object.prototype`,而`object.prototype`最后其隐式原型只能指向`null`
+- `Function.prototype`是对象，所以其只有隐式原型，指向`object.prototype`
+- 所有的函数的隐式原型都是`Function.prototype`
 ```js
 function myInstanceOf(object, constructor) {
   let prototype = Object.getPrototypeOf(object);
@@ -261,6 +269,7 @@ function myInstanceOf(obj, constructor) {
 # 数组扁平化(flatter)
 
 ```js
+// 这样处理的话，可以保证 pre是已经受处理的
 function flatter(arr) {
   if (!arr.length) return [];// 完全是为了首次进去直接结束
   return arr.reduce(
@@ -270,20 +279,26 @@ function flatter(arr) {
   );
 }
 
-// 尾递归优化
-function flatten(arr = [], res = []) {
-  arr.forEach((v)=>{
-    if(Array.isArray(v)){
-      res = [...res, ...flatten(v)];
+// 避免创建新的调用帧，直接复用当前的调用帧，类似于循环的效果。
+// 使得在递归调用后不需要执行其他操作，直接返回递归调用的结果。
+function flatten(arr, res = []) {
+  arr.forEach((item) => {
+    if(Array.isArray(item)){
+      flatten(item, res);
     }else{
-      res.push(v)
+      res.push(item);
     }
   })
   return res;
 }
 
+let arr = [1, [2, [3, 4], 5], 6];
+console.log(flatten(arr)); // [1, 2, 3, 4, 5, 6]
+
 // toString()方法会剔除[],变成字符串
-[[1,[2]],3].toString().split(',').map(x => Number(x))  
+[[1,[2]],3].toString() //'1, 2, 3'
+  .split(',')           //['1', '2', '3']
+    .map(x => Number(x))  //[1, 2, 3]
 ```
 # new
 ## new 操作符
@@ -303,18 +318,17 @@ function myNew(constructor, ...args) {
   return (typeof result === 'object' && result !== null) ? result : obj;
 } 
 
-function Object.create(property){
+function Object.create(property) {
   if(typeof property !== 'object' || property === null){
     throw new TypeError();
   }
   // 定义构造函数
-  function F(){ }
+  function F(){};
   F.prototype = property;
   return new F();
-}
+};
 
 const person = myNew(Person, 'John', 30);
-
 ```
 # 订阅发布者模式
 
@@ -331,7 +345,7 @@ class EventEmitter {
   on(event, callback) {
     // 获取事件的回调函数列表
     let callbacks = this.events.get(event);
-
+    
     // 如果回调函数列表不存在，则创建一个新的回调函数列表
     if (!callbacks) {
       callbacks = [];
@@ -389,7 +403,7 @@ class EventEmitter {
     // 移除指定的回调函数
     const index = callbacks.indexOf(callback);// 找到索引值，然后调用splice方法
     if (index !== -1) {
-      callbacks.splice(index, 1);// 执行结果的返回值是被删除的元素
+      callbacks.splice(index, 1);// 执行结果的返回值是被删除的元素,会改变原数组
     }
   }
 }
@@ -1587,8 +1601,26 @@ function thousandSeparator(n) {
 }
   
 console.log(thousandSeparator(123456.1)); 
-```
+function thousandSeparator(n) {
+  let nStr = n.toString();
+  let [inter, decimal = ''] = nStr.split('.');
+  if(inter[0] === '-'){
+    inter = inter.slice(1);
+  }
+  let format = '', count = 0;
+  for(let i = inter.length - 1, i >= 0; i--){
+    if(count === 3){
+      format = ',' + format;
+      count = 0;
+    }
+    format = inter[i] + format;
+    count++;
+  }
+  return 
+}
 
+
+```
 
 
 

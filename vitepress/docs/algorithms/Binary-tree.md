@@ -289,7 +289,7 @@ var isBalanced = function(root) {
             return 1 + Math.max(leftDepth,rightDepth);
         }
     }
-    return !(getDepth(root) === -1)
+    return !(getDepth(root) === -1);
 };
 ```
 ## 二叉树的所有路径
@@ -322,7 +322,7 @@ var binaryTreePaths = function(root) {
 ```javascript
 var sumOfLeftLeaves = function(root) {
     // 采用后序遍历，需要通过递归函数的返回值来累加左叶子数值和
-    // 后序遍历的同时会经过每一个节点，然后判断是否存在左叶子
+    // 求和问题用后序相加
     // 进行累加即可
     // 1. 确定递归函数参数和返回值：累加需要和为返回值
     const nodesSum = function(node) {
@@ -340,8 +340,7 @@ var sumOfLeftLeaves = function(root) {
             midValue = node.left.val;
         }
         // 把每个子树和当前子树的左叶子累加
-        let sum = midValue + leftValue + rightValue;
-        return sum;
+        return midValue + leftValue + rightValue;
     }
     return nodesSum(root);
 };
@@ -359,11 +358,12 @@ var sumOfLeftLeaves = function(root) {
 var findBottomLeftValue = function(root) {
     //首先考虑递归遍历 前序遍历 找到最大深度的叶子节点即可
     let maxPath = 0, resNode = null;
-    // 1. 确定递归函数的函数参数
+    // 1. 确定递归函数的函数参数，通过参数进行传递高度
     const dfsTree = function(node, curPath) {
         // 2. 确定递归函数终止条件
         if(!node) return;
         // 并且左子树优先递归，在同一层上只会统计一次resNode的值
+        // 只要满足是叶子节点即可
         if(node.left === null && node.right === null) {
             if(curPath > maxPath) {
                 maxPath = curPath;
@@ -428,8 +428,7 @@ var hasPathSum = function(root, targetSum) {
         let right = pathSum(node.right, cur);
         return left || right;// 只要一个为true即可
     }
-    return pathSum(root, targetSum)
-
+    return pathSum(root, targetSum);
 };
 ```
 
@@ -520,9 +519,6 @@ function constructMaximumBinaryTree(nums) {
 
 ```
 ## 合并二叉树
-
-``
-
 ```js
 // 确定参数和返回值：参数（左左合并、右右合并），返回值（节点，我们可以依据root1来进行构造，在后序遍历中返回即可）
 var mergeTrees = function(root1, root2) {
@@ -668,8 +664,8 @@ var lowestCommonAncestor = function(root, p, q) {
     }
     // 对于不在区间的进行定向查询
     // 如果都大于，那么再左子树进行查找
-    if(root.val > p.val && root.val > q.val) {
-        return lowestCommonAncestor(root.left,p,q);
+    if(root.val > p.val && root.val > q.val) {// 加两个的原因是q和p的值不一定是一大一小
+        return lowestCommonAncestor(root.left, p, q);
     }
     // 如果都小于，那么在右子树进行查找
     if(root.val < p.val && root.val < q.val) {

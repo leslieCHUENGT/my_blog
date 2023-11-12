@@ -13,7 +13,7 @@ const reverseList = (head) => {
 		prev = cur;
 		cur = next;
 	}
-	return prev;
+	return prev;// 此时 cur指向 null
 }
 ```
 - 递归法
