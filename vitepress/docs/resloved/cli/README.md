@@ -16,4 +16,5 @@ node xxx
   - 实现的手段就是在模版代码的`package.json`中进行修改`dependencies`不给脚手架版本号，给一个`workspace: *`,另外在`pnpm-workspace.yaml`指定就行
   - 同属于一个工作空间，同属一个工作空间的，工作空间中的子工程编译打包的产物都可以被`其它子工程引用。`
 - 指定安装`pnpm add yargs --F mortal-cli`在某个子工程里
-- 
+- 命令参数模块 开源库 yargs解析参数,设置子命令。
+- 用户交互模块 开源库inquirer
