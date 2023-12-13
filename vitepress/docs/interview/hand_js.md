@@ -208,6 +208,27 @@ function throttle(fn, delay) {
     }
   }
 }
+// 升级版：最后一次按时执行
+function throttled(fn, delay) {
+  let timer = null;
+  let startTime = Date.now();
+  return function(...args) {
+    let currentTime = Date.now();
+    let remainingTime = currentTime - startTime;
+    // 清除在规定时间内定时器
+    clearTimeout(timer);
+    if(remainingTime >= delay) {
+      fn.apply(this, args);
+      // 更新startTime时间
+      startTime = Date.now();
+    } else {
+      timer = setTimeout(() => {
+        fn.apply(this, args);
+        timer = null;
+      }, delay);
+    }
+  }
+}
 
 window.addEventListener(
   "scroll",
@@ -1618,9 +1639,80 @@ function thousandSeparator(n) {
   }
   return 
 }
+function thousandSeparator(n){
+  let nStr = n.toString();
+  let res = '';
+  // 处理小数
+  let [inter, decimal = ''] = nStr.split('.');
+  str = n < 0 ? str : str.slice(1);// 剔除1个（第一个）
+  while(str.length > 3){// 满足大于3，才要切
+    res = ',' + str.slice(-3) + res;
+    str = str.slice(0, str.length - 3);// 更新 str
+  }
+  if(str){// 如果还存在，加到前面
+    res = str + res;
+  }
+  return (n < 0 ? '-' : '') + res + (decimal ? '.' + decimal : '');
+}
+```
+## 判断是否存在循环引用
+- `in` 操作符在 JavaScript 中用于检查`对象`是否具有指定属性
+```js
+function hasCircularReference(obj) {
+  const stack = [];
+  // 递归实现
+  function detect(obj) {
+    // 是对象那么就进入判断
+    if (typeof obj === 'object' && obj !== null) {
+      if (stack.includes(obj)) {// 设计的栈里存在（.includes()判断即可，数组专用）
+        return true;// 存在则返回 true
+      }
+      stack.push(obj);// 存入stack数组
+      for (let key in obj) {// 遍历每个属性
+        if (detect(obj[key])) {// 判断每个递归的结果
+          return true;
+        }
+      }
+      stack.pop();// 满足条件则进行弹出即可
+    }
+    return false;// 不是对象就是false
+  }
 
+  return detect(obj);
+}
 
 ```
-
-
+## 版本号比较
+```js
+const versions = ["1.2.1", "1.0.2", "1.3.2", "1.1", "1.2", "1", "1.10.0"]; 
+// 升序排序 
+versions.sort(compareVersion); 
+console.log(versions); // ["1", "1.0.2", "1.1", "1.2", "1.2.1", "1.3.2", "1.10.0"] 
+// 降序排序 
+versions.sort((a, b) => compareVersion(b, a)); 
+console.log(versions); // ["1.10.0", "1.3.2", "1.2.1", "1.2", "1.1", "1.0.2", "1"]
+// 整体思路:重写 sort 方法
+// 通过字符串分割成数组，比较数组的元素的大小
+// 注意的是以最大长度进行遍历，然后取数组元素的时候进行比较有没有超过长度，再进行 parseInt
+const compareVersion = (version1, version2) => {
+  // 先进行拆成数组
+	const arr1 = version1.spilt('.');
+	const arr2 = version2.split('.');
+  // 拿到最大的长度
+	const len = Math.max(arr1.length, arr2.length);
+	for(let i = 0; i < len;i++){
+    // 每次都要判断一下
+		const num1 = i > arr1.length ? 0 : parseInt(arr1[i]);
+		const num2 = i > arr2.length ? 0 : parseInt(arr2[i]);
+    // 
+		if(num1 < num2){
+			return -1;
+		}else if(num1 > num2){
+			return 1;
+		}
+	}
+	// 考虑最后是等于的情况
+	return 0;
+}
+```
 
