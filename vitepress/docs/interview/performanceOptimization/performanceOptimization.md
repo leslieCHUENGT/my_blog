@@ -114,7 +114,7 @@ const oldUnHandleRejection = window.onunhandledrejection;
     - `DNS查询`、`TCP连接`、`首个http请求（TLS的验证时间）`、`返回html文档`、`html文档解析完毕`
   - 计算的数据内容组成，考虑优化的点
 ```js
-// 通过performance.getEntriesByName()进行遍历获取frist-paint属性
+// 通过performance.getEntries()进行遍历获取frist-paint属性
 // frist-paint属性上的对象即可
 const entryHandler = (list) => {        
     for (const entry of list.getEntries()) {
