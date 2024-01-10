@@ -245,27 +245,8 @@ timingInfo.responseStart - timingInfo.fetchStart;
 // *: 首屏时间
 timingInfo.domComplete - timingInfo.fetchStart;
 ```
-- 首屏渲染时间
+- **首屏渲染时间**
   - 指的是页面资源加载完，渲染所需要的时间
-```js
-window.addEventListener('load', function() {
-  var loadTime = new Date().getTime(); // 页面加载完成的时间点
-
-  // 获取首屏内容的父级元素
-  var firstScreenElement = document.querySelector('.first-screen');
-
-  window.addEventListener('scroll', function() {
-    var rect = firstScreenElement.getBoundingClientRect();
-    if (rect.top <= window.innerHeight && rect.bottom >= 0) {
-      var firstRenderTime = new Date().getTime(); // 首屏渲染完成的时间点
-      var renderTime = firstRenderTime - loadTime; // 首屏渲染时间
-      console.log('First Paint Time:', renderTime);
-      window.removeEventListener('scroll', arguments.callee); // 移除滚动监听器
-    }
-  });
-});
-
-```
   - 首次将所有的内容呈现在用户的屏幕上所需的时间，LCP 是指最大的块图部分
   - 使用 JavaScript 代码监听 load 事件，该事件在`整个页面（包括图片、样式表等资源）加载完毕后触发`。
   - 考虑到`异步加载（延时加载）的图片`和 `DOM`， load事件是无法准确根据其计算的，取最大值进行上报
@@ -279,36 +260,41 @@ window.addEventListener('load', function() {
 // 使用 requestAnimation来进行获取 Dom的时间——原因是当 DOM 变更触发 MutationObserver 事件时，
 // 只是代表 DOM 内容可以被读取到，并不代表该 DOM 被绘制到了屏幕上。
 // requestAnimationFrame是指在每次进行`重绘之前`调用回调函数，通常是每秒60次（取决于浏览器的刷新频率）
-const next = window.requestAnimationFrame ? requestAnimationFrame : setTimeout
-const ignoreDOMList = ['STYLE', 'SCRIPT', 'LINK']
-    
-observer = new MutationObserver(mutationList => {
-    const entry = {
-        children: [],
-    }
-
-    for (const mutation of mutationList) {
-        if (mutation.addedNodes.length && isInScreen(mutation.target)) {
-             // ...
-        }
-    }
-
-    if (entry.children.length) {
-        entries.push(entry)
-        next(() => {
-            entry.startTime = performance.now()
-        })
-    }
-})
-
-observer.observe(document, {
-    childList: true,
-    subtree: true,
-})
 // 判断是否在首屏，使用getBoundingClient()获取属性来判断
 // 再和异步加载的图片进行时间上的比较
 ```
 - 考虑的情况解决了，那什么时候调用呢？
   - load事件执行后，Dom一般是不会改变的，LCP是指首次渲染的最大的内容，所以可以根据Lcp执行结束再监听
   - 持续递归，防抖处理MutationObserver的影响
+
+- 是什么
+  - 首屏的渲染时间是指页面已经获取到资源到渲染结束的时间，通常监听`load`事件只可以可获取加载的时间点，因此得自定义计算
+- 解决了什么问题
+  - 怎么知道`DOM`渲染完毕了？
+  - 为什么`DOM`显示完毕的时间不对？
+  - 非首屏的要监控吗？
+  - 什么时候进行开始执行监听函数？
+  - 什么时候上报？
+
+## 缓存命中率
+- `performanceObserver`可以监听`resource`，资源的信息内容
+- 检测`transferSize`字段即可
+
+## FPS的监控
+- 实现思路就是通过`requestAnimationFrame()`来统计单位时间内执行多少次来获取的
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
