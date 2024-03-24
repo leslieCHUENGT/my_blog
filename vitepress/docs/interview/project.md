@@ -8,6 +8,10 @@
   - 幽灵依赖，pnpm解决
   - 安装时长
 
+# 调整项目架构SPA -> MPA
+- vite是提供了开箱即用的插件进行配置plugin/mpa
+- 业务层级上的理解,
+
 # 插件核心 SDK 包——plugin-core
 
 - 基于字节的`modern.js`提供的插件化 API 的二次封装

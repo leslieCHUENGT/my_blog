@@ -78,6 +78,17 @@
   - 使用cdn vendor js css
 
 
+# 与webpack类似的工具还有哪些？区别？
+- Rollup
+  - 不像webpack那样存在大量`引导代码和模块函数`
+  - 默认支持 `Tree-shaking`
 
+- Parcel
+  - 开箱即用的工具
+  - 默认多进程打包
+  - 生态不成熟，插件不够丰富，性能瓶颈...
 
+- snowpack
+  - 和vite一样使用即时模块构建，开发体验更好
+  - 生态不成熟，插件不够丰富
 

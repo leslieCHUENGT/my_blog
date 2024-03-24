@@ -18,3 +18,19 @@ node xxx
 - 指定安装`pnpm add yargs --F mortal-cli`在某个子工程里
 - 命令参数模块 开源库 yargs解析参数,设置子命令。
 - 用户交互模块 开源库inquirer
+
+# 为什么要做一个脚手架的形式？
+- 语言方面的选择，统一部门内项目的依赖的版本问题，可以快速搭建起后台管理系统
+# 难点痛点？
+- 统一代码风格的问题引入Eslint、Prettier
+- git提交规范commitLint
+## 兼容问题
+- vite开箱即用的插件处理了一切`vite/plugin-legacy`
+- 兼容性最怕遇到低版本的浏览器，对于兼容性会在线上出现两种报错的情况
+  - 语法不支持（Promise）
+  - Polyfill缺失（注入api的代码，有些出现会缺失）
+- 这个问题的底层就是通过babel和corejs库来解决的
+- bebal做了很多事，Polyfill也是在ast上来进行垫片的
+- 这个插件的打包产物会有两种script引入
+- module和nomodule会进行自动忽略
+- 

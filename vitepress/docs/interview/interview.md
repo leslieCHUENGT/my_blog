@@ -164,7 +164,7 @@ pre(cur(...args))：表示先调用 cur 函数，并将参数列表 args 作为�
 # 防抖节流
 ## 手写防抖节流
 ```js
-// 防抖
+// 防抖 只执行最后一次
 function debounce(fn, delay = 500) {
   let timer = null; // 定义定时器变量
   return function (...args) {
@@ -184,7 +184,7 @@ window.addEventListener(
 );
 
 // 节流
-function throttle(fn, delay) {
+function throttle(fn, delay = 500) {
   let timer = null; // 定义定时器变量
   return function (...args) {
     if (!timer) { // 如果定时器不存在
@@ -208,7 +208,7 @@ function throttle(fn, delay) {
     }
   }
 }
-// 升级版：最后一次按时执行
+// 升级版变种：最后一次按时执行
 function throttled(fn, delay) {
   let timer = null;
   let startTime = Date.now();
@@ -255,7 +255,11 @@ window.addEventListener(
 - 所有的函数的隐式原型都是`Function.prototype`
 ```js
 function myInstanceOf(object, constructor) {
-  let prototype = Object.getPrototypeOf(object);
+  // 首先判断传入的对象是否为对象类型
+  if (typeof object !== 'object' || object === null) {
+      return false;
+  }
+  let prototype = Object.getPrototypeOf(object);// let proto = obj.__proto__;
   while (prototype !== null) {
     if (prototype === constructor.prototype) {
       return true;
@@ -300,9 +304,9 @@ function flatter(arr) {
   );
 }
 
-// 避免创建新的调用帧，直接复用当前的调用帧，类似于循环的效果。
+// 避免创建新的调用帧，直接`复用`当前的调用帧，类似于循环的效果。
 // 使得在递归调用后不需要执行其他操作，直接返回递归调用的结果。
-function flatten(arr, res = []) {
+function flatten(arr, res = []) {// 尾递归优化往往在参数中定义结果数组res = []
   arr.forEach((item) => {
     if(Array.isArray(item)){
       flatten(item, res);
@@ -333,8 +337,8 @@ function myNew(constructor, ...args) {
   // 创建一个空对象，并将它的原型指向构造函数的 prototype 属性
   // 它的作用是以指定对象为原型创建一个新的对象，新对象会继承原型对象的所有属性和方法
   const obj = Object.create(constructor.prototype);
-  // 调用构造函数，并将 this 绑定到新创建的对象上
-  const result = constructor.apply(obj, args);
+  // 调用构造函数的构造器方法，并将 this 绑定到新创建的对象上，执行构造函数的代码（为这个新对象添加属性，甚至可能返回新对象）
+  const result = constructor.apply(obj, ...args);
   // 如果构造函数返回了一个对象，则直接返回该对象；否则返回新创建的对象
   return (typeof result === 'object' && result !== null) ? result : obj;
 } 
@@ -359,7 +363,7 @@ const person = myNew(Person, 'John', 30);
 class EventEmitter {
   constructor() {
     // 存储事件及其对应的回调函数
-    this.events = new Map();
+    this.events = new Map();// 类里的是块级作用域，要用this
   }
 
   // 绑定事件和回调函数
@@ -4672,12 +4676,15 @@ var createCounter() {
 - 通过当前的上下文去寻找变量（有this通过它先找）
 - 否则就根据静态作用域去找其他的上下文，直到全局作用域
 ## this
-- 定义：函数运行时生成的一个内部对象，只能在函数内部使用
+- 定义：
+  - 函数的调用方式决定了`this`的值，**运行时绑定**
+  - 函数运行时生成的一个内部对象，只能在函数内部使用
 - 默认绑定
+  - 调用函数的对象在游览器中位`window`，因此 this指向`window`
 	- window上
 	- 严格模式下绑定到undefined
 - 隐式绑定
-	- 外层作用域上的变量
+	- 外层作用域上的变量，也就是函数作用域/eval上的会直接绑定
 - new绑定
 - 显示修改
 ## 事件循环

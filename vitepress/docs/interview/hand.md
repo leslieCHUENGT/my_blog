@@ -4685,10 +4685,11 @@ var createCounter() {
 - 同步任务直接进入主线程执行，异步任务按优先级不同执行
 ## BOM与DOM
 - DOM
-	- 文档对象模型，把文档当做对象，顶级对象是document，标准是W3C
+	- **文档**对象模型，把文档当做对象，顶级对象是document，标准是W3C
 	- 
 - BOM
-	- 浏览器对象模型，把浏览器当做对象，顶级对象是window
+	- **浏览器**对象模型(Browser Object Model)，把浏览器当做对象，顶级对象是window
+	- 
 	- 浏览器交互的对象，厂商定义，兼容性较差
 	- 核心对象是`window`，浏览器窗口的一个接口，是全局对象
 	- 有一些控制窗口的方法，`window.open`与`window.close`
