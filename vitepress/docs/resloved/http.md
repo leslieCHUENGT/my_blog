@@ -51,6 +51,43 @@
   - 数据泄漏
 
 **讲一讲jsonp具体怎么实现**
+- JSONP是通过 script发送请求，在路径里触发回调函数。
+```js
+// 定义一个 JSONP 请求函数
+function jsonp(url, callbackName, callback) {
+    // 创建一个唯一的回调函数名称
+    const callbackFuncName = `jsonp_${Date.now()}_${Math.ceil(Math.random() * 10000)}`;
+
+    // 将回调函数名称添加到 URL 中作为参数
+    const fullUrl = `${url}?callback=${callbackFuncName}`;
+
+    // 创建一个 script 标签
+    const script = document.createElement('script');
+
+    // 定义回调函数
+    window[callbackFuncName] = function(data) {
+        // 调用用户定义的回调函数，并传入数据
+        callback(data);
+
+        // 数据获取成功后，移除 script 标签和全局的回调函数
+        document.body.removeChild(script);
+        delete window[callbackFuncName];
+    };
+
+    // 设置 script 标签的 src 属性为拼接好的 URL
+    script.src = fullUrl;
+
+    // 将 script 标签添加到页面中
+    document.body.appendChild(script);
+}
+
+// 使用示例
+jsonp('https://api.example.com/data', 'callback', function(data) {
+    console.log('Data received:', data);
+});
+
+```
+
 
 **讲讲跨域中怎么携带cookie**
 - 后端设置响应头`Access-Control-Allow-Credentials`为`true`，表示允许浏览器发送包含身份凭证的请求，比如cookie、授权标头。

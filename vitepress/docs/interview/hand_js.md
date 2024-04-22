@@ -1541,7 +1541,130 @@ function runPromiseInSequence(arr, input) {
   );
 }
 ```
-
+## 红绿灯交替设计
+```js
+function red() {
+  console.log("red");
+}
+function green() {
+  console.log("green");
+}
+function yellow() {
+  console.log("yellow");
+}
+const light = (cb, delay) => {
+	return new Promise(resolve => {
+		setTimeout(() => {
+			cb();
+			resolve();
+		}, delay)
+	})
+}
+const step = () => {
+	Promise.reslove().then(() => {
+		
+	}).then(() => {
+	
+	}).then(() => {
+		
+	})
+}
+// 循环
+async function lightStep(){
+		await 
+		await lightStep();
+}
+```
+## promise.all
+```js
+const promiseAll = (promises) => {
+	if(typeof promises[Symbol.interator] === 'function'){
+		let count = 0;
+		let result = [];
+		return new Promise((reslove, reject) => {
+			for(const [index, item] of promises){
+				// 保存每次执行的结果
+				Promise.resolve(item).then((res) => {
+					result[index] = res;
+					count++;
+					if(count === promises.lenth){
+						return reslove(result);
+					}
+				}).catch(err => {
+					reject(err);
+				})
+			}
+		})
+	}
+}
+```
+## Promise实现请求超时
+```js
+function promiseTimeout = (promise, delay) => {
+	let timer = new Promise((reslove, reject) => {
+		setTimeout(() => {
+			reject('超时啦');
+		}, delay)
+	})
+	return Promise.race([promise, timer]);
+}
+```
+## 使用Promise实现每隔1秒输出1,2,3
+```js
+const printNumber = async() => {
+	const array = [1,2,3];
+	for(let i = 0; i < 3; i++){
+		await new Promise((reslove) => {
+			setTimeout(() => {
+				console.log(array[i]);
+				reslove();
+			}, 1000)
+		})
+	}
+}
+```
+## Promise.race
+```js
+const promiseRace = (items) => {
+	return new Promise((reslove, reject) => {
+		items.forEach((item) => {
+			Promise.reslove(item).then((res) => {
+				reslove(res);
+			}).catch(err => {
+				reject(err);
+			})
+		})
+	})
+}
+```
+## Promise.allSettled
+```js
+function allSettled(promises){
+	return new Promise((reslove, reject) => {
+		const result = [];
+		let count = 0;
+		if(promises.length === 0){
+			resolve(result);
+			return;
+		}
+		promises.forEach((promise, index) => {
+			Promise.resolve(promise)
+				.then((value) => {
+					result[index] = { status: 'fulfilled', value }
+				})
+				.catch((reson) => {
+					result[index] = { status: 'rejected', reason }
+				})
+				.fianlly(() => {
+					count++;
+					if(count === promise.length){
+						resolve(results)
+					}
+				})
+		})
+	})
+}
+```
 # 三数之和
 ```js
 function threeSum(nums) {

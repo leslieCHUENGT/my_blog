@@ -41,6 +41,29 @@ console.timeEnd('memoizedFib(40)');
 ```
 
 # 柯里化
+
+## sumOf()
+```javascript
+function sum(...args) {
+    let total = args.reduce((acc, val) => acc + val, 0);
+
+    function innerSum(...innerArgs) {
+        if (innerArgs.length === 0) {
+            return total;
+        } else {
+            total += innerArgs.reduce((acc, val) => acc + val, 0);
+            return innerSum;
+        }
+    }
+
+    innerSum.sumOf = () => total;
+    return innerSum;
+}
+
+console.log(sum(1, 2).sumOf()); // 输出: 3
+console.log(sum(1)(2)(3).sumOf()); // 输出: 6
+
+```
 ## 手写curry函数
 ```javascript
 // curry函数有两个参数:fn、...args
@@ -165,6 +188,8 @@ pre(cur(...args))：表示先调用 cur 函数，并将参数列表 args 作为�
 ## 手写防抖节流
 ```js
 // 防抖 只执行最后一次
+// 窗口调整大小
+// 点击按钮
 function debounce(fn, delay = 500) {
   let timer = null; // 定义定时器变量
   return function (...args) {
@@ -184,6 +209,7 @@ window.addEventListener(
 );
 
 // 节流
+// 滚动加载、拖拽、动画
 function throttle(fn, delay = 500) {
   let timer = null; // 定义定时器变量
   return function (...args) {
@@ -208,24 +234,23 @@ function throttle(fn, delay) {
     }
   }
 }
-// 升级版变种：最后一次按时执行
-function throttled(fn, delay) {
-  let timer = null;
-  let startTime = Date.now();
-  return function(...args) {
-    let currentTime = Date.now();
-    let remainingTime = currentTime - startTime;
-    // 清除在规定时间内定时器
-    clearTimeout(timer);
-    if(remainingTime >= delay) {
-      fn.apply(this, args);
-      // 更新startTime时间
-      startTime = Date.now();
-    } else {
-      timer = setTimeout(() => {
-        fn.apply(this, args);
-        timer = null;
+// 升级版变种：因为防抖有时候触发的太频繁会导致一次响应都没有
+// 搜索框
+function throttle(fn, delay) {
+  let last = 0, timer = null;
+  return function (...args) {
+    let context = this;
+    let now = new Date();
+    if(now - last > delay){
+      clearTimeout(timer);
+      setTimeout(function() {
+        last = now;
+        fn.apply(context, args);
       }, delay);
+    } else if(now - last === delay){
+      // 这个时候表示时间到了，必须给响应
+      last = now;
+      fn.apply(context, args);
     }
   }
 }
@@ -642,7 +667,6 @@ quickSort(arr);
 console.log(arr); // [1, 2, 3, 4, 5, 6, 7]
 
 ```
-
 
 # 单例模式
 一个经典的单例模式的例子是应用程序中的日志记录器。在一个应用程序中，通常会有多个模块或组件需要记录日志，如果每个模块都自己创建一个日志记录器实例，不仅会浪费系统资源，而且还会导致日志信息的管理和维护变得困难。
@@ -2733,7 +2757,7 @@ var maxProfit = (prices) => {
 		dp[i][0] = Math.max(dp[i - 1][0], dp[i - 1][1] - prices[i]);
 		// 不持有股票所得钱最多的来源：昨天不持有的或者，昨天持有今天卖出的
 		dp[i][1] = Math.max(dp[i - 1][1], dp[i - 1][0] + prices[i]);
-	}
+	}1
 	return dp[len - 1][1];
 }
 ```
@@ -2829,7 +2853,7 @@ var wiggleMaxLength = function(nums) {
     return result;
 };
 ```
-## 数组深度
+## 数组深度（数组维度）
 ```js
 // 实现思路：递归
 // 先判断该元素是否是数组
@@ -3578,7 +3602,47 @@ function findBottomLeftValue(root){
 }
 
 ```
-	
+# jsonStringify()
+```js
+function jsonStringify(obj) {
+    // 检查是否为基本数据类型，直接返回对应的字符串表示
+    if (typeof obj !== 'object' || obj === null) {
+        // 对于 undefined、symbol、function，返回 undefined
+        if (typeof obj === 'undefined' || typeof obj === 'symbol' || typeof obj === 'function') {
+            return undefined;
+        }
+        // 对于字符串类型，需要加双引号
+        if (typeof obj === 'string') {
+            return '"' + obj + '"';
+        }
+        // 其他基本类型直接返回
+        return String(obj);
+    } else if (Array.isArray(obj)) {
+        // 数组类型的处理
+        return '[' + obj.map(item => jsonStringify(item)).join(',') + ']';
+    } else {
+        // 对象类型的处理
+        return '{' + Object.keys(obj).map(key => {
+            // 对象的键需要加双引号
+            return '"' + key + '":' + jsonStringify(obj[key]);
+        }).join(',') + '}';
+    }
+}
+
+// 测试
+const obj = {
+    name: 'John',
+    age: 30,
+    address: {
+        city: 'New York',
+        country: 'USA'
+    },
+    hobbies: ['reading', 'coding', 'traveling']
+};
+
+console.log(jsonStringify(obj));
+
+```
 
 
 
@@ -4467,6 +4531,23 @@ function toCamelCase(str){
 	}
 	return res;
 }
+// slice(1)只切一个
+function convertToCamelCase(str) {
+  // 将字符串按照连字符分割为数组
+  var parts = str.split('-');
+  
+  // 将数组中的每个单词首字母大写，并连接起来
+  for (var i = 0; i < parts.length; i++) {
+    parts[i] = parts[i].charAt(0).toUpperCase() + parts[i].slice(1).toLowerCase();
+  }
+  
+  // 将数组中的单词连接起来并返回
+  return parts.join('-');
+}
+
+var input = 'aa-bb-cc-dd-rr';
+var output = convertToCamelCase(input);
+console.log(output); // 输出：AaBbCcDdRr
 ```
 - str.split(/[-_]/)
 - array.slice(1)
@@ -5110,7 +5191,8 @@ var permuteUnique = function (nums) {
 ## 迭代法
 
 ### 前
-
+- 二叉树的左旋（Left Rotation）和右旋（Right Rotation）是对二叉搜索树进行平衡操作的重要步骤之一。这些操作可用于维持或恢复二叉搜索树的平衡
+- 
 ```js
 var preorderTraversal = function(root) {
     // 迭代法完成二叉树的前序遍历
@@ -6690,14 +6772,378 @@ LRUCache.prototype.get = function(key){
 
 ```
 
+# 腐烂的橘子
+```js
+/**
+ * @param {number[][]} grid
+ * @return {number}
+ */
+const orangesRotting = (grid) => {
+  const queue = []
+  let unrotten = 0 // 完好的个数
+  const height = grid.length 
+  const width = grid[0].length
+  for (let i = 0; i < height; i++) {
+    for (let j = 0; j < width; j++) {
+      if (grid[i][j] === 2) {
+        queue.push([i, j]) // 所有的坏橘子的坐标推入队列
+      } else if (grid[i][j] === 1) {
+        unrotten++ // 统计好橘子的个数
+      }
+    }
+  }
+  if (unrotten == 0) return 0 //如果没有好橘子，直接返回0
+  let level = 0 // 树的层次，即腐坏所用的时间
+  const dx = [0, 1, 0, -1]
+  const dy = [1, 0, -1, 0] // 代表4个方向
+  while (queue.length) { // queue队列不为空就继续循环
+    const levelSize = queue.length // 当前层节点个数
+    level++ // 层次+1
+    for (let i = 0; i < levelSize; i++) { // 当前层节点出列
+      let cur = queue.shift()
+      for (let j = 0; j < 4; j++) {
+        let x = cur[0] + dx[j]
+        let y = cur[1] + dy[j]
+        if (x < 0 || x >= height || y < 0 || y >= width || grid[x][y] !== 1) continue // 腐化好橘子，超出边界或本身就不是好橘子，跳过
+        grid[x][y] = 2 // 将好橘子腐化，避免它被重复遍历
+        queue.push([x, y]) // 推入队列，下次循环就将它们出列
+        unrotten-- // 好橘子个数-1
+      }
+    }
+  }
+  return unrotten === 0 ? level - 1 : -1 // 好橘子如果还存在，返回-1
+}
+
+```
+
+# 手写实现并发控制
+```js
+
+// 控制并发数为 3
+concurrentControl(tasks, 3)
+    .then(results => {
+        console.log("All tasks completed:", results);
+    })
+    .catch(error => {
+        console.error("Error:", error);
+    });
+const concurrentControl = (tasks, litmitNumber) => {
+  return new Promise((resolve, reject) => {
+    const res = [];
+    let index = 0;
+    let running = 0;// 当前正在执行任务的数量
+    const runNext = () => {
+      if(index === tasks.length && running === 0) {
+        resolve(res);
+        return;
+      }
+      while(running < litmitNumber && index < tasks.length) {
+          const task = tasks[index];
+          index++;
+          running++;
+          task.then((item) => {
+            res.push(item);
+            running--;
+            runNext();// 递归
+          })
+      }
+    }
+    // 启动第一批任务
+    runNext();
+  });
+
+}   
+```
+- 最好情况下，所有任务都是同步的，没有任何等待时间。这种情况下，时间复杂度为 O(n/m)。
+- 最坏情况下，所有任务都是异步的，并且每个任务都需要等待前一个任务完成才能开始。这种情况下，时间复杂度为 O(n)。
+- 平均情况下，任务的等待时间和执行时间是随机的，难以准确估算时间复杂度。
+# 颜色值转换
+```js
+function hexToRgba(hex, alpha = 1) {
+    // 移除hex中的'#'并处理简写形式
+    hex = hex.replace("#", "");
+    if (hex.length === 3) {
+        hex = hex.split("").map(function(hex) {
+            return hex + hex;
+        }).join("");
+    }
+
+    // 提取并转换颜色值
+    let r = parseInt(hex.substring(0, 2), 16); // 变成数字 parseInt(, 16)
+    let g = parseInt(hex.substring(2, 4), 16);
+    let b = parseInt(hex.substring(4, 6), 16);
+
+    // 返回RGBA字符串
+    return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+}
+
+// 示例
+console.log(hexToRgba("#03f", 0.5)); // 输出: rgba(0, 51, 255, 0.5)
+console.log(hexToRgba("#0033ff", 0.7)); // 输出: rgba(0, 51, 255, 0.7)
+
+function rgbaToHex(rgba) {
+    const parts = rgba.match(/\d+/g).map(part => parseInt(part).toString(16).padStart(2, '0'));
+    return `#${parts[0]}${parts[1]}${parts[2]}`.toUpperCase();
+}
+// padStart补个蛋 
+// 示例
+console.log(rgbaToHex("rgba(0, 51, 255, 0.5)")); // 输出: #0033FF
+
+// 三角形
+// 定义元素的右侧和左侧边框，边框宽度同样为50像素，但颜色为透明。
+div {
+    width: 0;
+    height: 0;
+    border-top: 50px solid red;
+    border-right: 50px solid transparent;
+    border-left: 50px solid transparent;
+}****
+```
 
 
+● 反转链表II
+```js
+function ListNode(val, next) {
+    this.val = (val===undefined ? 0 : val);
+    this.next = (next===undefined ? null : next);
+}
 
+function reverseBetween(head, left, right) {
+    if (!head || left === right) {
+        return head;
+    }
 
+    const dummy = new ListNode(0); // 创建一个虚拟头结点
+    dummy.next = head;
+    let prev = dummy;
 
+    // 第1步：定位到left的前一个位置
+    for(let i = 0; i < left - 1; i++) {
+        prev = prev.next;
+    }
 
+    // 第2步：反转从left到right的节点
+    let start = prev.next; // 反转的第一个节点
+    let then = start.next; // 要反转的下一个节点
 
+    for(let i = 0; i < right - left; i++) {
+        start.next = then.next;
+        then.next = prev.next;
+        prev.next = then;
+        then = start.next;
+    }
 
+    // 第3步：实际上已经通过上述步骤完成了所有的连接调整
+    return dummy.next;
+}
+
+// 测试代码
+const head = new ListNode(1, new ListNode(2, new ListNode(3, new ListNode(4, new ListNode(5)))));
+const newHead = reverseBetween(head, 2, 4); // 应当反转从位置2到位置4的节点
+
+// 打印链表函数，用于验证结果
+function printList(head) {
+    let current = head;
+    while(current !== null) {
+        console.log(current.val);
+        current = current.next;
+    }
+}
+```
+printList(newHead); // 应输出 1 -> 4 -> 3 -> 2 -> 5
+● 迭代法实现翻转二叉树
+```js
+function TreeNode(val, left, right) {
+    this.val = (val===undefined ? 0 : val)
+    this.left = (left===undefined ? null : left)
+    this.right = (right===undefined ? null : right)
+}
+
+function invertTree(root) {
+    if (!root) {
+        return null;
+    }
+
+    const queue = [root];
+
+    while (queue.length > 0) {
+        const current = queue.shift();
+
+        // 交换当前节点的左右子节点
+        const temp = current.left;
+        current.left = current.right;
+        current.right = temp;
+
+        // 如果当前节点的左子节点存在，加入队列
+        if (current.left) {
+            queue.push(current.left);
+        }
+        // 如果当前节点的右子节点存在，加入队列
+        if (current.right) {
+            queue.push(current.right);
+        }
+    }
+
+    return root;
+}
+
+// 测试代码
+const root = new TreeNode(
+    4,
+    new TreeNode(2, new TreeNode(1), new TreeNode(3)),
+    new TreeNode(7, new TreeNode(6), new TreeNode(9))
+);
+
+console.log(invertTree(root));
+```
+● 最大和的连续子数组
+```js
+// kadane算法
+function maxSubArray(nums) {
+    if (nums.length === 0) return 0;
+
+    let maxCurrent = nums[0];
+    let maxGlobal = nums[0];
+
+    for (let i = 1; i < nums.length; i++) {
+        // 选择当前元素是单独成为一个子数组（nums[i]）还是加入到之前的子数组中
+        maxCurrent = Math.max(nums[i], maxCurrent + nums[i]);
+        // 更新全局最大和
+        if (maxCurrent > maxGlobal) {
+            maxGlobal = maxCurrent;
+        }
+    }
+
+    return maxGlobal;
+}
+
+// 测试代码
+console.log(maxSubArray([-2,1,-3,4,-1,2,1,-5,4])); // 输出: 6
+console.log(maxSubArray([1])); // 输出: 1
+console.log(maxSubArray([5,4,-1,7,8])); // 输出: 23
+
+// 分治思想，要不然左、右和中间
+function maxSubArray(nums) {
+    return maxSubArrayHelper(nums, 0, nums.length - 1);
+}
+
+function maxSubArrayHelper(nums, left, right) {
+    if (left === right) {
+        // Base case: 只有一个元素
+        return nums[left];
+    }
+    
+    const mid = Math.floor((left + right) / 2);
+    const leftMax = maxSubArrayHelper(nums, left, mid); // 计算左半部分的最大子数组和
+    const rightMax = maxSubArrayHelper(nums, mid + 1, right); // 计算右半部分的最大子数组和
+    const crossMax = maxCrossingSum(nums, left, mid, right); // 计算跨越中点的最大子数组和
+    
+    return Math.max(leftMax, rightMax, crossMax);
+}
+
+function maxCrossingSum(nums, left, mid, right) {
+    let sum = 0;
+    let leftSum = Number.MIN_SAFE_INTEGER;
+    let rightSum = Number.MIN_SAFE_INTEGER;
+    
+    // 向左扫描
+    for (let i = mid; i >= left; i--) {
+        sum += nums[i];
+        if (sum > leftSum) {
+            leftSum = sum;
+        }
+    }
+    
+    sum = 0; // 重置sum为0，用于向右扫描
+    
+    // 向右扫描
+    for (let j = mid + 1; j <= right; j++) {
+        sum += nums[j];
+        if (sum > rightSum) {
+            rightSum = sum;
+        }
+    }
+    
+    // 返回跨越中点的最大子数组和
+    return leftSum + rightSum;
+}
+
+// 测试代码
+console.log(maxSubArray([-2,1,-3,4,-1,2,1,-5,4])); // 输出: 6
+console.log(maxSubArray([1])); // 输出: 1
+console.log(maxSubArray([5,4,-1,7,8])); // 输出: 23
+
+```
+● 搜索旋转排序数组
+● 旋转数组的一个特点是，至少有一半的数组是有序的。我们可以利用这个特性来决定该在哪半边进行进一步的二分查找。
+```js
+function search(nums, target) {
+    let left = 0;
+    let right = nums.length - 1;
+    
+    while (left <= right) {
+        const mid = Math.floor((left + right) / 2);
+        
+        // 直接找到目标
+        if (nums[mid] === target) {
+            return mid;
+        }
+        
+        // 确定有序的半边
+        if (nums[left] <= nums[mid]) {
+            // 目标值在有序的半边内
+            if (target >= nums[left] && target < nums[mid]) {
+                right = mid - 1;
+            } else {
+                left = mid + 1;
+            }
+        } else {
+            // 目标值在有序的半边内
+            if (target > nums[mid] && target <= nums[right]) {
+                left = mid + 1;
+            } else {
+                right = mid - 1;
+            }
+        }
+    }
+    
+    // 没有找到目标值
+    return -1;
+}
+
+// 测试代码
+console.log(search([4,5,6,7,0,1,2], 0)); // 输出: 4
+console.log(search([4,5,6,7,0,1,2], 3)); // 输出: -1
+console.log(search([1], 0)); // 输出: -1
+```
+● x的平方根
+```js
+function mySqrt(x) {
+    if (x < 2) return x;
+
+    let left = 1, right = Math.floor(x / 2);
+    
+    while (left <= right) {
+        const mid = left + Math.floor((right - left) / 2);
+        const sqr = mid * mid;
+        
+        if (sqr === x) {
+            return mid;
+        } else if (sqr < x) {
+            left = mid + 1;
+        } else {
+            right = mid - 1;
+        }
+    }
+    
+    return right; // right是最接近平方根但又不超过x的平方根的整数部分
+}
+
+// 测试示例
+console.log(mySqrt(4)); // 输出: 2
+console.log(mySqrt(8)); // 输出: 2 （2.82842...的整数部分是2）
+
+```
 
 
 
