@@ -18,6 +18,7 @@
   - 如果所有参数实例都变成rejected状态，包装实例就会变成rejected状态
 
 # 代码输出题
+- `return 2会被包装成 resolve(2)`
 ## 定义时就已经执行了
 
 ```js
@@ -121,7 +122,7 @@ Promise.resolve(1)
 ```
 - 由于每次调用 .then 或者 .catch 都会返回一个新的 promise
 
-## 被catch捕获只能是因为`reject()`/`throw`,`return`是捕获不到的
+## `reject()`/`throw`,`return`冒泡式捕获
 ```js
 Promise.resolve().then(() => {
   return new Error('error!!!')
@@ -152,7 +153,7 @@ Promise.reject('err!!!')
   })
   // error err!!!
 ```
-## 被catch捕获只能是因为`reject()`/`throw`,`return`是捕获不到的
+## `reject()`/`throw`,`return`冒泡式捕获
 ```javascript
 Promise.resolve()
   .then(function success (res) {
@@ -209,16 +210,17 @@ console.log("start")
 async function async1() {
   console.log("async1 start");
   await async2();
+  // 微任务
   console.log("async1 end");
   setTimeout(() => {
     console.log('timer1')
   }, 0)
 }
 async function async2() {
- await setTimeout(() => { // 阻塞跳出,后面的语句相当于promise.then()包裹，先执行后面的再执行定时器
+ await setTimeout(() => { // 定时器加入队列中，阻塞跳出，后面的语句相当于promise.then()包裹，先执行后面的再执行定时器
     console.log('timer2')
   }, 0)
-  console.log("async2");
+  console.log("async2");// 微任务
 }
 async1();
 setTimeout(() => {
@@ -267,6 +269,7 @@ async function async1 () {
   console.log('async1 start');
   await new Promise(resolve => {
     console.log('promise1')// 一直是pending，阻塞了，同步代码会直接执行
+    // resolve();
   })
   console.log('async1 success');
   return 'async1 end'
@@ -421,6 +424,6 @@ async function test() {
 console.log(0)
 test()
 console.log(300)
-// 父协程的第一件事情就是对await返回的Promise调用then, 来监听这个 Promise 的状态改变 。
+// 父协程的第一件事情就是对await返回的Promise调用then, 来监听这个 Promise 的状态改变。
 ```
 
